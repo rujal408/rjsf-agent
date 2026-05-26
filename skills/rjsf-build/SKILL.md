@@ -36,7 +36,7 @@ Read `.rjsf/session.json` if it exists.
 
 ## Step 2 — Detect Client Approval Signal
 
-If the developer says "client approved", "approved", "yes, proceed", "continue", or similar AND `phases["3"].status` is `"awaiting_client_approval"`:
+If `phases["3"].status` is `"awaiting_client_approval"` AND the developer's message contains any of these phrases (case-insensitive): "client approved", "approved", "yes", "proceed", "continue", "looks good", "go ahead":
 - Set `phases["3"].status = "completed"`, `phases["3"].completedAt = <ISO timestamp>`.
 - Set `currentPhase = 4`.
 - Write full session.json (not a partial merge).
