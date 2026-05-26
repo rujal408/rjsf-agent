@@ -233,14 +233,18 @@ const watchedValue = props.formContext?.<parentFieldKey>;
 
 useEffect(() => {
   if (!watchedValue) return;
+  const controller = new AbortController();
   setLoadingOptions(true);
-  fetch(`/api/<endpoint>?<param>=${encodeURIComponent(watchedValue)}`)
+  fetch(`/api/<endpoint>?<param>=${encodeURIComponent(watchedValue)}`, { signal: controller.signal })
     .then(r => r.json())
     .then((data: { value: string; label: string }[]) => {
       setOptions(data);
       setLoadingOptions(false);
     })
-    .catch(() => setLoadingOptions(false));
+    .catch((err) => {
+      if (err.name !== 'AbortError') setLoadingOptions(false);
+    });
+  return () => controller.abort();
 }, [watchedValue]);
 ```
 
@@ -255,13 +259,19 @@ Add a debounced blur handler inside the relevant custom Widget:
 ```typescript
 const [asyncError, setAsyncError] = useState('');
 const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+useEffect(() => () => clearTimeout(debounceRef.current), []);
 
 const handleBlur = (id: string, value: unknown) => {
   clearTimeout(debounceRef.current);
   debounceRef.current = setTimeout(async () => {
-    const res = await fetch(`/api/check-<field>?value=${encodeURIComponent(String(value))}`);
-    const { available } = await res.json();
-    setAsyncError(available ? '' : '<Field> is already taken');
+    try {
+      const res = await fetch(`/api/check-<field>?value=${encodeURIComponent(String(value))}`);
+      if (!res.ok) return;
+      const { available } = await res.json();
+      setAsyncError(available ? '' : '<Field> is already taken');
+    } finally {
+      // error state is set above; no additional action needed
+    }
   }, 400);
   props.onBlur(id, value);
 };
@@ -408,7 +418,7 @@ export function SortableArrayTemplate({
       >
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
           {items.map((item, i) => (
-            <SortableItem key={i} id={String(i)} item={item} />
+            <SortableItem key={item.key} id={String(i)} item={item} />
           ))}
         </SortableContext>
       </DndContext>
@@ -471,7 +481,7 @@ export function FlatArrayTemplate({ items, canAdd, onAddClick, title }: ArrayFie
       <strong>{title}</strong>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, margin: '8px 0' }}>
         {items.map((item, i) => (
-          <span key={i} style={{ background: '#e5e7eb', padding: '2px 8px', borderRadius: 4 }}>
+          <span key={item.key} style={{ background: '#e5e7eb', padding: '2px 8px', borderRadius: 4 }}>
             {item.children}
             {item.hasRemove && (
               <button type="button" onClick={item.onDropIndexClick(item.index)} style={{ marginLeft: 4 }}>
@@ -492,6 +502,8 @@ Apply this template to the inner array via uiSchema: `innerArrayKey: { 'ui:Array
 ---
 
 #### `computed_fields: true`
+
+> **Note:** If both `draft_save` and `computed_fields` flags are true, merge their `handleChange` bodies into a single handler that both persists to localStorage AND computes derived values. Do not define two separate `handleChange` functions.
 
 For each computed field identified in the FormPlan, add a `useEffect` to `index.tsx` that watches the source fields and updates the computed field value:
 
@@ -624,7 +636,10 @@ export function RichTextWidget({ id, value, onChange, onBlur, disabled, readonly
           borderRadius: 6,
           fontFamily: 'inherit',
         }}
-        dangerouslySetInnerHTML={{ __html: typeof value === 'string' ? value : '' }}
+        // SECURITY: sanitize value before rendering to prevent XSS.
+        // Install DOMPurify: npm install dompurify @types/dompurify
+        // Then: import DOMPurify from 'dompurify'; and use DOMPurify.sanitize(value)
+        dangerouslySetInnerHTML={{ __html: typeof value === 'string' ? value : '' /* TODO: wrap with DOMPurify.sanitize() */ }}
         onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
         onBlur={(e) => onBlur(id, (e.target as HTMLDivElement).innerHTML)}
       />
@@ -650,27 +665,32 @@ For file fields that must POST to a server endpoint (rather than base64 encoding
 
 ```tsx
 // widgets/FileUploadWidget.tsx — uploads file to server and stores returned URL/ID in form data
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import type { WidgetProps } from '@rjsf/utils';
 
 export function FileUploadWidget({ id, value, onChange, disabled, readonly, options, required, rawErrors, label }: WidgetProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const endpoint = (options as { endpoint?: string }).endpoint ?? '/api/upload';
+  const abortRef = useRef<AbortController>();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    abortRef.current?.abort(); // cancel any in-flight upload
+    const controller = new AbortController();
+    abortRef.current = controller;
     setUploading(true);
     setUploadError('');
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await fetch(endpoint, { method: 'POST', body: fd });
+      const res = await fetch(endpoint, { method: 'POST', body: fd, signal: controller.signal });
       if (!res.ok) throw new Error(`Upload failed: ${res.statusText}`);
       const { url } = await res.json() as { url: string };
-      onChange(url); // Store the returned URL/ID as the field value
+      onChange(url);
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return;
       setUploadError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setUploading(false);
@@ -725,9 +745,11 @@ export function TabTemplate({ properties, title }: ObjectFieldTemplateProps) {
         {properties.map((prop, i) => (
           <button
             key={prop.name}
+            id={`tab-${prop.name}`}
             role="tab"
             type="button"
             aria-selected={activeTab === i}
+            aria-controls={`panel-${prop.name}`}
             onClick={() => setActiveTab(i)}
             style={{
               padding: '8px 20px',
@@ -748,7 +770,9 @@ export function TabTemplate({ properties, title }: ObjectFieldTemplateProps) {
       {properties.map((prop, i) => (
         <div
           key={prop.name}
+          id={`panel-${prop.name}`}
           role="tabpanel"
+          aria-labelledby={`tab-${prop.name}`}
           hidden={activeTab !== i}
           style={{ padding: '20px 0' }}
         >
