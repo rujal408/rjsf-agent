@@ -74,7 +74,7 @@ describe('<FormName> — form submission', () => {
 
   it('does not call onSubmit when required fields are missing', async () => {
     const onSubmit = jest.fn();
-    render(<<FormName> onSubmit={noop} />);
+    render(<<FormName> onSubmit={onSubmit} />);
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
     expect(onSubmit).not.toHaveBeenCalled();
   });
