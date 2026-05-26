@@ -8,7 +8,7 @@
 
 1. Read `.rjsf/session.json`.
 2. Read `.rjsf/form-plan.md`.
-3. If `phases["2"].status` is not `"complete"`, stop and tell the user:
+3. If `phases["2"].status` is not `"completed"`, stop and tell the user:
    > "Phase 2 (Planning) must be completed first. Run `/rjsf-plan`."
 
 ---
