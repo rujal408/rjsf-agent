@@ -15,8 +15,10 @@ Check for `.rjsf/session.json` in the project root (see `references/session-patt
   - If the user wants to reuse it, set `currentPhase = 2` and stop (advise running `/rjsf-plan`).
   - If the user wants to redo, reset `phases["1"].status` to `"pending"` and proceed to Step 2.
 - **`phases["1"].status` is `"in_progress"`:**
-  - Load the artifact at `phases["1"].artifactPath` if it exists.
-  - Resume from where the phase left off (re-ask only unanswered clarifying questions).
+  - Load `.rjsf/requirements-brief.md` if it exists and display it.
+  - Ask: "I found an in-progress requirements brief. Want to continue (I'll ask the remaining clarifying questions) or start fresh?"
+  - If the user wants to continue: re-display the brief, then resume Step 4 (ask all clarifying questions whose topics are not already covered in the partial brief).
+  - If the user wants to start fresh: delete `.rjsf/requirements-brief.md`, reset `phases["1"].status` to `"pending"`, and proceed from Step 2.
 - **Otherwise (status is `"pending"` or field is absent):**
   - Set `phases["1"].status` to `"in_progress"` and `phases["1"].startedAt` to the current ISO 8601 timestamp.
   - Proceed fresh to Step 2.
@@ -136,7 +138,7 @@ Once all relevant questions have been answered, compile the following document. 
 
 1. Display the RequirementsBrief in chat (rendered markdown).
 2. Ask: "Does this capture everything correctly? Any changes before we move to planning?"
-3. Incorporate any corrections the user requests, then re-display and re-confirm.
+3. If the user requests changes: apply them directly to the RequirementsBrief (word changes, field corrections, flag changes). If they request new sections or major structural additions, re-run Step 3 with the updated input, then re-run Step 5, then re-display and re-confirm. Repeat until the user explicitly approves.
 4. On explicit approval, perform the following writes:
 
    **a. Write the artifact:**

@@ -16,6 +16,7 @@ Phase 2 takes the RequirementsBrief produced in Phase 1 and designs the full for
 2. Read `.rjsf/requirements-brief.md` produced by Phase 1.
 3. Read `references/layout-principles.md` for column and widget layout heuristics.
 4. Read `references/customization-decision-tree.md` for widget vs field vs template decisions.
+5. Read `references/rjsf-schema-patterns.md` for the widget-to-schema-type mapping table used in Step 3.
 
 **Guard clause:** If `phases["1"].status` in `session.json` is not `"completed"`, stop and tell the developer:
 
@@ -44,6 +45,8 @@ Wait for the developer's answer, then save it to `session.json` under the key `s
 | B | `"tailwind"` |
 | C | `"plain-css"` |
 | D | `"bare"` |
+
+Write the full `session.json` object back to disk (not a partial merge) after saving `stylingApproach`.
 
 If `stylingApproach` already exists in `session.json`, skip this step and proceed with the saved value.
 
@@ -215,6 +218,9 @@ Once the developer approves:
 2. Update `session.json`:
    - Set `phases["2"].status = "completed"`
    - Set `currentPhase = 3`
+   - Set `phases["2"].completedAt` to the current ISO 8601 timestamp.
+   - Set `phases["2"].artifactPath` to `".rjsf/form-plan.md"`.
+   - Write the full session.json object (not a partial merge).
 
 ---
 

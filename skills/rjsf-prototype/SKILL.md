@@ -10,6 +10,9 @@
 2. Read `.rjsf/form-plan.md`.
 3. If `phases["2"].status` is not `"completed"`, stop and tell the user:
    > "Phase 2 (Planning) must be completed first. Run `/rjsf-plan`."
+- If `phases["3"].status` is `"awaiting_client_approval"` or `"completed"`:
+  - Tell the user: "A prototype already exists at `prototype/prototype.html`. Regenerate it (overwrites existing file), or open the existing one for review?"
+  - Wait for the user's choice. Only proceed to Step 2 if they choose to regenerate.
 
 ---
 
@@ -215,6 +218,9 @@ Use this table to decide which HTML element to render for each field in the Form
 | file | `<input type="file">` |
 | masked input | `<input type="text" placeholder="e.g. +977-98XXXXXXXX">` |
 | async options | `<select>` with 2–3 static placeholder `<option>` values + a disabled `<option>` reading "(dynamic options in final form)" |
+| nested array | `<div class="col-full"><p class="help">(Array items shown as a simplified list in prototype — full UI in React implementation)</p></div>` |
+| computed field | `<input type="text" disabled placeholder="(calculated automatically)">` |
+| array with reorder | `<div class="col-full"><p class="help">(Drag-and-drop reordering shown as static list in prototype)</p></div>` |
 
 For any field with `required: true`, add `<span class="required">*</span>` after the label text.
 
@@ -247,7 +253,24 @@ document.getElementById('TRIGGER_FIELD_ID').addEventListener('change', function(
 ```
 
 - For checkbox triggers use `this.checked` instead of `this.value`.
-- Initialize the correct visibility state on page load by calling each handler once at the bottom of the script block.
+- Extract each handler into a named function so it can be called directly for initialization:
+
+```js
+function handle_TRIGGER_FIELD_ID() {
+  var val = document.getElementById('TRIGGER_FIELD_ID').value;
+  var target = document.getElementById('TARGET_FIELD_ID');
+  if (val === 'CONDITION_VALUE') {
+    target.classList.remove('hidden');
+  } else {
+    target.classList.add('hidden');
+  }
+}
+document.getElementById('TRIGGER_FIELD_ID').addEventListener('change', handle_TRIGGER_FIELD_ID);
+// Initialize on page load:
+handle_TRIGGER_FIELD_ID();
+```
+
+Call each handler function once at the bottom of the script block, after all `addEventListener` registrations, to set the correct initial visibility state.
 
 ---
 
@@ -322,6 +345,7 @@ Place the `.data-summary` div after the `</form>` tag:
 2. Update `.rjsf/session.json`:
    - `phases["3"].status = "awaiting_client_approval"`
    - `phases["3"].artifactPath = "prototype/prototype.html"`
+   - Write the full session.json object (not a partial merge).
 3. Print the file path in chat so the user can find it:
    > Written: `prototype/prototype.html`
 
