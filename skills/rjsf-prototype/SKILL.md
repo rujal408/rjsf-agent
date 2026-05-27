@@ -319,6 +319,28 @@ function showStep(n) {
 }
 
 document.getElementById('btn-next').addEventListener('click', function() {
+  // Validate all required fields in the current step before advancing.
+  // This mirrors the production behaviour (formRef.current.validateForm()) so client
+  // sign-off on the prototype matches the final form's validation UX.
+  var activeStep = document.querySelector('.step.active');
+  var hasErrors = false;
+  var firstInvalid = null;
+  activeStep.querySelectorAll('[required]').forEach(function(input) {
+    var empty = !input.value || !input.value.trim();
+    if (empty) {
+      input.style.borderColor = '#dc2626';
+      input.style.outline = '2px solid #fca5a5';
+      hasErrors = true;
+      if (!firstInvalid) firstInvalid = input;
+    } else {
+      input.style.borderColor = '';
+      input.style.outline = '';
+    }
+  });
+  if (hasErrors) {
+    if (firstInvalid) firstInvalid.focus();
+    return; // do not advance — errors are visible on the current step
+  }
   if (currentStep < steps.length - 1) { currentStep++; showStep(currentStep); }
 });
 document.getElementById('btn-back').addEventListener('click', function() {

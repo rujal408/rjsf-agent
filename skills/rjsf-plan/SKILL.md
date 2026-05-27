@@ -166,12 +166,12 @@ Produce a step map listing every wizard step in order:
 ## Step Map
 | Step | Key | Title | Fields | Validates on Next |
 |------|-----|-------|--------|-------------------|
-| 1 | <step_key> | <step title> | <comma-separated field names> | <yes / no> |
+| 1 | <step_key> | <step title> | <comma-separated field names> | yes |
 ```
 
 - **Key** — camelCase identifier for the step, e.g. `personalInfo`
 - **Fields** — all fields visible in that step
-- **Validates on Next** — `yes` if clicking "Next" triggers validation of the current step's fields before advancing; `no` if validation is deferred to final submit
+- **Validates on Next** — always `yes` for every step. Step-level validation before advancing is mandatory. Deferring validation to final submit allows users to skip required fields without feedback and causes confusing UX on the last step. Never write `no` in this column.
 
 ---
 

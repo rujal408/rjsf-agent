@@ -189,10 +189,24 @@ export function <FormName>({ formData, onSubmit, onError }: <FormName>Props) {
     return <div role="status" aria-live="polite">Form submitted successfully.</div>;
   }
 
+  // Card wrapper — replace className with the variant matching session.json stylingApproach:
+  //   tailwind:        className="max-w-2xl mx-auto bg-white rounded-2xl shadow-md p-8"
+  //   css-modules:     className={styles.formCard}  (add to FormGrid.module.css:
+  //                      .formCard { max-width: 640px; margin: 0 auto; background: #fff;
+  //                        border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.1); padding: 32px; })
+  //   plain-css/scss:  className="rjsf-form-card"   (add same rules to your stylesheet)
+  //   mui-grid:        <Paper elevation={2} sx={{ p: 4, borderRadius: 2, maxWidth: 640, mx: 'auto' }}>
+  //   antd-grid:       <Card style={{ maxWidth: 640, margin: '0 auto' }}>
+  //   bootstrap-grid:  className="card p-4 shadow-sm mx-auto" style={{ maxWidth: 640 }}
+  //   bare:            style={{ maxWidth: 640, margin: '0 auto', background: '#fff',
+  //                      borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,.1)', padding: 32 }}
   return (
-    <>
+    <div className="rjsf-form-card">
       {status === 'loading' && <div role="status" aria-live="polite">Submitting…</div>}
-      {status === 'error'   && <div role="alert">Submission failed. Please check the errors below.</div>}
+      {status === 'error'   && <div role="alert" style={{ color: '#dc2626', marginBottom: 16 }}>Submission failed. Please check the errors below.</div>}
+      {/* IMPORTANT: The submit button must live INSIDE <Form> (rendered by RJSF's default submit
+          template or a custom template). Placing <button type="submit"> OUTSIDE <Form> bypasses
+          RJSF validation entirely — required fields will not be checked on submit. */}
       <Form
         schema={schema}
         uiSchema={uiSchema}
@@ -202,10 +216,12 @@ export function <FormName>({ formData, onSubmit, onError }: <FormName>Props) {
         fields={fields}
         templates={templates}
         extraErrors={serverErrors}
+        noHtml5Validate={false}
+        omitExtraData={false}
         onSubmit={handleSubmit}
         // customValidate={customValidate}  // uncomment if cross-field validation is needed
       />
-    </>
+    </div>
   );
 }
 ```
@@ -511,7 +527,21 @@ const mergedFormData = { ...localFormData, ...formData };
 
 const handleChange = ({ formData: data }: { formData: unknown }) => {
   setLocalFormData(data as Partial<<FormName>Data>);
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+  // Guard against QuotaExceededError (e.g. large file uploads base64-encoded into form data).
+  // Strategy: clear the stale draft and retry once; if still failing, skip silently so the
+  // form remains fully usable — draft persistence is best-effort, not load-bearing.
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+  } catch (err) {
+    if (err instanceof DOMException && (err.name === 'QuotaExceededError' || err.code === 22)) {
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      } catch {
+        console.warn('[rjsf-agent] Draft save skipped: localStorage unavailable or quota exceeded.');
+      }
+    }
+  }
 };
 ```
 
@@ -1005,6 +1035,292 @@ export function TabTemplate({ properties, title }: ObjectFieldTemplateProps) {
 ```
 
 Register in `index.tsx` templates: `ObjectFieldTemplate: TabTemplate`.
+
+---
+
+#### `multi_step: true`
+
+When `multi_step: true` in the RequirementsBrief, generate a multi-step wizard. This **replaces** the standard `index.tsx` with a wizard controller that:
+- Renders one step at a time using per-step sub-schemas
+- Validates each step's required fields via `formRef.current?.validateForm()` before advancing
+- Places the submit button inside `<Form>` so RJSF validates the final step on submit
+- Shows a styled step indicator (active / completed / upcoming states)
+
+---
+
+**A — Split the schema by step**
+
+Read the Step Map from `form-plan.md`. For each step, create a sub-schema with only that step's fields and their `required` constraints. Add this constant near the top of `index.tsx` (below the schema import):
+
+```typescript
+import type { RJSFSchema } from '@rjsf/utils';
+
+// Per-step sub-schemas derived from the Step Map in form-plan.md.
+// Each sub-schema is a subset of the root schema restricted to that step's fields.
+// RJSF will validate ONLY these fields when formRef.current.validateForm() is called.
+const stepSchemas: RJSFSchema[] = [
+  {
+    // Step 1: <step title from Step Map>
+    type: 'object',
+    title: '<step title>',
+    required: [/* only the required field keys that belong to this step */],
+    properties: {
+      // Copy each property from schema.ts that belongs to this step.
+      // Example: fullName: schema.properties.fullName,
+    },
+  },
+  // Repeat for every step in the Step Map.
+];
+
+// Per-step uiSchema slices — copy only the relevant keys from uiSchema.ts.
+const stepUiSchemas: UiSchema[] = [
+  { /* uiSchema entries for step 1 fields */ },
+  // Repeat for every step.
+];
+
+const stepTitles = stepSchemas.map(s => ({ title: s.title as string }));
+```
+
+---
+
+**B — Generate `templates/StepIndicator.tsx`**
+
+```tsx
+// templates/StepIndicator.tsx — step progress bar with active / done / upcoming states
+import React from 'react';
+
+interface StepIndicatorProps {
+  steps: { title: string }[];
+  currentStep: number;
+}
+
+export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
+  return (
+    <div
+      role="tablist"
+      aria-label="Form progress"
+      style={{ display: 'flex', borderBottom: '2px solid #e5e7eb', marginBottom: 24 }}
+    >
+      {steps.map((step, i) => {
+        const isDone   = i < currentStep;
+        const isActive = i === currentStep;
+        return (
+          <div
+            key={step.title}
+            role="tab"
+            aria-selected={isActive}
+            aria-current={isActive ? 'step' : undefined}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              fontWeight: isActive ? 600 : 400,
+              color: isActive ? '#2563eb' : isDone ? '#16a34a' : '#9ca3af',
+              borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
+              marginBottom: -2,
+              userSelect: 'none',
+              cursor: 'default',
+            }}
+          >
+            <span
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                background: isActive ? '#2563eb' : isDone ? '#16a34a' : '#e5e7eb',
+                color: isActive || isDone ? '#fff' : '#6b7280',
+                flexShrink: 0,
+              }}
+            >
+              {isDone ? '✓' : i + 1}
+            </span>
+            {step.title}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+```
+
+---
+
+**C — Replace `index.tsx` with the multi-step wizard variant**
+
+```tsx
+// index.tsx — Multi-step wizard form (generated when multi_step: true)
+import React, { useState, useRef } from 'react';
+import Form from '<rjsf-theme-package>';
+import validator from '@rjsf/validator-ajv8';
+import type { UiSchema } from '@rjsf/utils';
+import { StepIndicator } from './templates/StepIndicator';
+import type { <FormName>Data } from './types';
+// stepSchemas, stepUiSchemas, stepTitles — defined above in schema section
+// import { PhoneWidget } from './widgets/PhoneWidget';
+
+const widgets = {
+  // PhoneWidget,
+};
+
+interface <FormName>Props {
+  formData?: Partial<<FormName>Data>;
+  onSubmit: (data: <FormName>Data) => void | Promise<void>;
+  onError?: (errors: unknown) => void;
+}
+
+export function <FormName>({ formData: initialData, onSubmit, onError }: <FormName>Props) {
+  const [currentStep, setCurrentStep] = useState(0);
+  // allData accumulates field values across all steps.
+  const [allData, setAllData] = useState<Partial<<FormName>Data>>(initialData ?? {});
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [serverErrors, setServerErrors] = useState<Record<string, unknown>>({});
+  // formRef is required for programmatic step validation via validateForm().
+  const formRef = useRef<InstanceType<typeof Form>>(null);
+
+  const isFirst = currentStep === 0;
+  const isLast  = currentStep === stepSchemas.length - 1;
+
+  const handleChange = ({ formData: stepData }: { formData: unknown }) => {
+    // Merge current step's data into accumulated data without losing other steps' values.
+    setAllData(prev => ({ ...prev, ...(stepData as Partial<<FormName>Data>) }));
+  };
+
+  // Validate current step's required fields before advancing.
+  // validateForm() runs RJSF validation against the current step's sub-schema only.
+  // If any required field is empty, RJSF renders inline errors and this returns false.
+  const handleNext = async () => {
+    const isValid = await formRef.current?.validateForm();
+    if (!isValid) return; // stay on current step; RJSF has already surfaced the errors
+    setCurrentStep(prev => prev + 1);
+  };
+
+  const handleBack = () => setCurrentStep(prev => prev - 1);
+
+  // Final submit — only reached from the last step.
+  // type="submit" inside <Form> ensures RJSF validates the last step before this fires.
+  const handleSubmit = async ({ formData: stepData }: { formData: <FormName>Data }) => {
+    const finalData = { ...allData, ...stepData } as <FormName>Data;
+    setStatus('loading');
+    try {
+      await onSubmit(finalData);
+      setStatus('success');
+    } catch (err: unknown) {
+      setStatus('error');
+      if (err && typeof err === 'object' && 'fieldErrors' in err) {
+        const fieldErrors = (err as { fieldErrors: Record<string, string> }).fieldErrors;
+        const errorSchema: Record<string, { __errors: string[] }> = {};
+        for (const [field, msg] of Object.entries(fieldErrors)) {
+          const parts = field.split('.');
+          let target: Record<string, unknown> = errorSchema;
+          for (let i = 0; i < parts.length - 1; i++) {
+            if (!target[parts[i]]) target[parts[i]] = {};
+            target = target[parts[i]] as Record<string, unknown>;
+          }
+          (target as Record<string, { __errors: string[] }>)[parts[parts.length - 1]] = { __errors: [msg] };
+        }
+        setServerErrors(errorSchema);
+      }
+      onError?.(err);
+    }
+  };
+
+  if (status === 'success') {
+    return <div role="status" aria-live="polite">Form submitted successfully.</div>;
+  }
+
+  // Card wrapper — apply stylingApproach variant (see single-page index.tsx comments above).
+  return (
+    <div className="rjsf-form-card">
+      <StepIndicator steps={stepTitles} currentStep={currentStep} />
+
+      {status === 'error' && (
+        <div role="alert" style={{ color: '#dc2626', marginBottom: 16 }}>
+          Submission failed. Please check the errors below.
+        </div>
+      )}
+
+      {/* Form renders only the current step's sub-schema.
+          Changing stepSchemas[currentStep] on each step means validateForm() only checks
+          the fields visible on the current step — not the entire form. */}
+      <Form
+        ref={formRef}
+        schema={stepSchemas[currentStep]}
+        uiSchema={stepUiSchemas[currentStep]}
+        validator={validator}
+        formData={allData}
+        widgets={widgets}
+        onChange={handleChange}
+        onSubmit={isLast ? handleSubmit : undefined}
+        extraErrors={isLast ? serverErrors : {}}
+        noHtml5Validate={false}
+        omitExtraData={false}
+      >
+        {/* Navigation buttons rendered INSIDE <Form>.
+            - "Next →" uses type="button" + handleNext() which calls validateForm() explicitly.
+            - "Submit" uses type="submit" so RJSF's onSubmit pipeline (including required-field
+              checks) fires before handleSubmit is called.
+            NEVER move these buttons outside <Form> — the submit button would bypass RJSF
+            validation and allow empty required fields to pass through. */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+          {!isFirst && (
+            <button
+              type="button"
+              onClick={handleBack}
+              style={{
+                padding: '9px 20px', border: '1px solid #d1d5db', borderRadius: 6,
+                background: '#fff', cursor: 'pointer', fontWeight: 500, minHeight: 44,
+              }}
+            >
+              ← Back
+            </button>
+          )}
+          {!isLast && (
+            <button
+              type="button"
+              onClick={handleNext}
+              style={{
+                marginLeft: 'auto', padding: '9px 20px', background: '#2563eb',
+                color: '#fff', border: 'none', borderRadius: 6,
+                cursor: 'pointer', fontWeight: 500, minHeight: 44,
+              }}
+            >
+              Next →
+            </button>
+          )}
+          {isLast && (
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              style={{
+                marginLeft: 'auto', padding: '9px 20px', background: '#2563eb',
+                color: '#fff', border: 'none', borderRadius: 6,
+                cursor: 'pointer', fontWeight: 500, minHeight: 44,
+                opacity: status === 'loading' ? 0.7 : 1,
+              }}
+            >
+              {status === 'loading' ? 'Submitting…' : 'Submit'}
+            </button>
+          )}
+        </div>
+      </Form>
+    </div>
+  );
+}
+```
+
+Update the file tree shown in Step 4 to include multi_step artifacts when applicable:
+
+```
+├── templates/
+│   ├── StepIndicator.tsx   (multi_step: true — step progress bar)
+│   └── <other templates>
+```
 
 ---
 
