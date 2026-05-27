@@ -8,6 +8,14 @@ A Claude Code plugin that converts client form requirements into a complete RJSF
 claude plugin install github:rujal408/rjsf-agent
 ```
 
+## Updating
+
+```bash
+claude plugin update rjsf-agent
+```
+
+Restart Claude Code after updating for changes to take effect.
+
 ## Quick Start
 
 ```bash
