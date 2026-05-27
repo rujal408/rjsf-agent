@@ -1,6 +1,13 @@
+---
+name: rjsf-form
+description: Smart entry point — detects session context and routes to the right rjsf-agent command. Use when unsure which command to run, or to start a new form.
+argument-hint: [requirements or --from file]
+allowed-tools: [Read, Glob]
+---
+
 # RJSF — Smart Entry Point
 
-**Trigger:** `/rjsf` with any input — or natural language like "I want to build a form", "continue", "where was I?", "help".
+**Trigger:** `/rjsf-form` with any input — or natural language like "I want to build a form", "continue", "where was I?", "help".
 
 Detect project context and guide the developer to the right command. Never ask the developer which skill to use — infer it from context.
 
