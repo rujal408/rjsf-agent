@@ -5,14 +5,14 @@ A Claude Code plugin that converts client form requirements into a complete RJSF
 ## Install
 
 ```bash
-claude plugin install github:your-org/rjsf-agent
+claude plugin install github:rujal408/rjsf-agent
 ```
 
 ## Quick Start
 
 ```bash
 # Not sure where to start?
-/rjsf
+/rjsf-form
 
 # Build a form from a description
 /rjsf-build "Build a loan application form: applicant name, DOB, employment type, monthly income"
@@ -60,7 +60,7 @@ Each phase pauses for your approval before proceeding. Session state is saved so
 
 | Command | Purpose |
 |---|---|
-| `/rjsf` | Smart entry — let the agent guide you |
+| `/rjsf-form` | Smart entry — let the agent guide you |
 | `/rjsf-build` | Full pipeline or resume existing session |
 | `/rjsf-status` | See current session progress |
 | `/rjsf-requirements` | Phase 1 — gather requirements |
