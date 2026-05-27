@@ -1,3 +1,9 @@
+---
+name: rjsf-prototype
+description: Phase 3 — generate a self-contained HTML prototype for client sign-off before any React code is written
+allowed-tools: [Read, Write, Glob, Bash]
+---
+
 # RJSF Prototype Generation — Phase 3
 
 **Trigger:** `/rjsf-prototype` — or invoked automatically by `/rjsf-build` as Phase 3.

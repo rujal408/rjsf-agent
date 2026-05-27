@@ -1,3 +1,9 @@
+---
+name: rjsf-status
+description: Show current RJSF session phase progress at a glance
+allowed-tools: [Read, Glob]
+---
+
 # RJSF Status — Session Progress
 
 **Trigger:** `/rjsf-status`

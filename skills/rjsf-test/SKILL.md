@@ -1,3 +1,9 @@
+---
+name: rjsf-test
+description: Phase 5 — generate tests covering required fields, conditionals, submission, server errors, and accessibility
+allowed-tools: [Read, Write, Glob]
+---
+
 # RJSF Test Generation — Phase 5
 
 **Trigger:** `/rjsf-test` — or invoked automatically by `/rjsf-build` as Phase 5.

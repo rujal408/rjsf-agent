@@ -1,3 +1,10 @@
+---
+name: rjsf-build
+description: Run the full 5-phase RJSF form pipeline from requirements to tests, or resume an existing session
+argument-hint: ["requirements text"] [--from file]
+allowed-tools: [Read, Write, Edit, Glob, Bash]
+---
+
 # RJSF Build — Orchestrator
 
 **Trigger:** `/rjsf-build "natural language requirements"` — or `/rjsf-build --from <file>` — or `/rjsf-build` alone to resume.

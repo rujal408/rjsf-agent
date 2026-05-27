@@ -1,3 +1,9 @@
+---
+name: rjsf-execute
+description: Phase 4 — generate all React/RJSF code: schema.ts, uiSchema.ts, types.ts, index.tsx, and custom components
+allowed-tools: [Read, Write, Edit, Glob, Bash]
+---
+
 # RJSF Execution — Phase 4
 
 **Trigger:** `/rjsf-execute` — or invoked automatically by `/rjsf-build` as Phase 4.

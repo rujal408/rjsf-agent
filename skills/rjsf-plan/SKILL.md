@@ -1,3 +1,9 @@
+---
+name: rjsf-plan
+description: Phase 2 — design form layout, widget choices, column structure, and identify custom components needed
+allowed-tools: [Read, Write, Glob]
+---
+
 # RJSF Form Planning — Phase 2
 
 **Trigger:** `/rjsf-plan` or invoked automatically by `/rjsf-build` as Phase 2

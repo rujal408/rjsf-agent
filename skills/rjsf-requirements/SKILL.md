@@ -1,3 +1,10 @@
+---
+name: rjsf-requirements
+description: Phase 1 — gather and clarify client form requirements, produce a structured RequirementsBrief
+argument-hint: ["requirements text"] [--from file]
+allowed-tools: [Read, Write, Glob, Bash]
+---
+
 # RJSF Requirements Gathering — Phase 1
 
 **Trigger:** Invoked by `/rjsf-requirements` directly, or by `/rjsf-build` as Phase 1.

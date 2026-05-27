@@ -1,3 +1,10 @@
+---
+name: rjsf-iterate
+description: Modify an already-generated form without rerunning the full pipeline — shows a diff before writing
+argument-hint: "description of change"
+allowed-tools: [Read, Write, Edit, Glob, Bash]
+---
+
 # RJSF Iterate — Modify Existing Form
 
 **Trigger:** `/rjsf-iterate "<description of change>"` — or invoked by `/rjsf-build` when the developer describes a change to an already-generated form.
