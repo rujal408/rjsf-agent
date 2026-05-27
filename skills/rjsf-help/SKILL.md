@@ -1,3 +1,10 @@
+---
+name: rjsf-help
+description: Explain any rjsf-agent command or RJSF concept in plain English
+argument-hint: [command-name or "concept question"]
+allowed-tools: [Read]
+---
+
 # RJSF Help — Contextual Help
 
 **Trigger:** `/rjsf-help` or `/rjsf-help "<question or command name>"`
@@ -11,7 +18,7 @@ If invoked with no argument, display:
 ```
 rjsf-agent commands:
 
-  /rjsf              Smart entry point — detects context and guides you
+  /rjsf-form         Smart entry point — detects context and guides you
   /rjsf-build        Run the full pipeline (or resume where you left off)
   /rjsf-status       See your current session progress
   /rjsf-requirements Phase 1 — gather and clarify form requirements
@@ -35,7 +42,7 @@ Match the input against the topics below and answer in plain English (2–5 sent
 
 | Command | When asked about it, explain… |
 |---|---|
-| `/rjsf` or `rjsf` | Smart router — reads your session and figures out what you need next. Use it when you're not sure which command to run. |
+| `/rjsf-form` or `rjsf-form` | Smart router — reads your session and figures out what you need next. Use it when you're not sure which command to run. |
 | `/rjsf-build` | Full pipeline orchestrator. Runs Phases 1–5 in order, waiting for your approval between each phase. Can also resume an interrupted session. |
 | `/rjsf-status` | Reads your `.rjsf/session.json` and shows a phase-by-phase progress summary. |
 | `/rjsf-requirements` | Phase 1. Asks 20 clarifying questions about your form and produces a RequirementsBrief — a structured markdown document used by all later phases. |
