@@ -184,12 +184,21 @@ All generated grid layouts are **mobile-first**: the default (no media query) is
 
 ### Per styling approach
 
-| Approach | How to apply breakpoints |
-|---|---|
-| `css-modules` | Default `.gridN { grid-template-columns: 1fr }`. Add `@media (min-width: 640px)` and `@media (min-width: 1024px)` blocks as shown in Section 1. |
-| `tailwind` | Use responsive prefixes: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`. `sm:` = ≥640px, `lg:` = ≥1024px. |
-| `plain-css` | Same as css-modules but write rules into a single `.css` file imported in `index.tsx`. |
-| `bare` | Use `gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))'` inline — no media queries needed; collapses automatically. |
+All approaches use mobile-first column collapse. The breakpoint tokens differ by system — see the mapping column.
+
+| Approach | Mobile default | Tablet breakpoint | Desktop breakpoint | Notes |
+|---|---|---|---|---|
+| `css-modules` | `grid-template-columns: 1fr` | `@media (min-width: 640px)` | `@media (min-width: 1024px)` | See `FormGrid.module.css` pattern in Section 1 |
+| `scss` | Same as css-modules | Same | Same | Use SCSS nesting (`@media` inside rule block); file is `.module.scss` |
+| `tailwind` | `grid-cols-1` | `sm:grid-cols-2` (≥640px) | `lg:grid-cols-3` (≥1024px) | No stylesheet needed; all in className |
+| `plain-css` | Same as css-modules | Same | Same | Single `.css` file imported in `index.tsx` |
+| `bare` | `auto-fit minmax(280px, 1fr)` inline | — | — | No media queries; browser collapses automatically |
+| `mui-grid` | `xs: '1fr'` | `sm: 'repeat(2, 1fr)'` (≥600px) | `lg: 'repeat(3, 1fr)'` (≥1200px) | MUI `Box sx` breakpoint object; auto-selected when theme is `@rjsf/mui` |
+| `antd-grid` | `xs={24}` | `sm={12}` (≥576px) | `lg={8}` (≥992px) | Ant Design `Row`/`Col` span (out of 24); auto-selected when theme is `@rjsf/antd` |
+| `bootstrap-grid` | `col-12` | `col-sm-6` (≥576px) | `col-lg-4` (≥992px) | Bootstrap responsive classes; auto-selected when theme is `@rjsf/bootstrap` |
+| `chakra` | `base: 1` | `md: 2` (≥768px) | `lg: 3` (≥992px) | Chakra `SimpleGrid columns`; only when Chakra UI is a confirmed project dependency |
+
+> **Library-native breakpoints differ from the 640px/1024px defaults.** When `rjsfTheme` is MUI, Ant Design, or Bootstrap, use the library's own breakpoint tokens (listed above) — do not apply 640px/1024px `@media` queries on top of the library grid.
 
 ### Touch targets
 

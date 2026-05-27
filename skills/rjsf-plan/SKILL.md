@@ -34,27 +34,43 @@ Do not proceed until Phase 1 is complete.
 
 ## Step 2 — Ask Styling Preference (if not already in session.json)
 
-Check `session.json` for a `stylingApproach` key. If it is absent or empty, ask the developer:
+Check `session.json` for a `stylingApproach` key.
+
+**If `stylingApproach` already exists in `session.json`**, skip this step and proceed with the saved value.
+
+**If `rjsfTheme` is a UI library theme**, auto-set `stylingApproach` without asking — the library ships its own responsive grid system and a separate CSS approach is redundant:
+
+| `rjsfTheme` value | Auto-set `stylingApproach` | Tell developer |
+|---|---|---|
+| `@rjsf/mui` | `"mui-grid"` | "Using MUI Box/Grid with `sx` breakpoint props for responsive layout — matches your MUI theme." |
+| `@rjsf/antd` | `"antd-grid"` | "Using Ant Design Row/Col with responsive span props — matches your Ant Design theme." |
+| `@rjsf/bootstrap` | `"bootstrap-grid"` | "Using Bootstrap responsive grid classes (col-12 col-sm-6 col-lg-4) — matches your Bootstrap theme." |
+
+Write the auto-set value to `session.json` and proceed without asking.
+
+**If `rjsfTheme` is `@rjsf/core`** (no built-in grid), ask the developer:
 
 > "Which styling approach for generated components?
 >
 > A) CSS Modules (.module.css)
-> B) Tailwind CSS utility classes
-> C) Plain CSS (single .css file)
-> D) No styles — bare structure only"
+> B) SCSS (.module.scss or .scss)
+> C) Tailwind CSS utility classes
+> D) Plain CSS (single .css file)
+> E) Chakra UI (SimpleGrid — only if Chakra UI is already a project dependency)
+> F) No styles — bare structure only"
 
 Wait for the developer's answer, then save it to `session.json` under the key `stylingApproach` using these canonical values:
 
 | Choice | Value saved |
 |--------|-------------|
 | A | `"css-modules"` |
-| B | `"tailwind"` |
-| C | `"plain-css"` |
-| D | `"bare"` |
+| B | `"scss"` |
+| C | `"tailwind"` |
+| D | `"plain-css"` |
+| E | `"chakra"` |
+| F | `"bare"` |
 
 Write the full `session.json` object back to disk (not a partial merge) after saving `stylingApproach`.
-
-If `stylingApproach` already exists in `session.json`, skip this step and proceed with the saved value.
 
 ---
 

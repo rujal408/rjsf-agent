@@ -285,7 +285,148 @@ const gridClass: Record<number, string> = {
 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px 24px' }}>
 ```
 
-> Apply `responsive` rules only when `responsive: true` in the RequirementsBrief. If `responsive: false`, a single fixed `grid-template-columns` value is acceptable.
+**`scss`** — same breakpoints as `css-modules` but using SCSS nesting. Create `FormGrid.module.scss`:
+
+```scss
+// FormGrid.module.scss — mobile-first
+.grid {
+  display: grid;
+  gap: 16px 24px;
+  grid-template-columns: 1fr; // mobile default
+
+  &.cols2, &.cols3, &.cols4 {
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  &.cols3 {
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  &.cols4 {
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+}
+
+.colFull { grid-column: 1 / -1; }
+
+input, select, textarea, button { min-height: 44px; }
+```
+
+Import and use identically to the `css-modules` pattern: `import styles from '../FormGrid.module.scss'`.
+
+**`mui-grid`** (`@rjsf/mui`) — use MUI's `Box` component with the `sx` breakpoint object. MUI breakpoints: `xs` = all screens (mobile default), `sm` = ≥600px (tablet), `lg` = ≥1200px (desktop):
+
+```tsx
+import Box from '@mui/material/Box';
+
+// Column count from FormPlan → sx gridTemplateColumns map
+const muiCols: Record<number, object> = {
+  1: { xs: '1fr' },
+  2: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+  3: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+  4: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
+};
+
+// Usage in ObjectFieldTemplate:
+<Box sx={{ display: 'grid', gridTemplateColumns: muiCols[columns], gap: '16px 24px' }}>
+  {properties.map((prop) => (
+    <Box key={prop.name} sx={{ gridColumn: fullWidthFields.includes(prop.name) ? '1 / -1' : undefined }}>
+      {prop.content}
+    </Box>
+  ))}
+</Box>
+```
+
+Touch targets are handled by MUI's theme defaults — no extra `min-height` needed.
+
+**`antd-grid`** (`@rjsf/antd`) — use Ant Design `Row` + `Col` with responsive span props. Ant Design span is out of 24:
+
+```tsx
+import { Row, Col } from 'antd';
+
+// Column count from FormPlan → Col span values
+// xs (mobile): always 24 (full width)
+// sm (≥576px): 12 for 2-col, 12 for 3-col (falls back to 2-col at tablet)
+// lg (≥992px): 12 for 2-col, 8 for 3-col, 6 for 4-col
+const antdSpan: Record<number, { xs: number; sm: number; lg: number }> = {
+  1: { xs: 24, sm: 24, lg: 24 },
+  2: { xs: 24, sm: 12, lg: 12 },
+  3: { xs: 24, sm: 12, lg: 8 },
+  4: { xs: 24, sm: 12, lg: 6 },
+};
+
+// Usage in ObjectFieldTemplate:
+<Row gutter={[16, 16]}>
+  {properties.map((prop) => {
+    const span = fullWidthFields.includes(prop.name)
+      ? { xs: 24, sm: 24, lg: 24 }
+      : antdSpan[columns];
+    return (
+      <Col key={prop.name} xs={span.xs} sm={span.sm} lg={span.lg}>
+        {prop.content}
+      </Col>
+    );
+  })}
+</Row>
+```
+
+**`bootstrap-grid`** (`@rjsf/bootstrap`) — use Bootstrap responsive column classes. Bootstrap breakpoints: default (mobile) → `col-12`; `sm` = ≥576px; `lg` = ≥992px:
+
+```tsx
+// Column count from FormPlan → Bootstrap col class
+const bsCols: Record<number, string> = {
+  1: 'col-12',
+  2: 'col-12 col-sm-6',
+  3: 'col-12 col-sm-6 col-lg-4',
+  4: 'col-12 col-sm-6 col-lg-3',
+};
+
+// Usage in ObjectFieldTemplate:
+<div className="row g-3">
+  {properties.map((prop) => (
+    <div
+      key={prop.name}
+      className={fullWidthFields.includes(prop.name) ? 'col-12' : bsCols[columns]}
+    >
+      {prop.content}
+    </div>
+  ))}
+</div>
+```
+
+**`chakra`** (Chakra UI with `@rjsf/core`) — use Chakra's `SimpleGrid` with a responsive `columns` array. Chakra breakpoints (default theme): `base` = mobile, `sm` = ≥480px, `md` = ≥768px, `lg` = ≥992px:
+
+```tsx
+import { SimpleGrid } from '@chakra-ui/react';
+
+// Column count from FormPlan → Chakra responsive columns object
+const chakraCols: Record<number, object> = {
+  1: { base: 1 },
+  2: { base: 1, md: 2 },
+  3: { base: 1, md: 2, lg: 3 },
+  4: { base: 1, md: 2, lg: 4 },
+};
+
+// Full-width fields: wrap in a Box with gridColumn="1 / -1"
+import { Box } from '@chakra-ui/react';
+
+// Usage in ObjectFieldTemplate:
+<SimpleGrid columns={chakraCols[columns]} spacing={4}>
+  {properties.map((prop) => (
+    fullWidthFields.includes(prop.name)
+      ? <Box key={prop.name} gridColumn="1 / -1">{prop.content}</Box>
+      : <Box key={prop.name}>{prop.content}</Box>
+  ))}
+</SimpleGrid>
+```
+
+> Only generate `chakra` code when `stylingApproach === "chakra"` in session.json — the developer must have confirmed Chakra UI is a project dependency during Phase 2.
+
+> Apply responsive rules only when `responsive: true` in the RequirementsBrief. If `responsive: false`, a single fixed column value is acceptable for all approaches.
 
 ---
 
