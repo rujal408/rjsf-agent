@@ -18,6 +18,8 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 4. Read `.rjsf/requirements-brief.md` (RequirementsBrief from Phase 1 — needed for edge case flags).
 5. Read `references/rjsf-widget-api.md` for WidgetProps, FieldProps, and template interfaces.
 6. Read `references/rjsf-schema-patterns.md` for JSON Schema and uiSchema patterns.
+7. **Read `prototype/prototype.html`** (the approved client prototype from Phase 3). Use this as the **visual reference** for the generated React form. The prototype's styling — section card borders, spacing, grid layout, field sizing, color scheme — represents the approved look the client signed off on. The generated React code must visually match it.
+8. **Read the UI reference** (if `ui_reference` in the RequirementsBrief is not `none`). If a design file path or URL was provided, read it and use its visual style as additional guidance for the generated form's appearance. The UI reference takes precedence over the prototype for visual decisions where they differ.
 
 ---
 
@@ -32,11 +34,27 @@ If `phases["3"].status` is already `"completed"`, skip this step.
 
 ---
 
-## Step 3 — Generate Artifacts
+## Step 3 — Visual Parity Check
+
+Before generating any code, compare the prototype HTML (read in Step 1.7) against the FormPlan. Extract these visual properties from the prototype to replicate in the React output:
+
+1. **Section styling** — border style, border-radius, padding, margin-bottom of `.section` elements
+2. **Field spacing** — gap values in `.grid-*` classes, `.field` flex gap
+3. **Typography** — font sizes for labels (`.875rem`), section titles (`1.1rem`), form title (`1.5rem`)
+4. **Color palette** — border color (`#d1d5db`), label color (`#374151`), focus ring (`#2563eb`), error red (`#dc2626`)
+5. **Input styling** — padding, border-radius, min-height (44px touch target), focus outline
+6. **Button styling** — padding, border-radius, primary/secondary colors
+7. **Overall wrapper** — max-width, centering, body padding
+
+When generating the React form's CSS/styles (in Step 4 below), **match these values from the prototype**. The generated form should look visually identical to the prototype when rendered in a browser. If a UI reference file was also provided (Step 1.8), use it for any visual decisions not covered by the prototype.
+
+---
+
+## Step 4 — Generate Artifacts
 
 Generate the following files based on the FormPlan. Show each file's content in chat with inline comments BEFORE writing any files. Use the confirmed `outputPath` from session.json, or default to `src/forms/<FormName>/`.
 
-### 3a. `schema.ts` — JSON Schema
+### 4a. `schema.ts` — JSON Schema
 
 ```typescript
 // schema.ts — JSON Schema Draft-07
@@ -62,7 +80,7 @@ export const schema: RJSFSchema = {
 
 Apply the schema type mapping from `references/rjsf-schema-patterns.md` to every field in the FormPlan.
 
-### 3b. `uiSchema.ts` — UI Schema
+### 4b. `uiSchema.ts` — UI Schema
 
 ```typescript
 // uiSchema.ts
@@ -83,7 +101,7 @@ export const uiSchema: UiSchema = {
 
 Assign `ui:order`, `ui:placeholder`, `ui:widget`, `ui:field`, `ui:options`, `ui:help` based on the FormPlan layout decisions and uiSchema hints columns.
 
-### 3c. `types.ts` — TypeScript Types
+### 4c. `types.ts` — TypeScript Types
 
 ```typescript
 // types.ts — TypeScript interfaces derived from schema
@@ -104,7 +122,7 @@ export interface <SectionName> {
 }
 ```
 
-### 3d. `index.tsx` — Form Component
+### 4d. `index.tsx` — Form Component
 
 ```tsx
 // index.tsx — Main form component
@@ -200,6 +218,11 @@ export function <FormName>({ formData, onSubmit, onError }: <FormName>Props) {
   //   bootstrap-grid:  className="card p-4 shadow-sm mx-auto" style={{ maxWidth: 640 }}
   //   bare:            style={{ maxWidth: 640, margin: '0 auto', background: '#fff',
   //                      borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,.1)', padding: 32 }}
+  //
+  // VISUAL PARITY: Match the prototype's visual style. Read prototype/prototype.html
+  // (loaded in Step 1) and replicate its section card styling, spacing, and layout
+  // in the React output. The prototype's .section class (border, border-radius, padding),
+  // .field spacing, and grid layout represent the client-approved design.
   return (
     <div className="rjsf-form-card">
       {status === 'loading' && <div role="status" aria-live="polite">Submitting…</div>}
@@ -219,6 +242,12 @@ export function <FormName>({ formData, onSubmit, onError }: <FormName>Props) {
         noHtml5Validate={false}
         omitExtraData={false}
         onSubmit={handleSubmit}
+        // --- Error display configuration ---
+        // Set based on RequirementsBrief error_display flag:
+        //   error_display: "inline" → showErrorList={false}   (errors below fields only — cleanest UI)
+        //   error_display: "both"   → showErrorList="top"      (RJSF default: top summary + inline)
+        //   error_display: "top"    → showErrorList="top"      (+ pass custom FieldTemplate to hide inline, see note below)
+        showErrorList={false}  // Default: "inline" — change based on error_display flag
         // customValidate={customValidate}  // uncomment if cross-field validation is needed
       />
     </div>
@@ -226,19 +255,19 @@ export function <FormName>({ formData, onSubmit, onError }: <FormName>Props) {
 }
 ```
 
-### 3e. Custom Widgets
+### 4e. Custom Widgets
 
 For each custom Widget listed in the FormPlan Customization Assessment, create `widgets/<ComponentName>.tsx` following the WidgetProps interface from `references/rjsf-widget-api.md`. Include full implementation — not a stub. Reference the PhoneWidget example in that file as a pattern for masked/compound inputs.
 
-### 3f. Custom Fields
+### 4f. Custom Fields
 
 For each custom Field listed in the Customization Assessment, create `fields/<ComponentName>.tsx` following the FieldProps interface. Include full implementation.
 
-### 3g. Custom Templates
+### 4g. Custom Templates
 
 For each custom Template listed in the Customization Assessment, create `templates/<ComponentName>.tsx` following the relevant template interface (ObjectFieldTemplateProps, ArrayFieldTemplateProps, or FieldTemplateProps).
 
-### 3h. Responsive Grid CSS
+### 4h. Responsive Grid CSS
 
 For every `ObjectFieldTemplate` generated (including section-level templates), emit responsive CSS using the column spec from the FormPlan. Use the approach that matches `session.json → stylingApproach`.
 
@@ -446,7 +475,54 @@ import { Box } from '@chakra-ui/react';
 
 ---
 
-### 3i. Edge Case Handlers
+### 4i. Error Display Configuration
+
+Read the `error_display` flag from the RequirementsBrief. Configure the `<Form>` component's error behavior accordingly:
+
+#### `error_display: "inline"` (default / recommended)
+
+Set `showErrorList={false}` on the `<Form>` component. Errors appear only below each invalid field via RJSF's built-in FieldTemplate. This is the cleanest option and matches the prototype's visual style.
+
+#### `error_display: "both"`
+
+Set `showErrorList="top"` on the `<Form>` component (or omit the prop — this is RJSF's default). Errors appear both in a summary list at the top of the form AND below each invalid field. Use this only when the user explicitly requested it.
+
+#### `error_display: "top"`
+
+Set `showErrorList="top"` on the `<Form>` component AND generate a custom `FieldTemplate` that suppresses inline error rendering:
+
+```tsx
+// templates/CleanFieldTemplate.tsx — hides inline field errors (errors shown in top summary only)
+import React from 'react';
+import type { FieldTemplateProps } from '@rjsf/utils';
+
+export function CleanFieldTemplate({
+  id, label, required, children, errors, help, description, hidden,
+}: FieldTemplateProps) {
+  if (hidden) return <div style={{ display: 'none' }}>{children}</div>;
+  return (
+    <div className="field-wrapper">
+      {label && (
+        <label htmlFor={id}>
+          {label}{required && <span style={{ color: '#dc2626', marginLeft: 2 }}>*</span>}
+        </label>
+      )}
+      {description}
+      {children}
+      {/* Inline errors intentionally suppressed — shown in top ErrorList only */}
+      {help}
+    </div>
+  );
+}
+```
+
+Register in `index.tsx` templates: `FieldTemplate: CleanFieldTemplate`.
+
+> **If `error_display` is absent in the RequirementsBrief**, default to `"inline"` (`showErrorList={false}`). This prevents the common complaint of duplicate error messages making the UI look messy.
+
+---
+
+### 4j. Edge Case Handlers
 
 Apply ONLY the handlers whose flag is `true` in the RequirementsBrief Edge Case Flags. Skip all others.
 
@@ -1260,6 +1336,8 @@ export function <FormName>({ formData: initialData, onSubmit, onError }: <FormNa
         extraErrors={isLast ? serverErrors : {}}
         noHtml5Validate={false}
         omitExtraData={false}
+        // --- Error display: same logic as single-page form (see 4i) ---
+        showErrorList={false}  // Default: "inline" — change based on error_display flag
       >
         {/* Navigation buttons rendered INSIDE <Form>.
             - "Next →" uses type="button" + handleNext() which calls validateForm() explicitly.
@@ -1324,7 +1402,7 @@ Update the file tree shown in Step 4 to include multi_step artifacts when applic
 
 ---
 
-## Step 4 — Full Preview
+## Step 5 — Full Preview
 
 Show the complete file tree in chat:
 
@@ -1350,7 +1428,7 @@ Ask: "Ready to write these files? Confirm the output path: `<outputPath>/` (or s
 
 ---
 
-## Step 5 — Write Files
+## Step 6 — Write Files
 
 On confirmation:
 1. Create the output directory if it does not exist.
@@ -1365,7 +1443,7 @@ On confirmation:
 
 ---
 
-## Step 6 — End-of-Phase Prompt
+## Step 7 — End-of-Phase Prompt
 
 After writing, output:
 

@@ -88,6 +88,11 @@ Ask these questions **one at a time**. Skip any question that was already answer
 19. Is a **print or PDF export** action required?
 20. Are there any **accessibility requirements** beyond RJSF defaults (e.g., WCAG AA compliance, specific ARIA labels)?
 21. Will this form be used on **mobile or tablet devices**? (yes / no / yes, primarily mobile — affects whether multi-column layouts collapse to 1-column on small screens and whether touch-target sizing is applied)
+22. How should **validation errors** be displayed? RJSF shows errors both below each field AND in a summary at the top by default — this can look messy. Options:
+    - **A) Inline only** (recommended) — errors appear below each invalid field only. Clean, focused.
+    - **B) Top summary + inline** — a red error list at the top of the form AND errors below each field. More visible, but can feel redundant.
+    - **C) Top summary only** — errors listed at the top, none below fields. Compact, but harder for users to find which field has an issue.
+23. Do you have a **UI prototype, mockup, or design file** to reference for the form's visual style? (optional — provide a file path or URL, or skip if none available. The agent will use it to match the final form's look & feel more closely.)
 
 ---
 
@@ -139,6 +144,8 @@ Once all relevant questions have been answered, compile the following document. 
 - rich_text: true/false — <which fields>
 - print_export: true/false
 - responsive: true/false — <mobile / tablet / both>
+- error_display: inline | both | top — <user preference for validation error placement>
+- ui_reference: <file path or URL> | none — <optional external design mockup to match>
 ```
 
 ---
