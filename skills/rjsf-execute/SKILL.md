@@ -222,7 +222,74 @@ For each custom Field listed in the Customization Assessment, create `fields/<Co
 
 For each custom Template listed in the Customization Assessment, create `templates/<ComponentName>.tsx` following the relevant template interface (ObjectFieldTemplateProps, ArrayFieldTemplateProps, or FieldTemplateProps).
 
-### 3h. Edge Case Handlers
+### 3h. Responsive Grid CSS
+
+For every `ObjectFieldTemplate` generated (including section-level templates), emit responsive CSS using the column spec from the FormPlan. Use the approach that matches `session.json → stylingApproach`.
+
+**`css-modules`** — create `FormGrid.module.css` alongside `index.tsx`:
+
+```css
+/* FormGrid.module.css — mobile-first responsive grid */
+.grid { display: grid; gap: 16px 24px; }
+
+/* Default: 1-column (mobile) */
+.cols1, .cols2, .cols3, .cols4 { grid-template-columns: 1fr; }
+
+/* Tablet: ≥640px */
+@media (min-width: 640px) {
+  .cols2 { grid-template-columns: repeat(2, 1fr); }
+  .cols3 { grid-template-columns: repeat(2, 1fr); }
+  .cols4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Desktop: ≥1024px */
+@media (min-width: 1024px) {
+  .cols3 { grid-template-columns: repeat(3, 1fr); }
+  .cols4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+.colFull { grid-column: 1 / -1; }
+
+/* Touch targets: ensure interactive elements are ≥44px tall on all screen sizes */
+input, select, textarea, button {
+  min-height: 44px;
+}
+```
+
+Import and use in templates:
+```tsx
+import styles from '../FormGrid.module.css';
+// Apply: <div className={`${styles.grid} ${styles.cols2}`}>
+// Full-width field: <div className={styles.colFull}>
+```
+
+**`tailwind`** — no separate stylesheet; use responsive utility classes in JSX:
+
+```tsx
+// Column count → Tailwind class map
+const gridClass: Record<number, string> = {
+  1: 'grid grid-cols-1 gap-4',
+  2: 'grid grid-cols-1 sm:grid-cols-2 gap-4',
+  3: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4',
+  4: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4',
+};
+// Full-width field: add className="col-span-full"
+// Touch targets are handled by the theme's base styles; verify min-h-[44px] on inputs/buttons.
+```
+
+**`plain-css`** — write the same rules as `css-modules` into `<FormName>.css` and import it in `index.tsx`.
+
+**`bare`** — use `auto-fit` inline (no stylesheet required; collapses automatically):
+
+```tsx
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px 24px' }}>
+```
+
+> Apply `responsive` rules only when `responsive: true` in the RequirementsBrief. If `responsive: false`, a single fixed `grid-template-columns` value is acceptable.
+
+---
+
+### 3i. Edge Case Handlers
 
 Apply ONLY the handlers whose flag is `true` in the RequirementsBrief Edge Case Flags. Skip all others.
 
@@ -326,7 +393,13 @@ interface <FormName>ViewProps {
 
 export function <FormName>View({ data }: <FormName>ViewProps) {
   return (
-    <dl style={{ display: 'grid', gridTemplateColumns: 'max-content 1fr', gap: '8px 24px' }}>
+    // Mobile-first: single column by default; side-by-side label/value at ≥640px.
+    // Use a className from FormGrid.module.css (or the equivalent for your styling approach)
+    // instead of an inline gridTemplateColumns to support responsive breakpoints.
+    // CSS Modules example: <dl className={`${styles.grid} ${styles.cols2}`}>
+    // Tailwind example:    <dl className="grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-2 gap-x-6">
+    // Bare (fallback):     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))'
+    <dl style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px 24px' }}>
       {/* Generate one <dt>/<dd> pair per field from the FormPlan */}
       {/* Example: */}
       {/* <dt style={{ fontWeight: 500 }}>First Name</dt><dd>{data.firstName ?? '—'}</dd> */}

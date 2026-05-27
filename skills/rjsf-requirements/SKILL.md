@@ -87,6 +87,7 @@ Ask these questions **one at a time**. Skip any question that was already answer
 18. Are there any **rich text / WYSIWYG fields**?
 19. Is a **print or PDF export** action required?
 20. Are there any **accessibility requirements** beyond RJSF defaults (e.g., WCAG AA compliance, specific ARIA labels)?
+21. Will this form be used on **mobile or tablet devices**? (yes / no / yes, primarily mobile — affects whether multi-column layouts collapse to 1-column on small screens and whether touch-target sizing is applied)
 
 ---
 
@@ -137,6 +138,7 @@ Once all relevant questions have been answered, compile the following document. 
 - masked_input: true/false — <which fields>
 - rich_text: true/false — <which fields>
 - print_export: true/false
+- responsive: true/false — <mobile / tablet / both>
 ```
 
 ---

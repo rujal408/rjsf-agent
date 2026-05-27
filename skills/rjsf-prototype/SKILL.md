@@ -85,12 +85,25 @@ body {
 
 .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; }
 
-/* Column grids */
-.grid-1 { display: grid; grid-template-columns: 1fr;                         gap: 16px; }
-.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr);              gap: 16px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr);              gap: 16px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr);              gap: 16px; }
+/* Column grids — mobile-first: all default to 1 column */
+.grid-1,
+.grid-2,
+.grid-3,
+.grid-4 { display: grid; grid-template-columns: 1fr; gap: 16px; }
 .col-full { grid-column: 1 / -1; }
+
+/* Tablet: ≥640px */
+@media (min-width: 640px) {
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Desktop: ≥1024px */
+@media (min-width: 1024px) {
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+}
 
 /* Fields */
 .field { display: flex; flex-direction: column; gap: 4px; }
@@ -106,6 +119,7 @@ input, select, textarea {
   font-size: 0.9rem;
   font-family: inherit;
   background: #fff;
+  min-height: 44px; /* touch target — WCAG 2.5.5 */
 }
 input:focus, select:focus, textarea:focus {
   outline: 2px solid #2563eb;
@@ -152,6 +166,7 @@ button {
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
+  min-height: 44px; /* touch target — WCAG 2.5.5 */
 }
 button[type="submit"], .btn-primary {
   background: #2563eb;

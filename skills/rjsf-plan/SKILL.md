@@ -62,11 +62,20 @@ If `stylingApproach` already exists in `session.json`, skip this step and procee
 
 For each section defined in the RequirementsBrief, apply the heuristics from `references/layout-principles.md` to decide:
 
-### Column Count Rules
-- 1–2 fields in the section → **1 column**
-- 3–4 fields → **2 columns**
-- 5 or more fields → **3 columns**
-- Multi-step form → apply these rules independently to each step; do not share column counts across steps
+### Column Count Rules (Responsive Spec)
+
+Generate a responsive column spec for every section — not a single fixed count. Default (mobile) is always 1 column; tablet (≥640px) and desktop (≥1024px) scale up based on field count.
+
+| Field count in section | Mobile (default) | Tablet ≥640px | Desktop ≥1024px |
+|---|---|---|---|
+| 1–2 fields | 1 column | 1 column | 1 column |
+| 3–4 fields | 1 column | 2 columns | 2 columns |
+| 5–8 fields | 1 column | 2 columns | 3 columns |
+| 9+ fields | 1 column | 2 columns | 3–4 columns |
+
+- Multi-step form → apply these rules independently to each step; do not share column counts across steps.
+- If `responsive: false` in the RequirementsBrief (desktop-only form), you may assign a single fixed column count without breakpoints.
+- Full-width fields (`col-full`) always span all columns regardless of breakpoint.
 
 ### Widget Assignment Per Field
 - Apply the widget table from `references/rjsf-schema-patterns.md` to assign the appropriate standard widget to each field.
@@ -86,10 +95,10 @@ Document layout decisions in the FormPlan as a table per section:
 
 ```markdown
 ### Section: <section name>
-**Columns:** <1 | 2 | 3>
+**Responsive cols:** mobile: 1 | tablet (≥640px): <N> | desktop (≥1024px): <N>
 
-| Field | Schema type | Widget | uiSchema hints | Custom? |
-|-------|-------------|--------|----------------|---------|
+| Field | Schema type | Widget | uiSchema hints | Full-width? | Custom? |
+|-------|-------------|--------|----------------|-------------|---------|
 ```
 
 ---
@@ -182,6 +191,7 @@ Combine all sections produced in Steps 3–6 into a single markdown document wit
 **Generated:** <today's date>
 **Styling:** <stylingApproach value>
 **Multi-step:** <yes | no>
+**Responsive:** <yes | no — from RequirementsBrief responsive flag>
 
 ---
 

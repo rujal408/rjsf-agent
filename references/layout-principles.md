@@ -16,8 +16,14 @@ Guidance for choosing column counts, field widths, section groupings, and widget
 
 ### Grid Implementation Pattern
 
+Inline styles cannot respond to screen width. Always use a class-based approach.
+
+**CSS Modules / plain CSS variant (mobile-first):**
+
 ```tsx
-// ObjectFieldTemplate with 2-column grid and full-width exceptions
+// ObjectFieldTemplate with responsive grid — CSS Modules
+import styles from './FormGrid.module.css';
+
 const TwoColumnTemplate: React.FC<ObjectFieldTemplateProps> = ({
   title,
   properties,
@@ -28,13 +34,11 @@ const TwoColumnTemplate: React.FC<ObjectFieldTemplateProps> = ({
   return (
     <div>
       {title && <h3>{title}</h3>}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 24px" }}>
+      <div className={styles.grid2}>
         {properties.map((prop) => (
           <div
             key={prop.name}
-            style={{
-              gridColumn: fullWidthFields.includes(prop.name) ? "1 / -1" : undefined,
-            }}
+            className={fullWidthFields.includes(prop.name) ? styles.colFull : undefined}
           >
             {prop.content}
           </div>
@@ -44,6 +48,55 @@ const TwoColumnTemplate: React.FC<ObjectFieldTemplateProps> = ({
   );
 };
 ```
+
+```css
+/* FormGrid.module.css — mobile-first */
+.grid1 { display: grid; grid-template-columns: 1fr; gap: 16px 24px; }
+.grid2 { display: grid; grid-template-columns: 1fr; gap: 16px 24px; }
+.grid3 { display: grid; grid-template-columns: 1fr; gap: 16px 24px; }
+.grid4 { display: grid; grid-template-columns: 1fr; gap: 16px 24px; }
+.colFull { grid-column: 1 / -1; }
+
+@media (min-width: 640px) {
+  .grid2 { grid-template-columns: repeat(2, 1fr); }
+  .grid3 { grid-template-columns: repeat(2, 1fr); }
+  .grid4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .grid3 { grid-template-columns: repeat(3, 1fr); }
+  .grid4 { grid-template-columns: repeat(4, 1fr); }
+}
+```
+
+**Tailwind variant (mobile-first):**
+
+```tsx
+// Column class map — apply based on FormPlan column count
+const colClass: Record<number, string> = {
+  1: 'grid grid-cols-1',
+  2: 'grid grid-cols-1 sm:grid-cols-2',
+  3: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+  4: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+};
+
+// Usage in template:
+<div className={`${colClass[columns]} gap-4`}>
+  {properties.map((prop) => (
+    <div key={prop.name} className={fullWidthFields.includes(prop.name) ? 'col-span-full' : ''}>
+      {prop.content}
+    </div>
+  ))}
+</div>
+```
+
+**Bare (no stylesheet) variant — use `auto-fit` so the browser collapses naturally:**
+
+```tsx
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px 24px' }}>
+```
+
+> Note: `auto-fit minmax(280px, 1fr)` does not require media queries — it collapses to 1-column automatically when the container is narrower than 280px × column-count. Use this only for the `bare` styling approach where no stylesheet is available.
 
 ---
 
@@ -116,3 +169,31 @@ const TwoColumnTemplate: React.FC<ObjectFieldTemplateProps> = ({
 | Phone number with country code | Custom PhoneWidget | Plain text (ambiguous format) |
 | Color value | Custom ColorPicker widget | Text input for color hex |
 | Star rating (1–5) | Custom StarRating widget | Number input (poor UX) |
+
+---
+
+## 6. Responsive Breakpoints
+
+All generated grid layouts are **mobile-first**: the default (no media query) is 1-column. Breakpoints add columns progressively.
+
+| Breakpoint | Min-width | Columns unlocked |
+|---|---|---|
+| Mobile (default) | — | 1 column always |
+| Tablet | `640px` | Up to 2 columns |
+| Desktop | `1024px` | Up to 3–4 columns |
+
+### Per styling approach
+
+| Approach | How to apply breakpoints |
+|---|---|
+| `css-modules` | Default `.gridN { grid-template-columns: 1fr }`. Add `@media (min-width: 640px)` and `@media (min-width: 1024px)` blocks as shown in Section 1. |
+| `tailwind` | Use responsive prefixes: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`. `sm:` = ≥640px, `lg:` = ≥1024px. |
+| `plain-css` | Same as css-modules but write rules into a single `.css` file imported in `index.tsx`. |
+| `bare` | Use `gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))'` inline — no media queries needed; collapses automatically. |
+
+### Touch targets
+
+On mobile, interactive elements must be at least **44px tall** (WCAG 2.5.5). For generated form elements:
+- Set `min-height: 44px` on all `input`, `select`, and `button` elements in the form stylesheet.
+- For Tailwind: add `min-h-[44px]` to input/button classes.
+- Do not rely on browser defaults — most render inputs at ~32–36px by default.
