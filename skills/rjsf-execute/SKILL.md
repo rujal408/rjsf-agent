@@ -15,11 +15,40 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 1. Read `.rjsf/session.json`.
 2. Confirm `phases["3"].status` is `"completed"` or `"awaiting_client_approval"`. If neither: stop and say: "Please confirm client approval of the prototype first. Once they approve, tell me 'client approved' to continue."
 3. Read `.rjsf/form-plan.md` (FormPlan from Phase 2).
-4. Read `.rjsf/requirements-brief.md` (RequirementsBrief from Phase 1 — needed for edge case flags).
+4. Read `.rjsf/requirements-brief.md` (or `.rjsf/enhanced-brief.md` if Phase 1.5 completed — needed for edge case flags).
 5. Read `references/rjsf-widget-api.md` for WidgetProps, FieldProps, and template interfaces.
 6. Read `references/rjsf-schema-patterns.md` for JSON Schema and uiSchema patterns.
-7. **Read `prototype/prototype.html`** (the approved client prototype from Phase 3). Use this as the **visual reference** for the generated React form. The prototype's styling — section card borders, spacing, grid layout, field sizing, color scheme — represents the approved look the client signed off on. The generated React code must visually match it.
-8. **Read the UI reference** (if `ui_reference` in the RequirementsBrief is not `none`). If a design file path or URL was provided, read it and use its visual style as additional guidance for the generated form's appearance. The UI reference takes precedence over the prototype for visual decisions where they differ.
+7. **Read `references/validation-strategy.md`** for the validation approach. This is critical — it defines two distinct strategies:
+    - **Strategy 1 (single-page):** Let JSON Schema + RJSF handle all validation natively. Generate zero custom validation code unless `cross_field_validation` or `async_field_validation` flags are true.
+    - **Strategy 2 (multi-step wizard):** Split schema into per-step sub-schemas, use `formRef.current.validateForm()` for programmatic per-step validation on "Next" click, and handle cross-step validation in `handleSubmit`.
+    Apply Strategy 1 when `multi_step: false`. Apply Strategy 2 when `multi_step: true`. Follow the decision tree in that reference exactly.
+8. **Read `references/technical-defaults.md`** for the technical decision keys and defaults.
+9. **Read `session.json → technicalChoices`** (from Phase 2.5). These are the developer's explicit technical decisions. For every decision key, use the value from `technicalChoices`. If a key is missing (legacy session or developer skipped Phase 2.5), use the default from `references/technical-defaults.md`. Apply these choices throughout code generation:
+    - `schemaVersion` → JSON Schema `$schema` header
+    - `validator` → import path (`@rjsf/validator-ajv8` or `@rjsf/validator-yup`)
+    - `validationTiming` → `liveValidate` prop on Form
+    - `html5Validation` → `noHtml5Validate` prop
+    - `omitExtraData` → `omitExtraData` prop
+    - `submissionPattern` → handleSubmit function pattern
+    - `successBehavior` → post-submit UI behavior
+    - `serverErrorShape` → error mapping function shape
+    - `formWrapper` → wrapper div style / component
+    - `breakpoints` → responsive CSS breakpoint values
+    - `touchTargetSize` → min-height on interactive elements
+    - `gridGap` → CSS grid gap values
+    - `colorPalette` → border, focus, error, primary color values
+    - `typeStyle` → TypeScript interface generation approach
+    - `conditionalApproach` → if/then/else vs dependencies vs allOf
+    - `formStateManagement` → useState vs Context vs external store
+    - `formContextUsage` → whether to pass formContext prop
+10. **Read `prototype/prototype.html`** (the approved client prototype from Phase 3). Use this as the **visual reference** for the generated React form. The generated React code must visually match it.
+11. **Read the UI reference** (if `ui_reference` in the RequirementsBrief is not `none`). If a design file or image path was provided, read/view it and extract visual style cues: color scheme, spacing patterns, typography, component styles. Apply these to the generated form's CSS/styles. The UI reference takes precedence over the prototype for visual decisions where they differ. If the UI reference is a URL that cannot be fetched, note this in the file preview and ask the developer to describe the key visual elements.
+12. **Extract custom components from FormPlan.** Parse the Customization Assessment section of `.rjsf/form-plan.md`. Build three lists:
+    - `requiredWidgets`: component names from the "Widgets" table
+    - `requiredFields`: component names from the "Fields" table
+    - `requiredTemplates`: component names from the "Templates" table
+    These lists drive which files to generate in Steps 4e–4g and which imports/registrations to include in `index.tsx`. Do NOT comment out these imports — include them actively. Do NOT include empty widget/field/template objects if the lists are empty.
+13. **Verify Phase 1.5 choices propagated.** If `.rjsf/enhanced-brief.md` exists, cross-reference the Enhancement Choices section against the FormPlan's Customization Assessment. For each enhancement that specified a custom widget/field/template (e.g., "1B — PhoneWidget"), verify it appears in the requiredWidgets/requiredFields/requiredTemplates list. If any are missing, warn the developer: "Enhancement [N] chose [component] but it's not in the FormPlan. Adding it now." and include it in the generation.
 
 ---
 
@@ -46,15 +75,91 @@ Before generating any code, compare the prototype HTML (read in Step 1.7) agains
 6. **Button styling** — padding, border-radius, primary/secondary colors
 7. **Overall wrapper** — max-width, centering, body padding
 
-When generating the React form's CSS/styles (in Step 4 below), **match these values from the prototype**. The generated form should look visually identical to the prototype when rendered in a browser. If a UI reference file was also provided (Step 1.8), use it for any visual decisions not covered by the prototype.
+When generating the React form's CSS/styles (in Step 5 below), **match these values from the prototype**. The generated form should look visually identical to the prototype when rendered in a browser. If a UI reference file was also provided (Step 1.11), use it for any visual decisions not covered by the prototype.
 
 ---
 
-## Step 4 — Generate Artifacts
+## Step 3b — Check for Missing Flags (Priority 4I)
 
-Generate the following files based on the FormPlan. Show each file's content in chat with inline comments BEFORE writing any files. Use the confirmed `outputPath` from session.json, or default to `src/forms/<FormName>/`.
+Scan the RequirementsBrief for edge case flags that affect code generation. If ANY of the following flags are missing or ambiguous, ask the developer before proceeding — do NOT silently default:
 
-### 4a. `schema.ts` — JSON Schema
+| Flag | If missing, ask... |
+|---|---|
+| `error_display` | "How should validation errors be displayed? A) Inline below fields only (recommended). B) Top summary + inline. C) Top summary only." |
+| `responsive` | "Should this form be responsive for mobile/tablet? A) Yes (mobile + tablet + desktop). B) Desktop only." |
+| `edit_mode` | "Does this form need an edit mode (pre-populate from existing data)? A) Yes. B) No." |
+| `draft_save` | "Should the form auto-save drafts to localStorage? A) Yes. B) No." |
+| `server_error_mapping` | "Will your server return field-level errors after submission? A) Yes. B) No." |
+
+Only ask about flags that are genuinely missing. If the flag exists with any value (even `false`), do not ask.
+
+Wait for the developer's answers before proceeding to Step 4.
+
+---
+
+## Step 4 — Show Decisions Summary (Priority 4J)
+
+Before generating any code, display a compact summary of ALL decisions that will affect the generated output:
+
+```
+## Decisions Applied to Code Generation
+
+### From Phase 1 (Requirements)
+| Decision | Value | Source |
+|----------|-------|--------|
+| RJSF theme | @rjsf/mui | Phase 1 Q1 |
+| Form type | multi-step wizard | Phase 1 Q2 |
+| Error display | inline only | Phase 1 Q22 / Step 3b |
+| Edit mode | yes | Phase 1 Q3 |
+| ... | ... | ... |
+
+### From Phase 1.5 (Enhancements)
+| Enhancement | Choice | RJSF Extension |
+|-------------|--------|-----------------|
+| Phone field | PhoneWidget | custom widget |
+| Form layout | Wizard (3 steps) | custom template |
+| ... | ... | ... |
+
+### From Phase 2 (Planning)
+| Decision | Value |
+|----------|-------|
+| Styling approach | mui-grid |
+| Columns (Personal Info) | mobile:1 / tablet:2 / desktop:3 |
+| ... | ... |
+
+### From Phase 2.5 (Technical Choices)
+| Decision | Value | Default? |
+|----------|-------|----------|
+| Schema version | Draft-07 | yes |
+| Validator | ajv8 | yes |
+| Validation timing | onSubmit | yes |
+| HTML5 validation | disabled | changed |
+| Submission pattern | async-loading | yes |
+| Form wrapper | full-width | changed |
+| ... | ... | ... |
+
+### Custom Components to Generate
+| Type | Component | For Field |
+|------|-----------|-----------|
+| Widget | PhoneWidget | phoneNumber |
+| Field | DateRangeField | employmentDates |
+| Template | WizardTemplate | form layout |
+| Template | StepIndicator | wizard progress |
+```
+
+After the summary, ask:
+
+> "This is what I'll generate. Approve to see the code preview, or change any decision."
+
+Wait for approval before proceeding to Step 5.
+
+---
+
+## Step 5 — Generate Artifacts
+
+Generate the following files based on the FormPlan, technical choices, and enhancement selections. Show each file's content in chat with inline comments BEFORE writing any files. Use the confirmed `outputPath` from session.json, or default to `src/forms/<FormName>/`.
+
+### 5a. `schema.ts` — JSON Schema
 
 ```typescript
 // schema.ts — JSON Schema Draft-07
@@ -80,7 +185,7 @@ export const schema: RJSFSchema = {
 
 Apply the schema type mapping from `references/rjsf-schema-patterns.md` to every field in the FormPlan.
 
-### 4b. `uiSchema.ts` — UI Schema
+### 5b. `uiSchema.ts` — UI Schema
 
 ```typescript
 // uiSchema.ts
@@ -101,7 +206,7 @@ export const uiSchema: UiSchema = {
 
 Assign `ui:order`, `ui:placeholder`, `ui:widget`, `ui:field`, `ui:options`, `ui:help` based on the FormPlan layout decisions and uiSchema hints columns.
 
-### 4c. `types.ts` — TypeScript Types
+### 5c. `types.ts` — TypeScript Types
 
 ```typescript
 // types.ts — TypeScript interfaces derived from schema
@@ -122,7 +227,7 @@ export interface <SectionName> {
 }
 ```
 
-### 4d. `index.tsx` — Form Component
+### 5d. `index.tsx` — Form Component
 
 ```tsx
 // index.tsx — Main form component
@@ -133,28 +238,32 @@ import React, { useState } from 'react';
 // @rjsf/antd → import Form from '@rjsf/antd';
 // @rjsf/bootstrap → import Form from '@rjsf/bootstrap';
 import Form from '<rjsf-theme-package>';
+// Validator: use technicalChoices.validator to pick import
+//   "ajv8" → import validator from '@rjsf/validator-ajv8';
+//   "yup"  → import { customizeValidator } from '@rjsf/validator-yup';
 import validator from '@rjsf/validator-ajv8';
 import { schema } from './schema';
 import { uiSchema } from './uiSchema';
 import type { <FormName>Data } from './types';
-// Import custom components (uncomment as needed):
+// Import custom components — auto-populated from FormPlan Customization Assessment.
+// Only include imports for components in requiredWidgets/requiredFields/requiredTemplates (Step 1.12).
+// Do NOT include commented-out imports for components that aren't needed.
 // import { PhoneWidget } from './widgets/PhoneWidget';
 // import { DateRangeField } from './fields/DateRangeField';
 // import { WizardTemplate } from './templates/WizardTemplate';
 
+// Register ONLY the custom components identified in the Customization Assessment.
+// If no custom widgets/fields/templates are needed, omit the prop entirely from <Form>.
 const widgets = {
-  // PhoneWidget,
-  // Add all custom widgets identified in Customization Assessment
+  // e.g., phone: PhoneWidget — only if PhoneWidget is in requiredWidgets
 };
 
 const fields = {
-  // DateRangeField,
-  // Add all custom fields identified in Customization Assessment
+  // e.g., dateRange: DateRangeField — only if DateRangeField is in requiredFields
 };
 
 const templates = {
-  // ObjectFieldTemplate: WizardTemplate,
-  // Add custom templates (use exact key names from RJSF template API)
+  // e.g., ObjectFieldTemplate: WizardTemplate — only if WizardTemplate is in requiredTemplates
 };
 
 interface <FormName>Props {
@@ -168,7 +277,11 @@ export function <FormName>({ formData, onSubmit, onError }: <FormName>Props) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [serverErrors, setServerErrors] = useState<Record<string, unknown>>({});
 
-  // Cross-field validation (add rules here if cross_field_validation flag is true):
+  // --- VALIDATION STRATEGY 1: Schema-Driven (single-page form) ---
+  // JSON Schema handles: required fields, minLength/maxLength, pattern, format, min/max, enum.
+  // Do NOT duplicate these rules in customValidate — it causes double error messages.
+  //
+  // ONLY add customValidate when cross_field_validation: true in RequirementsBrief:
   // function customValidate(data: <FormName>Data, errors: FormValidation) {
   //   if (data.endDate && data.startDate && data.endDate < data.startDate) {
   //     errors.endDate!.addError('End date must be after start date');
@@ -239,35 +352,39 @@ export function <FormName>({ formData, onSubmit, onError }: <FormName>Props) {
         fields={fields}
         templates={templates}
         extraErrors={serverErrors}
-        noHtml5Validate={false}
-        omitExtraData={false}
+        // --- Props driven by technicalChoices (Phase 2.5) ---
+        // noHtml5Validate: technicalChoices.html5Validation === false → noHtml5Validate={true}
+        noHtml5Validate={true}  // Set from technicalChoices.html5Validation
+        // omitExtraData: technicalChoices.omitExtraData === true → omitExtraData={true}
+        omitExtraData={false}  // Set from technicalChoices.omitExtraData
+        // liveValidate: technicalChoices.validationTiming === "live" → liveValidate={true}
+        // (omit prop if "onSubmit" or "onBlur")
         onSubmit={handleSubmit}
-        // --- Error display configuration ---
-        // Set based on RequirementsBrief error_display flag:
-        //   error_display: "inline" → showErrorList={false}   (errors below fields only — cleanest UI)
-        //   error_display: "both"   → showErrorList="top"      (RJSF default: top summary + inline)
-        //   error_display: "top"    → showErrorList="top"      (+ pass custom FieldTemplate to hide inline, see note below)
-        showErrorList={false}  // Default: "inline" — change based on error_display flag
-        // customValidate={customValidate}  // uncomment if cross-field validation is needed
+        // --- Error display: set from RequirementsBrief error_display flag ---
+        //   "inline" → showErrorList={false}
+        //   "both"   → showErrorList="top"
+        //   "top"    → showErrorList="top" + custom FieldTemplate
+        showErrorList={false}
+        // customValidate — include ONLY if cross_field_validation: true
       />
     </div>
   );
 }
 ```
 
-### 4e. Custom Widgets
+### 5e. Custom Widgets
 
 For each custom Widget listed in the FormPlan Customization Assessment, create `widgets/<ComponentName>.tsx` following the WidgetProps interface from `references/rjsf-widget-api.md`. Include full implementation — not a stub. Reference the PhoneWidget example in that file as a pattern for masked/compound inputs.
 
-### 4f. Custom Fields
+### 5f. Custom Fields
 
 For each custom Field listed in the Customization Assessment, create `fields/<ComponentName>.tsx` following the FieldProps interface. Include full implementation.
 
-### 4g. Custom Templates
+### 5g. Custom Templates
 
 For each custom Template listed in the Customization Assessment, create `templates/<ComponentName>.tsx` following the relevant template interface (ObjectFieldTemplateProps, ArrayFieldTemplateProps, or FieldTemplateProps).
 
-### 4h. Responsive Grid CSS
+### 5h. Responsive Grid CSS
 
 For every `ObjectFieldTemplate` generated (including section-level templates), emit responsive CSS using the column spec from the FormPlan. Use the approach that matches `session.json → stylingApproach`.
 
@@ -475,7 +592,7 @@ import { Box } from '@chakra-ui/react';
 
 ---
 
-### 4i. Error Display Configuration
+### 5i. Error Display Configuration
 
 Read the `error_display` flag from the RequirementsBrief. Configure the `<Form>` component's error behavior accordingly:
 
@@ -522,7 +639,7 @@ Register in `index.tsx` templates: `FieldTemplate: CleanFieldTemplate`.
 
 ---
 
-### 4j. Edge Case Handlers
+### 5j. Edge Case Handlers
 
 Apply ONLY the handlers whose flag is `true` in the RequirementsBrief Edge Case Flags. Skip all others.
 
@@ -1116,11 +1233,14 @@ Register in `index.tsx` templates: `ObjectFieldTemplate: TabTemplate`.
 
 #### `multi_step: true`
 
-When `multi_step: true` in the RequirementsBrief, generate a multi-step wizard. This **replaces** the standard `index.tsx` with a wizard controller that:
-- Renders one step at a time using per-step sub-schemas
-- Validates each step's required fields via `formRef.current?.validateForm()` before advancing
+When `multi_step: true` in the RequirementsBrief, generate a multi-step wizard. This **replaces** the standard `index.tsx` with a wizard controller that uses **Validation Strategy 2** (see `references/validation-strategy.md`):
+
+- Renders one step at a time using **per-step sub-schemas** (NOT the full schema)
+- **Validates each step's required fields** via `formRef.current?.validateForm()` before advancing — this validates ONLY the current step's sub-schema, not the entire form
 - Places the submit button inside `<Form>` so RJSF validates the final step on submit
 - Shows a styled step indicator (active / completed / upcoming states)
+- Accumulates field values across steps in `allData` state (single source of truth)
+- If `cross_field_validation: true` AND related fields span different steps → adds cross-step validation in `handleSubmit()` on the final step (see `references/validation-strategy.md` § Cross-Step Validation)
 
 ---
 
@@ -1278,10 +1398,29 @@ export function <FormName>({ formData: initialData, onSubmit, onError }: <FormNa
 
   const handleBack = () => setCurrentStep(prev => prev - 1);
 
+  // --- VALIDATION STRATEGY 2: Custom Per-Step (multi-step wizard) ---
+  // Each step validates ONLY its own sub-schema via validateForm().
+  // The final submit validates the last step via RJSF's onSubmit pipeline,
+  // then runs cross-step validation (if cross_field_validation: true and fields span steps).
+  //
+  // DO NOT pass the full schema to <Form> — it would show errors for invisible fields.
+  // DO NOT add customValidate for rules that JSON Schema already handles within a step.
+
   // Final submit — only reached from the last step.
   // type="submit" inside <Form> ensures RJSF validates the last step before this fires.
   const handleSubmit = async ({ formData: stepData }: { formData: <FormName>Data }) => {
     const finalData = { ...allData, ...stepData } as <FormName>Data;
+
+    // Cross-step validation (only if cross_field_validation: true AND fields span steps):
+    // const crossStepErrors: string[] = [];
+    // if (finalData.endDate && finalData.startDate && finalData.endDate <= finalData.startDate) {
+    //   crossStepErrors.push('End date (Step 3) must be after start date (Step 1)');
+    // }
+    // if (crossStepErrors.length > 0) {
+    //   setFormLevelErrors(crossStepErrors);  // display as form-level error on final step
+    //   return;
+    // }
+
     setStatus('loading');
     try {
       await onSubmit(finalData);
@@ -1402,7 +1541,7 @@ Update the file tree shown in Step 4 to include multi_step artifacts when applic
 
 ---
 
-## Step 5 — Full Preview
+## Step 6 — Full Preview
 
 Show the complete file tree in chat:
 
@@ -1428,7 +1567,7 @@ Ask: "Ready to write these files? Confirm the output path: `<outputPath>/` (or s
 
 ---
 
-## Step 6 — Write Files
+## Step 7 — Write Files
 
 On confirmation:
 1. Create the output directory if it does not exist.
@@ -1443,7 +1582,7 @@ On confirmation:
 
 ---
 
-## Step 7 — End-of-Phase Prompt
+## Step 8 — End-of-Phase Prompt
 
 After writing, output:
 

@@ -1,6 +1,6 @@
 ---
 name: rjsf-build
-description: Run the full 5-phase RJSF form pipeline from requirements to tests, or resume an existing session
+description: Run the full RJSF form pipeline (Phases 1 → 1.5 → 2 → 2.5 → 3 → 4 → 5) from requirements to tests, or resume an existing session
 argument-hint: ["requirements text"] [--from file]
 allowed-tools: [Read, Write, Edit, Glob, Bash]
 ---
@@ -9,7 +9,7 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 
 **Trigger:** `/rjsf-build "natural language requirements"` — or `/rjsf-build --from <file>` — or `/rjsf-build` alone to resume.
 
-Runs all 5 phases in sequence, waiting for developer approval between phases. Can resume an interrupted session.
+Runs all 7 phases in sequence (including Phase 1.5 — feature suggestions and Phase 2.5 — technical decisions), waiting for developer approval between phases. Can resume an interrupted session.
 
 ---
 
@@ -27,7 +27,7 @@ Read `.rjsf/session.json` if it exists.
 - On **A**: jump to the routing step for `currentPhase` (see Step 3).
 - On **B**: archive the current session (follow `references/session-pattern.md` archiving instructions), then proceed to Phase 1.
 
-**If the session is fully completed (all 5 phases "completed"):**
+**If the session is fully completed (all phases "completed"):**
 
 > "<FormName> was fully built on <completedDate>.
 >
@@ -56,23 +56,34 @@ If `phases["3"].status` is `"awaiting_client_approval"` AND the developer's mess
 Run each phase in order. After each phase, check `session.json` to confirm the phase is `"completed"` before proceeding.
 
 ```
-Phase 1 → invoke rjsf-requirements skill
-          (pass inline requirements text or --from file path if provided)
-          WAIT — developer approves RequirementsBrief
+Phase 1   → invoke rjsf-requirements skill
+            (pass inline requirements text or --from file path if provided)
+            WAIT — developer approves RequirementsBrief
 
-Phase 2 → invoke rjsf-plan skill
-          WAIT — developer approves FormPlan
+Phase 1.5 → invoke rjsf-suggest skill
+            Analyzes the brief and suggests UI/UX enhancements as A/B/C options.
+            Developer picks options (or "all defaults" / "skip").
+            WAIT — developer approves enhancement choices
 
-Phase 3 → invoke rjsf-prototype skill
-          Tell developer: "Share prototype/prototype.html with your client.
-          Come back and say 'client approved' when they confirm."
-          PAUSE — wait for client approval signal (Step 2 above)
+Phase 2   → invoke rjsf-plan skill
+            WAIT — developer approves FormPlan
 
-Phase 4 → invoke rjsf-execute skill
-          WAIT — developer confirms output path and file write
+Phase 2.5 → invoke rjsf-technical skill
+            Presents technical decisions (schema version, validator, submission
+            pattern, styling, code structure) as grouped A/B/C options.
+            Developer picks options (or "all defaults" / "skip").
+            WAIT — developer approves technical choices
 
-Phase 5 → invoke rjsf-test skill
-          Done — all phases complete
+Phase 3   → invoke rjsf-prototype skill
+            Tell developer: "Share prototype/prototype.html with your client.
+            Come back and say 'client approved' when they confirm."
+            PAUSE — wait for client approval signal (Step 2 above)
+
+Phase 4   → invoke rjsf-execute skill
+            WAIT — developer confirms output path and file write
+
+Phase 5   → invoke rjsf-test skill
+            Done — all phases complete
 ```
 
 If the developer says "stop here" at any point, respond:
@@ -84,7 +95,7 @@ If the developer says "stop here" at any point, respond:
 
 After Phase 5 completes, output:
 
-> "**<FormName> is complete.** All 5 phases done.
+> "**<FormName> is complete.** All phases done.
 >
 > - **Make changes:** `/rjsf-iterate \"describe change\"`
 > - **Build another form:** `/rjsf-build \"describe new form\"`

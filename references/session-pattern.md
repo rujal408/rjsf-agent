@@ -8,50 +8,51 @@ The session file tracks pipeline progress across skill invocations. Skills read 
 
 ```json
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "formName": "UserRegistrationForm",
-  "outputPath": "src/components/UserRegistrationForm",
+  "outputPath": "src/forms/UserRegistrationForm",
   "rjsfTheme": "@rjsf/mui",
-  "stylingApproach": "tailwind",
-  "currentPhase": "component",
+  "stylingApproach": "mui-grid",
+  "technicalChoices": {},
+  "currentPhase": "4",
   "phases": {
-    "discovery": {
+    "1": {
       "status": "completed",
       "startedAt": "2026-05-26T09:00:00Z",
       "completedAt": "2026-05-26T09:05:00Z",
-      "artifactPath": ".rjsf/schema.json"
+      "artifactPath": ".rjsf/requirements-brief.md"
     },
-    "schema": {
+    "1.5": {
       "status": "completed",
       "startedAt": "2026-05-26T09:05:00Z",
-      "completedAt": "2026-05-26T09:12:00Z",
-      "artifactPath": ".rjsf/schema.json"
+      "completedAt": "2026-05-26T09:08:00Z",
+      "artifactPath": ".rjsf/enhanced-brief.md"
     },
-    "uiSchema": {
+    "2": {
       "status": "completed",
-      "startedAt": "2026-05-26T09:12:00Z",
-      "completedAt": "2026-05-26T09:17:00Z",
-      "artifactPath": ".rjsf/uiSchema.json"
+      "startedAt": "2026-05-26T09:08:00Z",
+      "completedAt": "2026-05-26T09:15:00Z",
+      "artifactPath": ".rjsf/form-plan.md"
     },
-    "customization": {
+    "2.5": {
       "status": "completed",
-      "startedAt": "2026-05-26T09:17:00Z",
+      "startedAt": "2026-05-26T09:15:00Z",
+      "completedAt": "2026-05-26T09:18:00Z",
+      "artifactPath": ".rjsf/technical-choices.md"
+    },
+    "3": {
+      "status": "completed",
+      "startedAt": "2026-05-26T09:18:00Z",
       "completedAt": "2026-05-26T09:25:00Z",
-      "artifactPath": ".rjsf/customizations.json"
+      "artifactPath": "prototype/prototype.html"
     },
-    "component": {
+    "4": {
       "status": "in_progress",
-      "startedAt": "2026-05-26T09:25:00Z",
+      "startedAt": "2026-05-26T09:30:00Z",
       "completedAt": null,
       "artifactPath": null
     },
-    "validation": {
-      "status": "pending",
-      "startedAt": null,
-      "completedAt": null,
-      "artifactPath": null
-    },
-    "review": {
+    "5": {
       "status": "pending",
       "startedAt": null,
       "completedAt": null,
@@ -65,13 +66,14 @@ The session file tracks pipeline progress across skill invocations. Skills read 
 
 | Field | Type | Description |
 |---|---|---|
-| `version` | `string` | Session schema version. Current: `"1.0.0"` |
+| `version` | `string` | Session schema version. Current: `"1.1.0"` |
 | `formName` | `string` | PascalCase name of the form component (e.g., `"UserRegistrationForm"`) |
-| `outputPath` | `string` | Relative path where the final component file will be written |
+| `outputPath` | `string` | Relative path where generated form files will be written |
 | `rjsfTheme` | `string` | RJSF theme package: `@rjsf/core`, `@rjsf/mui`, `@rjsf/antd`, `@rjsf/bootstrap` |
-| `stylingApproach` | `string` | CSS strategy: `tailwind`, `css-modules`, `styled-components`, `inline`, `none` |
-| `currentPhase` | `string` | Name of the phase currently being worked on |
-| `phases` | `object` | Map of phase name → phase state object |
+| `stylingApproach` | `string` | CSS strategy: `css-modules`, `scss`, `tailwind`, `plain-css`, `chakra`, `bare`, `mui-grid`, `antd-grid`, `bootstrap-grid` |
+| `technicalChoices` | `object` | Technical decisions from Phase 2.5 (schema version, validator, submission pattern, etc.) |
+| `currentPhase` | `string` | Numeric phase key currently being worked on (e.g., `"1"`, `"1.5"`, `"2"`, `"2.5"`, `"3"`, `"4"`, `"5"`) |
+| `phases` | `object` | Map of numeric phase key → phase state object |
 
 ### Phase State Fields
 
@@ -81,6 +83,22 @@ The session file tracks pipeline progress across skill invocations. Skills read 
 | `startedAt` | `string \| null` | ISO 8601 timestamp when the phase started, or `null` |
 | `completedAt` | `string \| null` | ISO 8601 timestamp when the phase completed, or `null` |
 | `artifactPath` | `string \| null` | Relative path to the primary artifact produced by this phase, or `null` |
+
+### Phase Keys
+
+All phase keys are **numeric strings**. This is the canonical pipeline order:
+
+| Phase Key | Name | Skill | Artifact |
+|-----------|------|-------|----------|
+| `"1"` | Requirements | `rjsf-requirements` | `.rjsf/requirements-brief.md` |
+| `"1.5"` | Feature Suggestions | `rjsf-suggest` | `.rjsf/enhanced-brief.md` |
+| `"2"` | Planning | `rjsf-plan` | `.rjsf/form-plan.md` |
+| `"2.5"` | Technical Decisions | `rjsf-technical` | `.rjsf/technical-choices.md` |
+| `"3"` | Prototype | `rjsf-prototype` | `prototype/prototype.html` |
+| `"4"` | Execution | `rjsf-execute` | `src/forms/<FormName>/` |
+| `"5"` | Testing | `rjsf-test` | `src/forms/<FormName>/<FormName>.test.tsx` |
+
+**Pipeline order:** `1 → 1.5 → 2 → 2.5 → 3 → 4 → 5`
 
 ---
 
@@ -103,7 +121,7 @@ Execute these steps in order at the beginning of any skill that participates in 
 
 2. **Parse the JSON.** Read and parse `.rjsf/session.json`. If parsing fails (invalid JSON), warn the user and offer to reset the session.
 
-3. **Identify the current phase.** Read `session.currentPhase`. This is the phase the skill should work on.
+3. **Identify the current phase.** Read `session.currentPhase`. This is the numeric phase key the skill should work on.
 
 4. **Check phase status.** Read `session.phases[currentPhase].status`:
    - If `in_progress`: Resume the phase from where it left off. Read the artifact at `artifactPath` if it exists.
@@ -111,7 +129,7 @@ Execute these steps in order at the beginning of any skill that participates in 
    - If `pending`: This phase has not started. Set status to `in_progress`, set `startedAt` to now, and begin the phase.
    - If `awaiting_client_approval`: Present the existing artifact to the user and wait for explicit approval before proceeding.
 
-5. **Load prior artifacts.** For each phase that is `completed`, read its `artifactPath` to load the data produced (e.g., `schema.json`, `uiSchema.json`). These are the inputs to the current phase.
+5. **Load prior artifacts.** For each phase that is `completed`, read its `artifactPath` to load the data produced. These are the inputs to the current phase.
 
 ---
 
@@ -119,16 +137,16 @@ Execute these steps in order at the beginning of any skill that participates in 
 
 Execute these steps in order after a phase finishes successfully:
 
-1. **Write the phase artifact.** Save the primary output of the phase to its designated path (see Artifact Files table). Create the `.rjsf/` directory if it does not exist.
+1. **Write the phase artifact.** Save the primary output of the phase to its designated path (see Phase Keys table). Create the `.rjsf/` directory if it does not exist.
 
 2. **Update the completed phase in session.** Set:
-   - `phases[phaseName].status` → `"completed"`
-   - `phases[phaseName].completedAt` → current ISO 8601 timestamp
-   - `phases[phaseName].artifactPath` → relative path to the artifact written in step 1
+   - `phases[phaseKey].status` → `"completed"`
+   - `phases[phaseKey].completedAt` → current ISO 8601 timestamp
+   - `phases[phaseKey].artifactPath` → relative path to the artifact written in step 1
 
-3. **Determine the next phase.** Find the next phase in the ordered pipeline sequence. The canonical order is: `discovery → schema → uiSchema → customization → component → validation → review`.
+3. **Determine the next phase.** Find the next phase in the pipeline order: `1 → 1.5 → 2 → 2.5 → 3 → 4 → 5`.
 
-4. **Update session.currentPhase.** Set `session.currentPhase` to the name of the next phase. Set `phases[nextPhase].status` to `"pending"` (it remains pending until that skill runs).
+4. **Update session.currentPhase.** Set `session.currentPhase` to the next phase key. Set `phases[nextPhaseKey].status` to `"pending"` (it remains pending until that skill runs).
 
 5. **Write session.json.** Overwrite `.rjsf/session.json` with the updated session object. Always write the full object (not a partial merge) to avoid stale data.
 
@@ -136,15 +154,15 @@ Execute these steps in order after a phase finishes successfully:
 
 ## 5. Artifact Files
 
-| Phase | Artifact Path | Format |
+| Phase Key | Artifact Path | Format |
 |---|---|---|
-| `discovery` | `.rjsf/discovery.md` | Markdown — captured requirements, field list, validation rules |
-| `schema` | `.rjsf/schema.json` | JSON — the full RJSF-compatible JSON Schema |
-| `uiSchema` | `.rjsf/uiSchema.json` | JSON — the full RJSF uiSchema object |
-| `customization` | `.rjsf/customizations.json` | JSON — list of custom widgets/fields/templates to generate |
-| `component` | `{outputPath}/{formName}.tsx` | TypeScript React — the assembled Form component file |
-| `validation` | `.rjsf/validation.ts` | TypeScript — `customValidate` function and `handleServerErrors` helper |
-| `review` | `.rjsf/review.md` | Markdown — review checklist results and any open issues |
+| `1` | `.rjsf/requirements-brief.md` | Markdown — captured requirements, field list, validation rules |
+| `1.5` | `.rjsf/enhanced-brief.md` | Markdown — enhanced requirements with UI/UX choices applied, customization summary |
+| `2` | `.rjsf/form-plan.md` | Markdown — layout decisions, widget assignments, customization assessment, step map |
+| `2.5` | `.rjsf/technical-choices.md` | Markdown — technical decisions (schema version, validator, submission pattern, etc.) |
+| `3` | `prototype/prototype.html` | HTML — self-contained client prototype |
+| `4` | `src/forms/<FormName>/` | TypeScript React — schema.ts, uiSchema.ts, types.ts, index.tsx, custom components |
+| `5` | `src/forms/<FormName>/<FormName>.test.tsx` | TypeScript — test file covering validation, conditions, accessibility |
 
 ---
 
@@ -160,12 +178,11 @@ Archive the current session when starting a completely new form (same project) o
 
 4. **Clear active files.** Delete the following files from `.rjsf/` (not from the archive):
    - `.rjsf/session.json`
-   - `.rjsf/discovery.md`
-   - `.rjsf/schema.json`
-   - `.rjsf/uiSchema.json`
-   - `.rjsf/customizations.json`
-   - `.rjsf/validation.ts`
-   - `.rjsf/review.md`
+   - `.rjsf/requirements-brief.md`
+   - `.rjsf/enhanced-brief.md`
+   - `.rjsf/form-plan.md`
+   - `.rjsf/technical-choices.md`
    Do NOT delete the component file at `outputPath` — that is user-owned production code.
+   Do NOT delete `prototype/prototype.html` — it may be needed for reference.
 
 5. **Start fresh.** After clearing, initialize a new `.rjsf/session.json` for the new form with all phases set to `pending`. Proceed with the first skill in the pipeline.

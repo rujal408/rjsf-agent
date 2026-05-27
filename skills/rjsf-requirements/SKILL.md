@@ -179,4 +179,4 @@ After saving, display the following message:
 
 > Requirements captured and saved to `.rjsf/requirements-brief.md`.
 >
-> **Next step:** Run `/rjsf-plan` to design the form structure and layout, or `/rjsf-build` to continue automatically.
+> **Next step:** Run `/rjsf-suggest` to get UI/UX enhancement suggestions, or `/rjsf-build` to continue automatically.

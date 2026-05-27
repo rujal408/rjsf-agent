@@ -13,10 +13,12 @@ allowed-tools: [Read, Write, Glob, Bash]
 ## Step 1 — Read Session & Artifacts
 
 1. Read `.rjsf/session.json`.
-2. Read `.rjsf/form-plan.md`.
-3. If `phases["2"].status` is not `"completed"`, stop and tell the user:
+2. **Read `.rjsf/form-plan.md`** (FormPlan from Phase 2). This is the primary input — use its column layout decisions, widget assignments, step map, and customization assessment to generate the prototype. The prototype must visually reflect the planned layout (column counts, full-width fields, step structure).
+3. Read `.rjsf/requirements-brief.md` (or `.rjsf/enhanced-brief.md` if Phase 1.5 completed) for field details.
+4. If `phases["2.5"]` exists and is `"completed"`, read `.rjsf/technical-choices.md` for styling decisions (formWrapper, gridGap, colorPalette, touchTargetSize). Apply these to the prototype's CSS.
+5. If `phases["2"].status` is not `"completed"`, stop and tell the user:
    > "Phase 2 (Planning) must be completed first. Run `/rjsf-plan`."
-- If `phases["3"].status` is `"awaiting_client_approval"` or `"completed"`:
+6. If `phases["3"].status` is `"awaiting_client_approval"` or `"completed"`:
   - Tell the user: "A prototype already exists at `prototype/prototype.html`. Regenerate it (overwrites existing file), or open the existing one for review?"
   - Wait for the user's choice. Only proceed to Step 2 if they choose to regenerate.
 

@@ -63,6 +63,8 @@ Match the developer's message against this table and route accordingly. Apply th
 | "tests", "generate tests", "write tests", "test the form" | `/rjsf-test` |
 | "prototype", "show client", "preview" | `/rjsf-prototype` |
 | "plan", "design the form", "layout" | `/rjsf-plan` |
+| "suggest", "suggestions", "enhance", "enhancements", "what options", "what widgets", "improve UI", "better UI", "make it look better" | `/rjsf-suggest` |
+| "technical", "technical decisions", "schema version", "validator", "configure", "settings", "breakpoints", "submission pattern" | `/rjsf-technical` |
 | "requirements", "gather requirements" | `/rjsf-requirements` |
 | "help", "what can you do", "commands", "how do I" | `/rjsf-help` |
 | "status", "progress", "what phase", "where are we" | `/rjsf-status` |
