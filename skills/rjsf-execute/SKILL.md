@@ -19,6 +19,7 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 5. Read `references/rjsf-widget-api.md` for WidgetProps, FieldProps, and template interfaces.
 6. Read `references/rjsf-schema-patterns.md` for JSON Schema and uiSchema patterns.
 6b. **Read `references/rjsf-type-contracts.md`** for canonical RJSF v5 type signatures. This is the **type authority** — every generated file MUST conform to the contracts in this reference. Violations cause TypeScript build errors.
+6c. **Read `references/visual-parity-rules.md`** for mandatory visual styling rules. This is the **visual authority** — every generated form MUST include the base CSS overrides, custom ObjectFieldTemplate, enum humanization, and other rules listed there. Without these, the RJSF form will look nothing like the client-approved prototype.
 7. **Read `references/validation-strategy.md`** for the validation approach. This is critical — it defines two distinct strategies:
     - **Strategy 1 (single-page):** Let JSON Schema + RJSF handle all validation natively. Generate zero custom validation code unless `cross_field_validation` or `async_field_validation` flags are true.
     - **Strategy 2 (multi-step wizard):** Split schema into per-step sub-schemas, use `formRef.current.validateForm()` for programmatic per-step validation on "Next" click, and handle cross-step validation in `handleSubmit`.
@@ -66,7 +67,9 @@ If `phases["3"].status` is already `"completed"`, skip this step.
 
 ## Step 3 — Visual Parity Check
 
-Before generating any code, compare the prototype HTML (read in Step 1.7) against the FormPlan. Extract these visual properties from the prototype to replicate in the React output:
+**This step is CRITICAL.** RJSF's default rendering looks nothing like the prototype — labels are centered, layout is single-column, sections have no borders, radio buttons are vertical, enum labels show raw snake_case values. Without explicit overrides, the generated form will be ugly and unprofessional.
+
+Before generating any code, read `references/visual-parity-rules.md` and apply ALL mandatory rules. Additionally, compare the prototype HTML (read in Step 1.10) against the FormPlan and extract these visual properties:
 
 1. **Section styling** — border style, border-radius, padding, margin-bottom of `.section` elements
 2. **Field spacing** — gap values in `.grid-*` classes, `.field` flex gap
@@ -75,6 +78,16 @@ Before generating any code, compare the prototype HTML (read in Step 1.7) agains
 5. **Input styling** — padding, border-radius, min-height (44px touch target), focus outline
 6. **Button styling** — padding, border-radius, primary/secondary colors
 7. **Overall wrapper** — max-width, centering, body padding
+8. **Column layout per section** — which fields are side-by-side, which are full-width
+9. **Radio/checkbox layout** — inline vs vertical per field
+10. **Enum label format** — how options are displayed (Title Case, sentence case, etc.)
+
+**Mandatory artifacts to generate (from visual-parity-rules.md):**
+
+- **`rjsf-overrides.css`** (or equivalent for styling approach) — base CSS that fixes RJSF defaults: left-align labels, consistent spacing, proper input styling, error/help text formatting, button alignment. **Always generate this file.**
+- **`templates/SectionTemplate.tsx`** — custom ObjectFieldTemplate with CSS grid layout matching the FormPlan's column spec per section. **Always generate this for any form with multi-column sections.** Add it to requiredTemplates even if the FormPlan's Customization Assessment didn't list one.
+- **Enum humanization** — scan every `enum` field in the schema; if any value contains underscores, hyphens, or non-human-readable text, convert to `oneOf` with `title` in `schema.ts`.
+- **Radio inline** — for every radio field with ≤5 options and short text (≤30 chars per option), set `'ui:options': { inline: true }` in `uiSchema.ts`.
 
 When generating the React form's CSS/styles (in Step 5 below), **match these values from the prototype**. The generated form should look visually identical to the prototype when rendered in a browser. If a UI reference file was also provided (Step 1.11), use it for any visual decisions not covered by the prototype.
 
@@ -186,6 +199,25 @@ export const schema: RJSFSchema = {
 
 Apply the schema type mapping from `references/rjsf-schema-patterns.md` to every field in the FormPlan.
 
+**Enum humanization (MANDATORY — see `references/visual-parity-rules.md` Rule 3):**
+For every field with `enum` values, check if ANY value contains underscores, hyphens, camelCase, or abbreviations. If so, replace `enum` with `oneOf` using human-readable `title` values:
+
+```typescript
+// ❌ BAD — renders as "prefer_not_to_say" in the UI
+gender: { type: 'string', enum: ['male', 'female', 'other', 'prefer_not_to_say'] }
+
+// ✅ GOOD — renders as "Prefer not to say" in the UI
+gender: {
+  type: 'string',
+  oneOf: [
+    { const: 'male', title: 'Male' },
+    { const: 'female', title: 'Female' },
+    { const: 'other', title: 'Other' },
+    { const: 'prefer_not_to_say', title: 'Prefer not to say' },
+  ]
+}
+```
+
 ### 5b. `uiSchema.ts` — UI Schema
 
 ```typescript
@@ -208,6 +240,14 @@ export const uiSchema: UiSchema<<FormName>Data> = {
 ```
 
 Assign `ui:order`, `ui:placeholder`, `ui:widget`, `ui:field`, `ui:options`, `ui:help` based on the FormPlan layout decisions and uiSchema hints columns.
+
+**Radio inline (MANDATORY — see `references/visual-parity-rules.md` Rule 4):**
+For every radio button field with ≤5 options where each option label is ≤30 characters, set `'ui:options': { inline: true }` to render horizontally. This matches the prototype layout.
+
+```typescript
+// ✅ Gender with 4 short options → inline
+gender: { 'ui:widget': 'radio', 'ui:options': { inline: true } }
+```
 
 ### 5c. `types.ts` — TypeScript Types
 
@@ -397,6 +437,56 @@ export function <FormName>({ formData, onSubmit, onError }: <FormName>Props) {
   );
 }
 ```
+
+### 5d-1. `rjsf-overrides.css` — Base CSS Overrides (MANDATORY)
+
+**Always generate this file.** RJSF's default rendering has centered labels, no section borders, inconsistent spacing, and unstyled buttons. This stylesheet fixes all of these to match the prototype.
+
+See `references/visual-parity-rules.md` Rule 2 for the full CSS content. Generate the stylesheet adapted to the project's styling approach:
+
+- **`css-modules`** → `RjsfOverrides.module.css` imported in `index.tsx`
+- **`plain-css`** → `rjsf-overrides.css` imported in `index.tsx`
+- **`scss`** → `rjsf-overrides.scss` imported in `index.tsx`
+- **`tailwind`** → Apply equivalent Tailwind classes directly in JSX (no separate file)
+- **`mui-grid`** → Apply `sx` prop overrides on MUI components
+- **`bare`** → Inline styles on wrapper elements
+
+**Key overrides that MUST be included:**
+1. Left-align all labels (`text-align: left`)
+2. Consistent input sizing (min-height 44px, padding, border-radius)
+3. Focus ring styling (blue outline)
+4. Error field border (red)
+5. Help text styling (small, gray)
+6. Error message styling (small, red)
+7. Button right-alignment
+8. Section fieldset border + border-radius + padding
+
+Import in `index.tsx`:
+```tsx
+import './rjsf-overrides.css';  // or the appropriate import for styling approach
+```
+
+### 5d-2. `templates/SectionTemplate.tsx` — Grid Layout Template (MANDATORY for multi-column forms)
+
+**Always generate this for any form with 2+ column sections.** Add `ObjectFieldTemplate: SectionTemplate` to the Form's `templates` prop even if the FormPlan's Customization Assessment didn't list a custom ObjectFieldTemplate.
+
+See `references/visual-parity-rules.md` Rule 1 for the full component code. The template must:
+1. Read column count from a config object (populated from the FormPlan)
+2. Render fields in a CSS grid with the correct column count
+3. Support full-width fields that span all columns
+4. Apply section card styling (border, border-radius, padding)
+5. Render section title as a styled legend/heading
+6. Be responsive (collapse to 1 column on mobile)
+
+```tsx
+// In index.tsx, always register:
+const templates = {
+  ObjectFieldTemplate: SectionTemplate,
+  // ... other templates
+};
+```
+
+---
 
 ### 5e. Custom Widgets
 
@@ -1604,6 +1694,22 @@ Update the file tree shown in Step 4 to include multi_step artifacts when applic
 - [ ] No `as` type assertions except where RJSF's own types require them
 - [ ] All type imports use `import type` syntax (not value imports)
 
+**Visual Parity Checklist (from `references/visual-parity-rules.md`):**
+
+- [ ] Base CSS overrides file generated (`rjsf-overrides.css` or equivalent)
+- [ ] Custom ObjectFieldTemplate (`SectionTemplate.tsx`) generated with grid layout matching FormPlan columns
+- [ ] All labels left-aligned (not centered)
+- [ ] All enum fields use `oneOf` with human-readable `title` (no raw `enum` with snake_case values)
+- [ ] Radio buttons with ≤5 short options have `ui:options.inline: true`
+- [ ] Section cards have border, border-radius, padding
+- [ ] Form wrapped in a card container with max-width
+- [ ] Step indicator matches prototype style (if multi-step)
+- [ ] Typography matches prototype (font sizes, weights, colors)
+- [ ] Touch targets ≥44px on all inputs/buttons
+- [ ] Next/Submit buttons right-aligned
+- [ ] `rjsf-overrides.css` imported in `index.tsx`
+- [ ] `SectionTemplate` registered as `ObjectFieldTemplate` in Form templates prop
+
 If any item fails, fix the generated code before proceeding to Step 6.
 
 ---
@@ -1618,12 +1724,14 @@ Will write to <outputPath>/:
 ├── uiSchema.ts
 ├── types.ts
 ├── index.tsx
+├── rjsf-overrides.css          (MANDATORY — base CSS overrides)
 ├── widgets/
 │   └── <CustomWidgetName>.tsx   (if any — per Customization Assessment)
 ├── fields/
 │   └── <CustomFieldName>.tsx    (if any)
 └── templates/
-    └── <CustomTemplateName>.tsx (if any)
+    ├── SectionTemplate.tsx      (MANDATORY for multi-column forms — grid layout)
+    └── <CustomTemplateName>.tsx  (if any)
 ```
 
 Also show any edge-case files (e.g. `<FormName>View.tsx`, `translations.ts`, `<FormName>.print.css`, `SortableArrayTemplate.tsx`) if their flags are true.

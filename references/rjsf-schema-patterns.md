@@ -13,9 +13,9 @@
 | number | `"number"` | — | Float; use `minimum`/`maximum` for range |
 | integer | `"integer"` | — | Whole number only |
 | checkbox (boolean) | `"boolean"` | — | Renders as checkbox by default |
-| select (enum) | `"string"` | `"enum": [...]` | Renders as `<select>` |
-| select (oneOf labels) | `"string"` | `"oneOf": [{ "const": ..., "title": ... }]` | Labeled select options |
-| radio | `"string"` | `"enum": [...]` | Set `"ui:widget": "radio"` in uiSchema |
+| select (enum) | `"string"` | `"enum": [...]` | Renders as `<select>`. **Prefer `oneOf` below for human-readable labels.** |
+| select (oneOf labels) | `"string"` | `"oneOf": [{ "const": ..., "title": ... }]` | **PREFERRED** — labeled select options with human-readable display text |
+| radio | `"string"` | `"oneOf": [{ "const": ..., "title": ... }]` | Set `"ui:widget": "radio"` in uiSchema. **Always use `oneOf` with `title` for radio buttons** — raw `enum` shows ugly snake_case values. Add `"ui:options": { "inline": true }` for ≤5 options. |
 | multiselect checkboxes | `"array"` | `"items": { "enum": [...] }, "uniqueItems": true` | Set `"ui:widget": "checkboxes"` |
 | multiselect dropdown | `"array"` | `"items": { "enum": [...] }, "uniqueItems": true` | Default renders as multi-select |
 | file (base64) | `"string"` | `"format": "data-url"` | Single file, encoded as data URL |
