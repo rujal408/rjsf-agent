@@ -1,32 +1,38 @@
 # RJSF Customization API Reference
 
+> **Type contract authority:** See `references/rjsf-type-contracts.md` for the canonical type signatures. This file shows practical examples. All generated code MUST match the contracts in that reference.
+
 ## 1. Custom Widget — WidgetProps
 
 A custom widget replaces a single HTML input control. It receives props from RJSF and must call `onChange` to update form state.
 
 ### Full TypeScript Interface
 
-```typescript
-import { WidgetProps } from "@rjsf/utils";
+**IMPORTANT:** Always specify at least the `T` generic parameter when using `WidgetProps<T>`. Using bare `WidgetProps` without generics creates implicit `any` types and bypasses type checking.
 
-interface WidgetProps {
+```typescript
+import type { WidgetProps, RJSFSchema, StrictRJSFSchema, FormContextType } from "@rjsf/utils";
+
+// Full signature (T = form data type, S = schema type, F = form context type):
+interface WidgetProps<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any> {
   id: string;                  // Unique field ID (e.g. "root_phoneNumber")
   name: string;                // Field name attribute
   value: any;                  // Current field value (may be undefined)
-  required: boolean;           // Whether the field is required
-  disabled: boolean;           // Whether the field is disabled
-  readonly: boolean;           // Whether the field is read-only
-  autofocus: boolean;          // Whether this field should autofocus
-  placeholder: string;         // Placeholder text from uiSchema["ui:placeholder"]
+  required?: boolean;          // Whether the field is required
+  disabled?: boolean;          // Whether the field is disabled
+  readonly?: boolean;          // Whether the field is read-only
+  autofocus?: boolean;         // Whether this field should autofocus
+  placeholder?: string;        // Placeholder text from uiSchema["ui:placeholder"]
   label: string;               // Human-readable field label
-  schema: RJSFSchema;          // JSON Schema for this field
-  uiSchema: UiSchema;          // uiSchema for this field
-  options: NonNullable<UiSchema["ui:options"]>; // Merged ui:options object
-  formContext: any;            // Arbitrary context passed to the Form
-  onChange: (value: any) => void;   // Call this to update the field value
-  onBlur: (id: string, value: any) => void;  // Call on input blur
-  onFocus: (id: string, value: any) => void; // Call on input focus
-  rawErrors: string[] | undefined; // Validation errors for this field
+  schema: S;                   // JSON Schema for this field
+  uiSchema?: UiSchema<T, S, F>; // uiSchema for this field
+  options: UIOptionsType<T, S, F> & { enumOptions?: EnumOptionsType<S>[] };
+  formContext?: F;             // Typed context passed to the Form
+  registry: Registry<T, S, F>; // RJSF registry (widgets, fields, templates, rootSchema)
+  onChange: (value: any, es?: ErrorSchema<T>, id?: string) => void;
+  onBlur: (id: string, value: any) => void;
+  onFocus: (id: string, value: any) => void;
+  rawErrors?: string[];        // Validation errors for this field
 }
 ```
 
@@ -34,7 +40,7 @@ interface WidgetProps {
 
 ```tsx
 import React from "react";
-import { WidgetProps } from "@rjsf/utils";
+import type { WidgetProps } from "@rjsf/utils";
 
 const COUNTRY_CODES = [
   { code: "+1", label: "US/CA" },
@@ -43,7 +49,9 @@ const COUNTRY_CODES = [
   { code: "+61", label: "AU" },
 ];
 
-const PhoneWidget: React.FC<WidgetProps> = ({
+// In generated code, always use WidgetProps<YourFormData> instead of bare WidgetProps.
+// Example: export function PhoneWidget(props: WidgetProps<PatientIntakeFormData>) { ... }
+export function PhoneWidget({
   id,
   value,
   required,
@@ -53,7 +61,7 @@ const PhoneWidget: React.FC<WidgetProps> = ({
   onBlur,
   onFocus,
   rawErrors,
-}) => {
+}: WidgetProps) {
   // value is stored as "countryCode|localNumber", e.g. "+1|4155552671"
   const [countryCode, localNumber] = value
     ? (value as string).split("|")
@@ -107,9 +115,7 @@ const PhoneWidget: React.FC<WidgetProps> = ({
       )}
     </div>
   );
-};
-
-export default PhoneWidget;
+}
 ```
 
 ### Registering a Custom Widget
@@ -150,24 +156,25 @@ A custom field controls a group of related inputs that map to a single schema pr
 ### Full TypeScript Interface
 
 ```typescript
-import { FieldProps } from "@rjsf/utils";
+import type { FieldProps, RJSFSchema, StrictRJSFSchema, FormContextType } from "@rjsf/utils";
 
-interface FieldProps<T = any> {
-  idSchema: IdSchema<T>;       // Nested ID schema, e.g. { $id: "root_dates", start: { $id: "root_dates_start" } }
-  name: string;                // Field name
-  schema: RJSFSchema;          // JSON Schema for this field (the sub-schema)
-  uiSchema: UiSchema;          // uiSchema for this field
-  formData: T;                 // Current value of this field
-  required: boolean;           // Whether the field is required
-  disabled: boolean;           // Whether the field is disabled
-  readonly: boolean;           // Whether the field is read-only
-  autofocus: boolean;          // Whether this field should autofocus
-  formContext: any;            // Arbitrary context passed to Form
-  errorSchema: ErrorSchema;    // Nested error schema for sub-fields
-  registry: Registry;          // RJSF registry (widgets, fields, templates, rootSchema, formContext)
-  onChange: (value: T, errorSchema?: ErrorSchema, id?: string) => void;
-  onBlur: (id: string, value: any) => void;
-  onFocus: (id: string, value: any) => void;
+// Full signature with three generic parameters:
+interface FieldProps<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any> {
+  schema: S;                              // REQUIRED — JSON Schema for this field
+  uiSchema?: UiSchema<T, S, F>;          // uiSchema for this field
+  idSchema: IdSchema<T>;                  // REQUIRED — Nested ID schema
+  formData?: T;                           // Current value of this field
+  errorSchema?: ErrorSchema<T>;           // Nested error schema for sub-fields
+  onChange: (newFormData: T | undefined, es?: ErrorSchema<T>, id?: string) => any;  // REQUIRED
+  onBlur: (id: string, value: any) => void;   // REQUIRED
+  onFocus: (id: string, value: any) => void;  // REQUIRED
+  registry: Registry<T, S, F>;               // REQUIRED — RJSF registry
+  name: string;                               // REQUIRED — Field name
+  disabled?: boolean;
+  required?: boolean;
+  readonly?: boolean;
+  autofocus?: boolean;
+  formContext?: F;                            // Typed context from Form
 }
 ```
 
@@ -290,114 +297,125 @@ Templates control how RJSF renders the chrome around fields (labels, errors, hel
 ### FieldTemplateProps — Wraps a Single Field
 
 ```typescript
-import { FieldTemplateProps } from "@rjsf/utils";
+import type { FieldTemplateProps, RJSFSchema, StrictRJSFSchema, FormContextType } from "@rjsf/utils";
 
-interface FieldTemplateProps {
-  id: string;               // Field ID
-  classNames: string;       // CSS class names from uiSchema
-  style?: CSSProperties;    // Inline styles from uiSchema
-  label: string;            // Field label
-  description: React.ReactElement;  // Description element (may be empty)
-  rawDescription: string;   // Raw description string
-  children: React.ReactElement;     // The actual input element
-  errors: React.ReactElement;       // Error list element
-  rawErrors: string[];      // Raw error strings
-  help: React.ReactElement; // Help text element
-  rawHelp: string;          // Raw help string
-  hidden: boolean;          // Whether field is hidden (ui:widget: "hidden")
-  required: boolean;
-  disabled: boolean;
-  readonly: boolean;
-  displayLabel: boolean;    // Whether to show the label
-  schema: RJSFSchema;
-  uiSchema: UiSchema;
-  formContext: any;
-  registry: Registry;
-  onKeyChange: (value: string) => void; // For object key renaming (additionalProperties)
-  onDropPropertyClick: (key: string) => () => void;
+interface FieldTemplateProps<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any> {
+  id: string;                        // REQUIRED
+  label: string;                     // REQUIRED
+  children: React.ReactElement;      // REQUIRED — The actual input element
+  schema: S;                         // REQUIRED
+  uiSchema?: UiSchema<T, S, F>;
+  registry: Registry<T, S, F>;      // REQUIRED
+  readonly: boolean;                 // REQUIRED
+  disabled: boolean;                 // REQUIRED
+  classNames?: string;
+  style?: React.CSSProperties;
+  description?: React.ReactElement;
+  rawDescription?: string;
+  errors?: React.ReactElement;
+  rawErrors?: string[];
+  help?: React.ReactElement;
+  rawHelp?: string;
+  hidden?: boolean;
+  required?: boolean;
+  displayLabel?: boolean;
+  formContext?: F;
+  onKeyChange?: (value: string) => void;
+  onDropPropertyClick?: (key: string) => () => void;
 }
 ```
 
 ### ObjectFieldTemplateProps — Wraps an Object/Section
 
 ```typescript
-import { ObjectFieldTemplateProps } from "@rjsf/utils";
+import type { ObjectFieldTemplateProps, RJSFSchema, StrictRJSFSchema, FormContextType } from "@rjsf/utils";
 
-interface ObjectFieldTemplateProps {
-  title: string;
-  description: string;
-  properties: Array<{
-    content: React.ReactElement;  // The rendered field element
-    name: string;                 // Property key
-    disabled: boolean;
-    readonly: boolean;
-    hidden: boolean;
-  }>;
-  required: boolean;
+interface ObjectFieldTemplateProps<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any> {
+  title: string;                                        // REQUIRED
+  description?: string;
+  properties: ObjectFieldTemplatePropertyType[];        // REQUIRED
+  required?: boolean;
+  disabled?: boolean;
+  readonly?: boolean;
+  uiSchema?: UiSchema<T, S, F>;
+  schema: S;                                            // REQUIRED
+  formData?: T;
+  formContext?: F;
+  idSchema: IdSchema<T>;                                // REQUIRED
+  registry: Registry<T, S, F>;                          // REQUIRED
+  onAddClick: (schema: S) => () => void;                // REQUIRED
+}
+
+interface ObjectFieldTemplatePropertyType {
+  content: React.ReactElement;
+  name: string;
   disabled: boolean;
   readonly: boolean;
-  uiSchema: UiSchema;
-  schema: RJSFSchema;
-  formData: any;
-  formContext: any;
-  idSchema: IdSchema;
-  registry: Registry;
-  onAddClick: (schema: RJSFSchema) => () => void; // For additionalProperties
+  hidden: boolean;
 }
 ```
 
 ### ArrayFieldTemplateProps — Wraps an Array
 
 ```typescript
-import { ArrayFieldTemplateProps } from "@rjsf/utils";
+import type { ArrayFieldTemplateProps, ArrayFieldTemplateItemType, RJSFSchema, StrictRJSFSchema, FormContextType } from "@rjsf/utils";
 
-interface ArrayFieldTemplateProps {
-  title: string;
-  description: string;
-  items: Array<{
-    children: React.ReactElement;   // The rendered item element
-    index: number;
-    hasMoveUp: boolean;
-    hasMoveDown: boolean;
-    hasRemove: boolean;
-    onReorderClick: (index: number, newIndex: number) => (e: React.MouseEvent) => void;
-    onDropIndexClick: (index: number) => (e: React.MouseEvent) => void;
-    key: string;
-    disabled: boolean;
-    readonly: boolean;
-  }>;
-  canAdd: boolean;              // Whether the add button should be shown
-  onAddClick: (e: React.MouseEvent) => void; // Call to add a new item
-  required: boolean;
+interface ArrayFieldTemplateProps<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any> {
+  title: string;                                          // REQUIRED
+  description?: string;
+  items: ArrayFieldTemplateItemType<T, S, F>[];           // REQUIRED
+  canAdd?: boolean;
+  onAddClick: (event?: any) => void;                      // REQUIRED
+  required?: boolean;
+  disabled?: boolean;
+  readonly?: boolean;
+  uiSchema?: UiSchema<T, S, F>;
+  schema: S;                                              // REQUIRED
+  formData?: T[];
+  formContext?: F;
+  idSchema: IdSchema<T>;                                  // REQUIRED
+  registry: Registry<T, S, F>;                            // REQUIRED
+}
+
+// Each array item — note: hasCopy and onCopyIndexClick added in RJSF v5
+interface ArrayFieldTemplateItemType<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any> {
+  children: React.ReactElement;
+  index: number;
+  key: string;
+  hasMoveUp: boolean;
+  hasMoveDown: boolean;
+  hasRemove: boolean;
+  hasCopy: boolean;
   disabled: boolean;
   readonly: boolean;
-  uiSchema: UiSchema;
-  schema: RJSFSchema;
-  formData: any[];
-  formContext: any;
-  idSchema: IdSchema;
-  registry: Registry;
+  onReorderClick: (index: number, newIndex: number) => (event?: any) => void;
+  onDropIndexClick: (index: number) => (event?: any) => void;
+  onCopyIndexClick: (index: number) => (event?: any) => void;
+  uiSchema: UiSchema<T, S, F>;
+  registry: Registry<T, S, F>;
 }
 ```
 
 ### TitleFieldTemplateProps and DescriptionFieldTemplateProps
 
 ```typescript
-interface TitleFieldTemplateProps {
+import type { TitleFieldProps, DescriptionFieldProps } from "@rjsf/utils";
+
+interface TitleFieldProps<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any> {
   id: string;
   title: string;
-  required: boolean;
-  schema: RJSFSchema;
-  uiSchema: UiSchema;
-  registry: Registry;
+  required?: boolean;
+  schema: S;
+  uiSchema?: UiSchema<T, S, F>;
+  registry: Registry<T, S, F>;
 }
 
-interface DescriptionFieldTemplateProps {
+interface DescriptionFieldProps<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any> {
   id: string;
   description: string | React.ReactElement;
-  schema: RJSFSchema;
-  uiSchema: UiSchema;
-  registry: Registry;
+  schema: S;
+  uiSchema?: UiSchema<T, S, F>;
+  registry: Registry<T, S, F>;
 }
 ```
 
@@ -514,7 +532,7 @@ Use `customValidate` for validation rules that span multiple fields (e.g., passw
 ### Complete Working Example
 
 ```tsx
-import { CustomValidator, RJSFValidationError } from "@rjsf/utils";
+import type { CustomValidator, FormValidation } from "@rjsf/utils";
 
 interface RegistrationFormData {
   password: string;
@@ -523,6 +541,8 @@ interface RegistrationFormData {
   endDate: string;
 }
 
+// CustomValidator<T> signature: (formData: T | undefined, errors: FormValidation<T>, uiSchema?) => FormValidation<T>
+// The `errors` parameter is FormValidation<T>, NOT ErrorSchema. It has .addError() methods.
 const customValidate: CustomValidator<RegistrationFormData> = (
   formData,
   errors
