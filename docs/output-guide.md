@@ -27,9 +27,13 @@ prototype/
 └── prototype.html             Standalone HTML prototype
 
 .rjsf/
-├── session.json               Session state
-├── requirements-brief.md      Phase 1 output
-└── form-plan.md               Phase 2 output
+├── active-session             Points to the active form name
+├── sessions/
+│   └── ContactForm/
+│       ├── session.json       Session state for this form
+│       ├── requirements-brief.md  Phase 1 output
+│       └── form-plan.md      Phase 2 output
+└── history/                   Archived sessions
 ```
 
 ---
@@ -226,9 +230,11 @@ npx vitest --watch src/forms/ContactForm
 
 ---
 
-## `.rjsf/session.json`
+## `.rjsf/sessions/{FormName}/session.json`
 
-**What it is:** A JSON file that tracks the entire session state — form name, output path, current phase, each phase's status and timestamps, and metadata flags for enabled edge cases.
+**What it is:** A JSON file that tracks the entire session state for a specific form — form name, output path, current phase, each phase's status and timestamps, and metadata flags for enabled edge cases. Each form has its own `session.json` inside its session directory.
+
+> **Multi-session support:** The agent supports multiple form sessions simultaneously. Each form's data lives in `.rjsf/sessions/{FormName}/`. The `.rjsf/active-session` file contains the name of the currently active form. Use `/rjsf-new`, `/rjsf-switch`, `/rjsf-list`, and `/rjsf-delete` to manage sessions.
 
 **What it tracks:**
 ```json
@@ -251,9 +257,9 @@ npx vitest --watch src/forms/ContactForm
 }
 ```
 
-**Whether to commit it to git:** You can commit `session.json` for full traceability — it is a clean JSON file with no secrets. Add `.rjsf/history/` to `.gitignore` to exclude archived sessions. If you prefer to keep session data local, add `.rjsf/` entirely to `.gitignore` and commit only the generated source files.
+**Whether to commit it to git:** You can commit session files for full traceability — they are clean JSON and markdown files with no secrets. Add `.rjsf/history/` to `.gitignore` to exclude archived sessions. If you prefer to keep session data local, add `.rjsf/` entirely to `.gitignore` and commit only the generated source files.
 
-The companion files `.rjsf/requirements-brief.md` and `.rjsf/form-plan.md` are worth committing regardless — they document the design decisions behind the form.
+The companion files `requirements-brief.md` and `form-plan.md` inside each session directory are worth committing regardless — they document the design decisions behind each form.
 
 ---
 

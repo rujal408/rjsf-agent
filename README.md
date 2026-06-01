@@ -83,6 +83,10 @@ Each phase pauses for your approval before proceeding. Session state is saved so
 | `/rjsf-execute` | Phase 4 — generate all React/RJSF code |
 | `/rjsf-test` | Phase 5 — generate tests |
 | `/rjsf-iterate "change"` | Modify an existing form |
+| `/rjsf-new <name>` | Create a new named form session |
+| `/rjsf-switch [name]` | Switch active session |
+| `/rjsf-list` | List all sessions |
+| `/rjsf-delete <name>` | Archive and remove a session |
 | `/rjsf-help` | Help on any command or concept |
 
 ## Supported RJSF Themes

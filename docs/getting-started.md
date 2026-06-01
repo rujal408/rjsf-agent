@@ -109,17 +109,45 @@ The iterate skill shows a before/after diff for every affected file before writi
 
 ## Where session data is stored
 
-The agent creates a `.rjsf/` directory in your project:
+The agent creates a `.rjsf/` directory in your project with per-form session directories:
 
 ```
 .rjsf/
-├── session.json          Tracks current phase and status
-├── requirements-brief.md  Output of Phase 1
-├── form-plan.md           Output of Phase 2
-└── history/               Archived sessions (when starting fresh)
+├── active-session                         Points to the active form name
+├── sessions/
+│   ├── ContactForm/
+│   │   ├── session.json                   Tracks phase and status for this form
+│   │   ├── requirements-brief.md          Phase 1 output
+│   │   ├── form-plan.md                   Phase 2 output
+│   │   └── prototype.html                 Phase 3 prototype
+│   └── LoanApplication/
+│       └── ...
+└── history/                               Archived sessions
 ```
 
-Commit `.rjsf/requirements-brief.md` and `.rjsf/form-plan.md` to version control so your team can see the design decisions. The `session.json` file can also be committed for full traceability, or added to `.gitignore` if you prefer to keep it local.
+Commit the `requirements-brief.md` and `form-plan.md` files to version control so your team can see the design decisions. The `session.json` files can also be committed for full traceability, or added to `.gitignore` if you prefer to keep session data local.
+
+## Working on multiple forms
+
+You can work on multiple forms simultaneously. Each form gets its own session directory.
+
+```bash
+# Create and start building a contact form
+/rjsf-new ContactForm
+/rjsf-build "contact form with name, email, message"
+
+# Create another form session
+/rjsf-new LoanApplication
+/rjsf-build "loan application"
+
+# Switch back to the contact form
+/rjsf-switch ContactForm
+
+# See all sessions and their progress
+/rjsf-list
+```
+
+Use `/rjsf-delete <name>` to archive a completed or abandoned session.
 
 ## Next steps
 

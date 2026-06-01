@@ -1,6 +1,6 @@
 # Commands Reference
 
-Complete reference for all 10 rjsf-agent commands.
+Complete reference for all 14 rjsf-agent commands.
 
 ---
 
@@ -242,6 +242,104 @@ npx jest src/forms/LoanApplication
 ```
 
 **Common follow-up:** Review the diff, say "yes" to apply. Re-run tests afterward to confirm nothing broke.
+
+---
+
+## `/rjsf-new`
+
+**Description:** Creates a new named form session. Sets up a session directory under `.rjsf/sessions/<name>/` with an initial `session.json` and makes it the active session. All subsequent commands will operate on this session until you switch.
+
+**When to use:** When starting work on a new form, especially when you already have an existing session and want to keep it intact.
+
+**Syntax:**
+```
+/rjsf-new <name>
+```
+
+**Produces:** A new session directory `.rjsf/sessions/<name>/` with an initial `session.json`. Updates `.rjsf/active-session` to point to the new session.
+
+**Example:**
+```
+/rjsf-new ContactForm
+```
+
+**Common follow-up:** Run `/rjsf-build "description"` to start building the form.
+
+---
+
+## `/rjsf-switch`
+
+**Description:** Switches the active session to a different form. If a name is provided, switches directly. If no name is given, shows a picker listing all available sessions with their current phase and status.
+
+**When to use:** When you want to resume work on a different form, or check the state of another session.
+
+**Syntax:**
+```
+/rjsf-switch <name>
+/rjsf-switch
+```
+
+**Produces:** Updates `.rjsf/active-session` to point to the selected session. No files are modified in the session itself.
+
+**Example:**
+```
+/rjsf-switch LoanApplication
+/rjsf-switch
+```
+
+**Common follow-up:** Run `/rjsf-status` to see where you left off, or `/rjsf-build` to resume.
+
+---
+
+## `/rjsf-list`
+
+**Description:** Lists all form sessions under `.rjsf/sessions/` with their current phase, status, and last activity timestamp. Marks the currently active session.
+
+**When to use:** When you want to see all forms you have been working on, check progress across multiple forms, or find the name of a session to switch to.
+
+**Syntax:**
+```
+/rjsf-list
+```
+
+**Produces:** A formatted table in the chat showing all sessions. No files are written.
+
+**Example:**
+```
+/rjsf-list
+```
+
+Output might look like:
+```
+Sessions:
+  * ContactForm       Phase 4 (Execution)     completed
+    LoanApplication   Phase 2 (Planning)      awaiting-approval
+    EmployeeOnboard   Phase 1 (Requirements)  in-progress
+```
+
+**Common follow-up:** Run `/rjsf-switch <name>` to switch to a session, or `/rjsf-delete <name>` to archive one.
+
+---
+
+## `/rjsf-delete`
+
+**Description:** Archives a named session by moving its directory from `.rjsf/sessions/<name>/` to `.rjsf/history/<name>/` and removing it from the active sessions list. Cannot delete the currently active session — switch to a different session first.
+
+**When to use:** When a form is complete and you want to clean up, or when you want to discard an abandoned session.
+
+**Syntax:**
+```
+/rjsf-delete <name>
+```
+
+**Produces:** Moves the session directory to `.rjsf/history/`. If the deleted session was the only session, clears `.rjsf/active-session`.
+
+**Example:**
+```
+/rjsf-delete LoanApplication
+```
+
+**Common follow-up:** Run `/rjsf-list` to confirm the session was removed.
 
 ---
 
