@@ -13,31 +13,35 @@ Runs all 7 phases in sequence (including Phase 1.5 — feature suggestions and P
 
 ---
 
-## Step 1 — Check for Existing Session
+## Step 1 — Resolve Session (Multi-Session)
 
-Read `.rjsf/session.json` if it exists.
+Follow the **Session Path Resolution Algorithm** (`references/session-pattern.md` Section 0):
+
+1. Read `.rjsf/active-session` → get `formName` → `sessionDir` = `.rjsf/sessions/{formName}/`
+2. Read `{sessionDir}/session.json`
+3. If `.rjsf/active-session` does not exist but `.rjsf/session.json` does → perform legacy migration per `references/session-pattern.md` Section 7, then re-read.
+4. If no active session at all **and** the developer provided requirements: ask for a form name, then run `/rjsf-new <FormName>` implicitly to create the session before proceeding to Phase 1.
+5. If no active session **and** no input: suggest `/rjsf-new <FormName>` to start a new form or `/rjsf-list` to see existing sessions. Stop here.
 
 **If the session is incomplete (not all phases "completed"):**
 
-> "Found an active session for **<FormName>** (Phase <currentPhase> — <phase name>, status: <status>).
+> "Active session: **<FormName>** (Phase <currentPhase> — <phase name>, status: <status>).
 >
 > A) Resume from Phase <currentPhase>
-> B) Start fresh (the current session will be archived to `.rjsf/history/`)"
+> B) Start fresh — archive this session and create a new one"
 
 - On **A**: jump to the routing step for `currentPhase` (see Step 3).
-- On **B**: archive the current session (follow `references/session-pattern.md` archiving instructions), then proceed to Phase 1.
+- On **B**: archive the current session (follow `references/session-pattern.md` Section 6 archiving instructions), ask for a new form name, then run `/rjsf-new <NewFormName>` implicitly and proceed to Phase 1.
 
 **If the session is fully completed (all phases "completed"):**
 
 > "<FormName> was fully built on <completedDate>.
 >
 > A) Iterate on it — describe what you'd like to change
-> B) Build a new form — provide requirements and I'll start Phase 1"
+> B) Start a new form — `/rjsf-new <NewFormName>`"
 
 - On **A**: read the developer's change description and route to `/rjsf-iterate`.
-- On **B**: archive the session and start Phase 1.
-
-**If no session exists:** proceed directly to Phase 1.
+- On **B**: suggest the developer run `/rjsf-new <NewFormName>` to create a new session, then `/rjsf-build` with their requirements.
 
 ---
 
@@ -75,7 +79,7 @@ Phase 2.5 → invoke rjsf-technical skill
             WAIT — developer approves technical choices
 
 Phase 3   → invoke rjsf-prototype skill
-            Tell developer: "Share prototype/prototype.html with your client.
+            Tell developer: "Share the prototype with your client (path shown by Phase 3).
             Come back and say 'client approved' when they confirm."
             PAUSE — wait for client approval signal (Step 2 above)
 
@@ -98,6 +102,7 @@ After Phase 5 completes, output:
 > "**<FormName> is complete.** All phases done.
 >
 > - **Make changes:** `/rjsf-iterate \"describe change\"`
-> - **Build another form:** `/rjsf-build \"describe new form\"`
+> - **Start a new form:** `/rjsf-new <NewFormName>`
+> - **Switch sessions:** `/rjsf-switch`
 > - **Run tests:** `npx vitest <outputPath>` or `npx jest <outputPath>`
 > - **Check session:** `/rjsf-status`"

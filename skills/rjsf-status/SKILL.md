@@ -10,12 +10,17 @@ allowed-tools: [Read, Glob]
 
 ---
 
-## Step 1 — Read Session
+## Step 1 — Resolve Session (Multi-Session)
 
-Read `.rjsf/session.json`.
+Follow the **Session Path Resolution Algorithm** (`references/session-pattern.md` Section 0):
 
-If no session file exists:
-> "No active session found. Run `/rjsf-build` to start building a form."
+1. Read `.rjsf/active-session` → get `formName` → `sessionDir` = `.rjsf/sessions/{formName}/`
+2. Read `{sessionDir}/session.json`
+3. If `.rjsf/active-session` does not exist but `.rjsf/session.json` does → perform legacy migration per Section 7, then re-read.
+
+If no active session:
+- If other sessions exist in `.rjsf/sessions/`: "No active session, but {N} session(s) found. Run `/rjsf-switch` to select one."
+- If no sessions at all: "No sessions found. Run `/rjsf-new <FormName>` to create one."
 Stop here.
 
 ---
@@ -44,6 +49,22 @@ When formatting timestamps, show them as relative time if within the last 7 days
 
 ---
 
+## Step 2b — Other Sessions
+
+List all other session directories under `.rjsf/sessions/` (excluding the active session). For each, read its `session.json` and show:
+
+```
+Other sessions:
+  - PaymentForm        Phase 3 — Prototype (completed)
+  - ContactForm        Phase 1 — Requirements (in_progress)
+
+Switch: /rjsf-switch <name>
+```
+
+Omit this entire section if no other sessions exist.
+
+---
+
 ## Step 3 — Suggest Next Action
 
 Always end with exactly one actionable suggestion based on `session.currentPhase` and its status:
@@ -51,7 +72,7 @@ Always end with exactly one actionable suggestion based on `session.currentPhase
 | Current State | Suggestion |
 |---|---|
 | All phases completed | "All done! Run `/rjsf-iterate \"describe change\"` to make changes." |
-| Phase `3` is `awaiting_client_approval` | "Share `prototype/prototype.html` with your client, then run `/rjsf-build` once they confirm." |
+| Phase `3` is `awaiting_client_approval` | "Share `{sessionDir}/prototype.html` with your client, then run `/rjsf-build` once they confirm." |
 | Phase `1` completed, `1.5` pending | "Run `/rjsf-suggest` for UI/UX enhancement suggestions, or `/rjsf-build` to continue." |
 | Phase `2` completed, `2.5` pending | "Run `/rjsf-technical` for technical decisions, or `/rjsf-build` to continue." |
 | Phase `3` completed, `4` pending | "Run `/rjsf-build` to generate the React code (Phase 4)." |

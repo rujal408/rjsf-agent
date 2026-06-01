@@ -13,9 +13,14 @@ Detect project context and guide the developer to the right command. Never ask t
 
 ---
 
-## Step 1 — Read Session
+## Step 1 — Resolve Session (Multi-Session)
 
-Read `.rjsf/session.json` if it exists.
+Follow the **Session Path Resolution Algorithm** (`references/session-pattern.md` Section 0):
+
+1. Read `.rjsf/active-session` → get `formName` → `sessionDir` = `.rjsf/sessions/{formName}/`
+2. Read `{sessionDir}/session.json`
+3. If `.rjsf/active-session` does not exist but `.rjsf/session.json` does → perform legacy migration per Section 7, then re-read.
+4. If `.rjsf/active-session` does not exist and no legacy session exists → no active session.
 
 ---
 
@@ -24,26 +29,40 @@ Read `.rjsf/session.json` if it exists.
 ### No session + input provided
 → Forward the input to `/rjsf-build` as the requirements string.
 
-### No session + no input
+### No session + no input — sessions exist but none active
+List existing sessions from `.rjsf/sessions/` and suggest:
+
+> "No active session, but I found these forms:
+>
+> - **{formName1}** (Phase {N}, {status})
+> - **{formName2}** (Phase {N}, {status})
+>
+> - Switch to one: `/rjsf-switch <FormName>`
+> - Start a new form: `/rjsf-new <FormName>`"
+
+### No session + no input — no sessions at all
 Display this menu and wait for the developer's choice:
 
 > "Welcome to rjsf-agent! What would you like to do?
 >
-> A) Build a new form from requirements → `/rjsf-build`
+> A) Build a new form → `/rjsf-new <FormName>` then `/rjsf-build`
 > B) Modify an existing generated form → `/rjsf-iterate`
 > C) Generate tests for an existing form → `/rjsf-test`
 > D) See all commands → `/rjsf-help`"
 
 ### Session exists, incomplete
+Show the active session name and phase: "Active session: **{formName}** (Phase {N})".
 Show the `/rjsf-status` output (read session.json and format it), then:
 
-> "Run `/rjsf-build` to continue from Phase <N>, or tell me what you'd like to change."
+> "Run `/rjsf-build` to continue from Phase <N>, or tell me what you'd like to change.
+> Switch to a different form: `/rjsf-switch`"
 
 ### Session exists, completed
 > "<FormName> is complete.
 >
 > - To change something: `/rjsf-iterate \"describe change\"`
-> - To build a new form: `/rjsf-build \"describe new form\"`
+> - To start a new form: `/rjsf-new <NewFormName>`
+> - To switch sessions: `/rjsf-switch`
 > - To re-run tests: `/rjsf-test`
 > - For help: `/rjsf-help`"
 
@@ -68,4 +87,8 @@ Match the developer's message against this table and route accordingly. Apply th
 | "requirements", "gather requirements" | `/rjsf-requirements` |
 | "help", "what can you do", "commands", "how do I" | `/rjsf-help` |
 | "status", "progress", "what phase", "where are we" | `/rjsf-status` |
+| "switch", "switch to", "work on" | `/rjsf-switch` |
+| "list sessions", "show sessions", "all sessions", "my forms" | `/rjsf-list` |
+| "new session", "create session", "new form session" | `/rjsf-new` |
+| "delete session", "remove session", "archive session" | `/rjsf-delete` |
 | "--from", "requirements file", "from file" | `/rjsf-build --from <path>` |
