@@ -256,7 +256,7 @@ Once all relevant questions have been answered, compile the following document. 
    Write the RequirementsBrief markdown to `{sessionDir}/requirements-brief.md`. Create the session directory if it does not exist.
 
    **b. Create or update `{sessionDir}/session.json`:**
-   - Set `version` to `"1.0.0"` (if initializing).
+   - Set `version` to `"2.0.0"` (if initializing).
    - Set `formName` to a PascalCase version of the form title (e.g., "Patient Intake Form" → `"PatientIntakeForm"`).
    - Set `rjsfTheme` to the answer from clarifying question 1.
    - Set `phases["1"].status` to `"completed"`.

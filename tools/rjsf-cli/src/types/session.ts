@@ -18,10 +18,10 @@ export interface PhaseState {
 export interface Session {
   version: string;
   formName: string;
-  outputPath: string;
-  rjsfTheme: string;
-  stylingApproach: string;
+  outputPath: string | null;
+  rjsfTheme: string | null;
+  stylingApproach: string | null;
   technicalChoices?: TechnicalChoices;
   currentPhase: string;
-  phases: Record<PhaseKey, PhaseState>;
+  phases: Partial<Record<PhaseKey, PhaseState>>;
 }
