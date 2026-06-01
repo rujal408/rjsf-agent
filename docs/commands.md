@@ -42,7 +42,7 @@ Complete reference for all 14 rjsf-agent commands.
 /rjsf-build
 ```
 
-**Produces:** Orchestrates all five phases. Final output is a complete form under `src/forms/<FormName>/` (schema, uiSchema, types, component, tests) plus `prototype/prototype.html`.
+**Produces:** Orchestrates all five phases. Final output is a complete form under `src/forms/<FormName>/` (schema, uiSchema, types, component, tests) plus a prototype HTML file in the session directory.
 
 **Example:**
 ```
@@ -143,7 +143,7 @@ phone           string    PhoneWidget half    Widget: PhoneWidget
 
 ## `/rjsf-prototype`
 
-**Description:** Runs Phase 3 — prototype generation. Reads the FormPlan and generates a completely self-contained `prototype/prototype.html` file. The prototype uses vanilla HTML, CSS, and JavaScript with no build step and no external dependencies. It renders the actual layout, field types, column structure, and conditional show/hide logic.
+**Description:** Runs Phase 3 — prototype generation. Reads the FormPlan and generates a completely self-contained `prototype.html` file inside the active session directory. The prototype uses vanilla HTML, CSS, and JavaScript with no build step and no external dependencies. It renders the actual layout, field types, column structure, and conditional show/hide logic.
 
 **When to use:** After approving the FormPlan, before any React code is written. Share the prototype with your client for sign-off. The prototype makes layout and UX feedback fast and cheap to act on.
 
@@ -152,7 +152,7 @@ phone           string    PhoneWidget half    Widget: PhoneWidget
 /rjsf-prototype
 ```
 
-**Produces:** `prototype/prototype.html` — a single file you can open by double-clicking or send by email. Includes a visible notice explaining prototype limitations (no real API calls, no cross-field validation enforcement, no server submission).
+**Produces:** `{sessionDir}/prototype.html` — a single file you can open by double-clicking or send by email. Includes a visible notice explaining prototype limitations (no real API calls, no cross-field validation enforcement, no server submission).
 
 **Example:**
 ```

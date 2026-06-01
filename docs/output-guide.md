@@ -213,11 +213,11 @@ npx vitest --watch src/forms/ContactForm
 
 ---
 
-## `prototype/prototype.html`
+## `{sessionDir}/prototype.html`
 
-**What it is:** A self-contained, zero-dependency HTML file that renders the form visually.
+**What it is:** A self-contained, zero-dependency HTML file that renders the form visually. Stored inside the active session directory (e.g., `.rjsf/sessions/ContactForm/prototype.html`).
 
-**How to open it:** Double-click the file in your OS file explorer to open it in a browser. Or serve it: `npx serve prototype/`.
+**How to open it:** Double-click the file in your OS file explorer to open it in a browser.
 
 **What to share with clients:** Send this single file by email, Slack, or as a GitHub artifact. The client can open it in any browser with no installation. It shows the real column layout, field types, placeholder text, and conditional show/hide logic.
 

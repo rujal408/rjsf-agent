@@ -55,7 +55,7 @@ Approve or adjust before moving on.
 
 ## 7. Share the prototype with your client
 
-The agent generates `prototype/prototype.html` — a completely self-contained file with no build step required. You can:
+The agent generates a `prototype.html` file inside the active session directory — a completely self-contained file with no build step required. You can:
 - Open it in any browser by double-clicking the file
 - Send it to your client by email (it's a single file)
 - Host it anywhere — it has zero external dependencies
