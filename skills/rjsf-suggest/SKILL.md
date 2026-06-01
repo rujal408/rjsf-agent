@@ -15,8 +15,8 @@ After gathering raw requirements, proactively analyze the form and suggest UI/UX
 
 ## Step 1 — Read Session & Artifacts
 
-1. Read `.rjsf/session.json`.
-2. Read `.rjsf/requirements-brief.md` (RequirementsBrief from Phase 1).
+1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
+2. Read `{sessionDir}/requirements-brief.md` (RequirementsBrief from Phase 1).
 3. Read `references/customization-decision-tree.md` for widget vs field vs template decisions.
 4. Read `references/rjsf-schema-patterns.md` for available widget types.
 5. Read `references/rjsf-widget-api.md` for WidgetProps, FieldProps, template interfaces.
@@ -26,7 +26,7 @@ After gathering raw requirements, proactively analyze the form and suggest UI/UX
 > "Phase 1 must be completed first. Run `/rjsf-requirements`."
 
 **Resume check:** If `phases["1.5"].status` is `"completed"`:
-- Read and display the existing `.rjsf/enhanced-brief.md`.
+- Read and display the existing `{sessionDir}/enhanced-brief.md`.
 - Ask: "Phase 1.5 is already complete. Use these enhancements or redo suggestions?"
 - If reuse: set `currentPhase = 2` and stop (advise running `/rjsf-plan`).
 - If redo: reset `phases["1.5"].status` to `"pending"` and proceed to Step 2.
@@ -292,17 +292,17 @@ Ask: "This is what will be built. Approve to continue, or adjust any choices?"
 
 Once the developer approves:
 
-1. **Write the enhanced brief.** Create `.rjsf/enhanced-brief.md` containing:
+1. **Write the enhanced brief.** Create `{sessionDir}/enhanced-brief.md` containing:
    - The original RequirementsBrief content with all chosen enhancements applied inline.
    - A new `## Enhancement Choices` section at the bottom listing every suggestion number, the chosen option letter, and the RJSF extension point.
    - The Customization Summary from Step 5.
 
-2. **Also update `.rjsf/requirements-brief.md`** in-place with the enhanced field types, flags, and layout changes — so that Phase 2 reads the enhanced version directly.
+2. **Also update `{sessionDir}/requirements-brief.md`** in-place with the enhanced field types, flags, and layout changes — so that Phase 2 reads the enhanced version directly.
 
-3. **Update `.rjsf/session.json`:**
+3. **Update `{sessionDir}/session.json`:**
    - Set `phases["1.5"].status = "completed"`.
    - Set `phases["1.5"].completedAt` to the current ISO 8601 timestamp.
-   - Set `phases["1.5"].artifactPath` to `".rjsf/enhanced-brief.md"`.
+   - Set `phases["1.5"].artifactPath` to `"enhanced-brief.md"`.
    - Set `currentPhase = 2`.
    - Write the full session.json object (not a partial merge).
 
@@ -312,7 +312,7 @@ Once the developer approves:
 
 After saving, display:
 
-> Enhancements applied and saved to `.rjsf/enhanced-brief.md`.
+> Enhancements applied and saved to `{sessionDir}/enhanced-brief.md`.
 > Requirements brief updated with your choices.
 >
 > **Next step:** Run `/rjsf-plan` to design the form structure and layout, or `/rjsf-build` to continue automatically.

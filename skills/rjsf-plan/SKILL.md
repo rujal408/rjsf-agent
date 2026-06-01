@@ -18,8 +18,8 @@ Phase 2 takes the RequirementsBrief produced in Phase 1 and designs the full for
 
 ## Step 1 — Read Session & Artifacts
 
-1. Read `.rjsf/session.json` using the format described in `references/session-pattern.md`.
-2. Read `.rjsf/requirements-brief.md` produced by Phase 1.
+1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
+2. Read `{sessionDir}/requirements-brief.md` produced by Phase 1.
 3. Read `references/layout-principles.md` for column and widget layout heuristics.
 4. Read `references/customization-decision-tree.md` for widget vs field vs template decisions.
 5. Read `references/rjsf-schema-patterns.md` for the widget-to-schema-type mapping table used in Step 3.
@@ -27,10 +27,10 @@ Phase 2 takes the RequirementsBrief produced in Phase 1 and designs the full for
 **Guard clause:** If `phases["1"].status` is not `"completed"`, stop and say: "Phase 1 must be completed first. Run `/rjsf-requirements`."
 
 **Phase 1.5 check:** If `phases["1.5"]` exists in session.json:
-- If `phases["1.5"].status` is `"completed"`: read `.rjsf/enhanced-brief.md` as the primary requirements source (it contains the enhanced brief with the developer's UI/UX choices applied). Still read `.rjsf/requirements-brief.md` as a fallback if the enhanced brief is missing.
+- If `phases["1.5"].status` is `"completed"`: read `{sessionDir}/enhanced-brief.md` as the primary requirements source (it contains the enhanced brief with the developer's UI/UX choices applied). Still read `{sessionDir}/requirements-brief.md` as a fallback if the enhanced brief is missing.
 - If `phases["1.5"].status` is not `"completed"`: advise "Run `/rjsf-suggest` first for UI/UX enhancement suggestions, or proceed with the base requirements." Let the developer choose whether to skip or run Phase 1.5.
 
-If `phases["1.5"]` does not exist in session.json (legacy sessions before Phase 1.5 was added), proceed with `.rjsf/requirements-brief.md` directly.
+If `phases["1.5"]` does not exist in session.json (legacy sessions before Phase 1.5 was added), proceed with `{sessionDir}/requirements-brief.md` directly.
 
 Do not proceed until Phase 1 is complete.
 
@@ -127,7 +127,7 @@ Document layout decisions in the FormPlan as a table per section:
 
 Using `references/customization-decision-tree.md`, evaluate every field and produce the following section for the FormPlan.
 
-**Phase 1.5 propagation check:** If `.rjsf/enhanced-brief.md` exists, read its "Enhancement Choices" section. For each enhancement that chose a custom widget, field, or template (not "keep as-is"), that component MUST appear in the Customization Assessment below. Cross-reference every enhancement choice and include it. If the decision tree would not normally require that component, add it anyway with "Why" = "Developer chose this in Phase 1.5 enhancement [N]".
+**Phase 1.5 propagation check:** If `{sessionDir}/enhanced-brief.md` exists, read its "Enhancement Choices" section. For each enhancement that chose a custom widget, field, or template (not "keep as-is"), that component MUST appear in the Customization Assessment below. Cross-reference every enhancement choice and include it. If the decision tree would not normally require that component, add it anyway with "Why" = "Developer chose this in Phase 1.5 enhancement [N]".
 
 ### Output format
 
@@ -253,12 +253,12 @@ Wait for the developer's response. If they request changes, apply them and re-di
 
 Once the developer approves:
 
-1. Write the final FormPlan to `.rjsf/form-plan.md`.
+1. Write the final FormPlan to `{sessionDir}/form-plan.md`.
 2. Update `session.json`:
    - Set `phases["2"].status = "completed"`
    - Set `currentPhase = "2.5"`
    - Set `phases["2"].completedAt` to the current ISO 8601 timestamp.
-   - Set `phases["2"].artifactPath` to `".rjsf/form-plan.md"`.
+   - Set `phases["2"].artifactPath` to `"form-plan.md"`.
    - Initialize `phases["2.5"]` with status `"pending"` if it doesn't exist.
    - Write the full session.json object (not a partial merge).
 
@@ -268,6 +268,6 @@ Once the developer approves:
 
 After saving, output:
 
-> "Form plan saved to `.rjsf/form-plan.md`.
+> "Form plan saved to `{sessionDir}/form-plan.md`.
 >
 > **Next step:** Run `/rjsf-technical` to configure technical decisions, or `/rjsf-build` to continue automatically."

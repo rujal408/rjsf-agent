@@ -13,8 +13,8 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 
 ## Step 1 — Read Session & Generated Files
 
-1. Read `.rjsf/session.json`. If `phases["4"].status` is not `"completed"`: stop and say: "No generated form found. Run `/rjsf-build` first to generate the form."
-2. Read `.rjsf/form-plan.md`.
+1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`. If `phases["4"].status` is not `"completed"`: stop and say: "No generated form found. Run `/rjsf-build` first to generate the form."
+2. Read `{sessionDir}/form-plan.md`.
 3. Read all files currently in `outputPath` (schema.ts, uiSchema.ts, types.ts, index.tsx, and any custom component files in widgets/, fields/, templates/).
 
 ---
@@ -61,7 +61,7 @@ Ask: "Make these changes? Reply 'yes' to apply, or tell me what to adjust."
 
 On the developer's confirmation:
 1. Write only the affected files (do not rewrite unchanged files).
-2. Append a changelog entry to `.rjsf/form-plan.md`:
+2. Append a changelog entry to `{sessionDir}/form-plan.md`:
 
 ```markdown
 ## Changelog
@@ -71,7 +71,7 @@ On the developer's confirmation:
 - Reason: <developer's original request>
 ```
 
-3. Update `.rjsf/session.json`: add `"lastIterated": "<ISO timestamp>"`. Write the full session.json (not a partial merge).
+3. Update `{sessionDir}/session.json`: add `"lastIterated": "<ISO timestamp>"`. Write the full session.json (not a partial merge).
 
 ---
 

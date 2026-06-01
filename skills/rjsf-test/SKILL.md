@@ -12,10 +12,10 @@ allowed-tools: [Read, Write, Glob]
 
 ## Step 1 — Read Session & Generated Files
 
-1. Read `.rjsf/session.json`.
+1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
 2. If `phases["4"].status` is not `"completed"`: stop and say: "Phase 4 (Execution) must be completed first. Run `/rjsf-execute`."
-3. Read `.rjsf/form-plan.md` (FormPlan — for field labels, conditional rules, schema constraints).
-4. Read `.rjsf/requirements-brief.md` (RequirementsBrief — for edge case flags).
+3. Read `{sessionDir}/form-plan.md` (FormPlan — for field labels, conditional rules, schema constraints).
+4. Read `{sessionDir}/requirements-brief.md` (RequirementsBrief — for edge case flags).
 5. Read `<outputPath>/schema.ts` and `<outputPath>/index.tsx` from session.json's `outputPath`.
 
 ---
@@ -342,7 +342,7 @@ describe('<FormName> — accessibility', () => {
 ## Step 3 — Write File & Update Session
 
 1. Write the test file to `<outputPath>/<FormName>.test.tsx`.
-2. Update `.rjsf/session.json`:
+2. Update `{sessionDir}/session.json`:
    - `phases["5"].status = "completed"`
    - `phases["5"].completedAt = <ISO timestamp>`
    - `phases["5"].artifactPath = "<outputPath>/<FormName>.test.tsx"`

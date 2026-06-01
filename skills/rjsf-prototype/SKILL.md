@@ -12,21 +12,21 @@ allowed-tools: [Read, Write, Glob, Bash]
 
 ## Step 1 — Read Session & Artifacts
 
-1. Read `.rjsf/session.json`.
-2. **Read `.rjsf/form-plan.md`** (FormPlan from Phase 2). This is the primary input — use its column layout decisions, widget assignments, step map, and customization assessment to generate the prototype. The prototype must visually reflect the planned layout (column counts, full-width fields, step structure).
-3. Read `.rjsf/requirements-brief.md` (or `.rjsf/enhanced-brief.md` if Phase 1.5 completed) for field details.
-4. If `phases["2.5"]` exists and is `"completed"`, read `.rjsf/technical-choices.md` for styling decisions (formWrapper, gridGap, colorPalette, touchTargetSize). Apply these to the prototype's CSS.
+1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
+2. **Read `{sessionDir}/form-plan.md`** (FormPlan from Phase 2). This is the primary input — use its column layout decisions, widget assignments, step map, and customization assessment to generate the prototype. The prototype must visually reflect the planned layout (column counts, full-width fields, step structure).
+3. Read `{sessionDir}/requirements-brief.md` (or `{sessionDir}/enhanced-brief.md` if Phase 1.5 completed) for field details.
+4. If `phases["2.5"]` exists and is `"completed"`, read `{sessionDir}/technical-choices.md` for styling decisions (formWrapper, gridGap, colorPalette, touchTargetSize). Apply these to the prototype's CSS.
 5. If `phases["2"].status` is not `"completed"`, stop and tell the user:
    > "Phase 2 (Planning) must be completed first. Run `/rjsf-plan`."
 6. If `phases["3"].status` is `"awaiting_client_approval"` or `"completed"`:
-  - Tell the user: "A prototype already exists at `prototype/prototype.html`. Regenerate it (overwrites existing file), or open the existing one for review?"
+  - Tell the user: "A prototype already exists at `{sessionDir}/prototype.html`. Regenerate it (overwrites existing file), or open the existing one for review?"
   - Wait for the user's choice. Only proceed to Step 2 if they choose to regenerate.
 
 ---
 
-## Step 2 — Generate `prototype/prototype.html`
+## Step 2 — Generate `{sessionDir}/prototype.html`
 
-Create the directory `prototype/` if it does not exist, then write `prototype/prototype.html`.
+Create the session directory if it does not exist, then write `{sessionDir}/prototype.html`.
 
 The file MUST be **completely self-contained**: no external CSS, no external JS, no CDN links. It must open and function correctly when double-clicked from the filesystem (i.e. `file://` origin).
 
@@ -386,13 +386,13 @@ Place the `.data-summary` div after the `</form>` tag:
 
 ## Step 3 — Write File & Update Session
 
-1. Write the fully rendered HTML to `prototype/prototype.html` (create directory if needed).
-2. Update `.rjsf/session.json`:
+1. Write the fully rendered HTML to `{sessionDir}/prototype.html` (create directory if needed).
+2. Update `{sessionDir}/session.json`:
    - `phases["3"].status = "awaiting_client_approval"`
-   - `phases["3"].artifactPath = "prototype/prototype.html"`
+   - `phases["3"].artifactPath = "prototype.html"`
    - Write the full session.json object (not a partial merge).
 3. Print the file path in chat so the user can find it:
-   > Written: `prototype/prototype.html`
+   > Written: `{sessionDir}/prototype.html`
 
 ---
 
@@ -400,7 +400,7 @@ Place the `.data-summary` div after the `</form>` tag:
 
 After writing the file, output exactly this message:
 
-> Prototype written to `prototype/prototype.html`. Open it in any browser to preview.
+> Prototype written to `{sessionDir}/prototype.html`. Open it in any browser to preview.
 >
 > **Share this file with your client.** Once they confirm the layout and fields are correct, come back and run `/rjsf-build` (or just say 'client approved') to proceed to implementation.
 >

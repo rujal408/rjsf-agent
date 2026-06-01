@@ -15,9 +15,9 @@ Present technical decisions that affect generated code as grouped A/B/C options.
 
 ## Step 1 — Read Session & Artifacts
 
-1. Read `.rjsf/session.json`.
-2. Read `.rjsf/form-plan.md` (FormPlan from Phase 2).
-3. Read `.rjsf/requirements-brief.md` (or `.rjsf/enhanced-brief.md` if Phase 1.5 was completed).
+1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
+2. Read `{sessionDir}/form-plan.md` (FormPlan from Phase 2).
+3. Read `{sessionDir}/requirements-brief.md` (or `{sessionDir}/enhanced-brief.md` if Phase 1.5 was completed).
 4. Read `references/technical-defaults.md` for all decision keys, defaults, and options.
 
 **Guard clause:** If `phases["2"].status` is not `"completed"`, stop and say:
@@ -151,13 +151,13 @@ Ask: "Approve these technical choices? Phase 4 will use them for code generation
 
 Once the developer approves:
 
-1. **Write the artifact.** Create `.rjsf/technical-choices.md` containing the summary table from Step 5 plus the raw `technicalChoices` JSON object.
+1. **Write the artifact.** Create `{sessionDir}/technical-choices.md` containing the summary table from Step 5 plus the raw `technicalChoices` JSON object.
 
 2. **Update `session.json`:**
    - Set `technicalChoices` to the built choices object from Step 4.
    - Set `phases["2.5"].status = "completed"`.
    - Set `phases["2.5"].completedAt` to current ISO 8601 timestamp.
-   - Set `phases["2.5"].artifactPath` to `".rjsf/technical-choices.md"`.
+   - Set `phases["2.5"].artifactPath` to `"technical-choices.md"`.
    - Set `currentPhase = "3"`.
    - Write the full session.json object (not a partial merge).
 
@@ -167,6 +167,6 @@ Once the developer approves:
 
 After saving, display:
 
-> Technical choices saved to `.rjsf/technical-choices.md`.
+> Technical choices saved to `{sessionDir}/technical-choices.md`.
 >
 > **Next step:** Run `/rjsf-prototype` to generate the client prototype, or `/rjsf-build` to continue automatically.

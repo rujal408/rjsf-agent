@@ -13,19 +13,19 @@ allowed-tools: [Read, Write, Glob, Bash]
 
 ## Step 1 — Read Session
 
-Check for `.rjsf/session.json` in the project root (see `references/session-pattern.md` for the full schema and read/write rules).
+Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json` (see `references/session-pattern.md` for the full schema and read/write rules).
 
 - **File does not exist:** This is a fresh start. Proceed to Step 2.
 - **`phases["1"].status` is `"completed"`:**
-  - Read and display the existing `.rjsf/requirements-brief.md` in chat.
+  - Read and display the existing `{sessionDir}/requirements-brief.md` in chat.
   - Ask: "Phase 1 is already complete. Use this requirements brief or redo Phase 1?"
   - If the user wants to reuse it, set `currentPhase = 2` and stop (advise running `/rjsf-plan`).
   - If the user wants to redo, reset `phases["1"].status` to `"pending"` and proceed to Step 2.
 - **`phases["1"].status` is `"in_progress"`:**
-  - Load `.rjsf/requirements-brief.md` if it exists and display it.
+  - Load `{sessionDir}/requirements-brief.md` if it exists and display it.
   - Ask: "I found an in-progress requirements brief. Want to continue (I'll ask the remaining clarifying questions) or start fresh?"
   - If the user wants to continue: re-display the brief, then resume Step 4 (ask all clarifying questions whose topics are not already covered in the partial brief).
-  - If the user wants to start fresh: delete `.rjsf/requirements-brief.md`, reset `phases["1"].status` to `"pending"`, and proceed from Step 2.
+  - If the user wants to start fresh: delete `{sessionDir}/requirements-brief.md`, reset `phases["1"].status` to `"pending"`, and proceed from Step 2.
 - **Otherwise (status is `"pending"` or field is absent):**
   - Set `phases["1"].status` to `"in_progress"` and `phases["1"].startedAt` to the current ISO 8601 timestamp.
   - Proceed fresh to Step 2.
@@ -253,15 +253,15 @@ Once all relevant questions have been answered, compile the following document. 
 4. On explicit approval, perform the following writes:
 
    **a. Write the artifact:**
-   Write the RequirementsBrief markdown to `.rjsf/requirements-brief.md`. Create the `.rjsf/` directory if it does not exist.
+   Write the RequirementsBrief markdown to `{sessionDir}/requirements-brief.md`. Create the session directory if it does not exist.
 
-   **b. Create or update `.rjsf/session.json`:**
+   **b. Create or update `{sessionDir}/session.json`:**
    - Set `version` to `"1.0.0"` (if initializing).
    - Set `formName` to a PascalCase version of the form title (e.g., "Patient Intake Form" → `"PatientIntakeForm"`).
    - Set `rjsfTheme` to the answer from clarifying question 1.
    - Set `phases["1"].status` to `"completed"`.
    - Set `phases["1"].completedAt` to the current ISO 8601 timestamp.
-   - Set `phases["1"].artifactPath` to `".rjsf/requirements-brief.md"`.
+   - Set `phases["1"].artifactPath` to `"requirements-brief.md"`.
    - Set `currentPhase` to `2`.
    - Leave all other phase entries at `"pending"` with `null` timestamps and artifact paths (initialize them if the file was not previously present).
    - Write the full session object (not a partial merge).
@@ -272,6 +272,6 @@ Once all relevant questions have been answered, compile the following document. 
 
 After saving, display the following message:
 
-> Requirements captured and saved to `.rjsf/requirements-brief.md`.
+> Requirements captured and saved to `{sessionDir}/requirements-brief.md`.
 >
 > **Next step:** Run `/rjsf-suggest` to get UI/UX enhancement suggestions, or `/rjsf-build` to continue automatically.

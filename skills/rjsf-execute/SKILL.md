@@ -12,10 +12,10 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 
 ## Step 1 — Read Session & Artifacts
 
-1. Read `.rjsf/session.json`.
+1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
 2. Confirm `phases["3"].status` is `"completed"` or `"awaiting_client_approval"`. If neither: stop and say: "Please confirm client approval of the prototype first. Once they approve, tell me 'client approved' to continue."
-3. Read `.rjsf/form-plan.md` (FormPlan from Phase 2).
-4. Read `.rjsf/requirements-brief.md` (or `.rjsf/enhanced-brief.md` if Phase 1.5 completed — needed for edge case flags).
+3. Read `{sessionDir}/form-plan.md` (FormPlan from Phase 2).
+4. Read `{sessionDir}/requirements-brief.md` (or `{sessionDir}/enhanced-brief.md` if Phase 1.5 completed — needed for edge case flags).
 5. Read `references/rjsf-widget-api.md` for WidgetProps, FieldProps, and template interfaces.
 6. Read `references/rjsf-schema-patterns.md` for JSON Schema and uiSchema patterns.
 6b. **Read `references/rjsf-type-contracts.md`** for canonical RJSF v5 type signatures. This is the **type authority** — every generated file MUST conform to the contracts in this reference. Violations cause TypeScript build errors.
@@ -44,14 +44,14 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
     - `conditionalApproach` → if/then/else vs dependencies vs allOf
     - `formStateManagement` → useState vs Context vs external store
     - `formContextUsage` → whether to pass formContext prop
-10. **Read `prototype/prototype.html`** (the approved client prototype from Phase 3). Use this as the **visual reference** for the generated React form. The generated React code must visually match it.
+10. **Read `{sessionDir}/prototype.html`** (the approved client prototype from Phase 3). Use this as the **visual reference** for the generated React form. The generated React code must visually match it.
 11. **Read the UI reference** (if `ui_reference` in the RequirementsBrief is not `none`). If a design file or image path was provided, read/view it and extract visual style cues: color scheme, spacing patterns, typography, component styles. Apply these to the generated form's CSS/styles. The UI reference takes precedence over the prototype for visual decisions where they differ. If the UI reference is a URL that cannot be fetched, note this in the file preview and ask the developer to describe the key visual elements.
-12. **Extract custom components from FormPlan.** Parse the Customization Assessment section of `.rjsf/form-plan.md`. Build three lists:
+12. **Extract custom components from FormPlan.** Parse the Customization Assessment section of `{sessionDir}/form-plan.md`. Build three lists:
     - `requiredWidgets`: component names from the "Widgets" table
     - `requiredFields`: component names from the "Fields" table
     - `requiredTemplates`: component names from the "Templates" table
     These lists drive which files to generate in Steps 4e–4g and which imports/registrations to include in `index.tsx`. Do NOT comment out these imports — include them actively. Do NOT include empty widget/field/template objects if the lists are empty.
-13. **Verify Phase 1.5 choices propagated.** If `.rjsf/enhanced-brief.md` exists, cross-reference the Enhancement Choices section against the FormPlan's Customization Assessment. For each enhancement that specified a custom widget/field/template (e.g., "1B — PhoneWidget"), verify it appears in the requiredWidgets/requiredFields/requiredTemplates list. If any are missing, warn the developer: "Enhancement [N] chose [component] but it's not in the FormPlan. Adding it now." and include it in the generation.
+13. **Verify Phase 1.5 choices propagated.** If `{sessionDir}/enhanced-brief.md` exists, cross-reference the Enhancement Choices section against the FormPlan's Customization Assessment. For each enhancement that specified a custom widget/field/template (e.g., "1B — PhoneWidget"), verify it appears in the requiredWidgets/requiredFields/requiredTemplates list. If any are missing, warn the developer: "Enhancement [N] chose [component] but it's not in the FormPlan. Adding it now." and include it in the generation.
 
 ---
 
@@ -754,7 +754,7 @@ export function <FormName>({ formData, onSubmit, onError }: <FormName>Props) {
   //   bare:            style={{ maxWidth: 640, margin: '0 auto', background: '#fff',
   //                      borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,.1)', padding: 32 }}
   //
-  // VISUAL PARITY: Match the prototype's visual style. Read prototype/prototype.html
+  // VISUAL PARITY: Match the prototype's visual style. Read {sessionDir}/prototype.html
   // (loaded in Step 1) and replicate its section card styling, spacing, and layout
   // in the React output. The prototype's .section class (border, border-radius, padding),
   // .field spacing, and grid layout represent the client-approved design.
