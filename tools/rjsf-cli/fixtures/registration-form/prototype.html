@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Registration — Prototype</title>
+  <style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  color: #1a1a1a;
+}
+
+.form-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; }
+.form-subtitle { font-size: 0.95rem; color: #6b7280; margin-top: -16px; margin-bottom: 24px; }
+
+.section {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; }
+.section-description { font-size: 0.85rem; color: #6b7280; margin-top: -8px; margin-bottom: 16px; }
+
+/* Column grids — mobile-first: all default to 1 column */
+.grid-1,
+.grid-2,
+.grid-3,
+.grid-4 { display: grid; grid-template-columns: 1fr; gap: 16px 24px; }
+.col-full { grid-column: 1 / -1; }
+
+/* Tablet: >=640px */
+@media (min-width: 640px) {
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Desktop: >=1024px */
+@media (min-width: 1024px) {
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Fields */
+.field { display: flex; flex-direction: column; gap: 4px; }
+
+label { font-size: 0.875rem; font-weight: 500; color: #374151; }
+.required { color: #dc2626; margin-left: 2px; }
+
+input, select, textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: #fff;
+  min-height: 44px;
+}
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+  border-color: transparent;
+}
+textarea { resize: vertical; }
+
+.help { font-size: 0.75rem; color: #6b7280; }
+
+/* Visibility */
+.hidden { display: none !important; }
+
+/* Multi-step */
+.step { display: none; }
+.step.active { display: block; }
+
+.step-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.step-indicator {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.step-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #d1d5db;
+}
+.step-dot.active  { background: #2563eb; }
+.step-dot.done    { background: #16a34a; }
+
+/* Buttons */
+button {
+  padding: 9px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 44px;
+}
+button[type="submit"], .btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+button[type="submit"]:hover, .btn-primary:hover { opacity: 0.9; }
+.btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+.btn-secondary:hover { background: #d1d5db; }
+
+/* Data summary */
+.data-summary {
+  display: none;
+  background: #dcfce7;
+  border: 1px solid #16a34a;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 24px;
+}
+.data-summary h3 { margin-bottom: 8px; color: #15803d; }
+.data-summary pre { font-size: 0.8rem; white-space: pre-wrap; word-break: break-all; }
+
+/* Limitations notice */
+.limitations {
+  background: #fefce8;
+  border: 1px solid #ca8a04;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 28px;
+}
+.limitations h3 { margin-bottom: 8px; font-size: 1rem; }
+.limitations p  { font-size: 0.85rem; margin-top: 6px; line-height: 1.5; }
+
+  </style>
+</head>
+<body>
+  <div class="limitations">
+    <h3>&#9888; Prototype — For Client Review Only</h3>
+    <p><strong>This prototype accurately shows:</strong> layout, field types, section structure, conditional show/hide, step flow.</p>
+    <p><strong>Simplified for prototype purposes:</strong> async option loading (static placeholder options shown), complex cross-field validation (not enforced), role-based field visibility (all fields shown), file upload (UI only, no actual upload).</p>
+  </div>
+
+  <div class="form-title">User Registration</div>
+
+
+  <form id="prototype-form" novalidate>
+    <div class="section">
+      <div class="section-title">Account Details</div>
+      <div class="grid-1">
+        <div class="field col-full">
+          <label for="username">Username<span class="required">*</span></label>
+          <input type="text" id="username" name="username" placeholder="Choose a username" required>
+        </div>
+        <div class="field col-full">
+          <label for="email">Email<span class="required">*</span></label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="password">Password<span class="required">*</span></label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <div class="field">
+          <label for="confirmPassword">Confirm Password<span class="required">*</span></label>
+          <input type="password" id="confirmPassword" name="confirmPassword" required>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Profile</div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="firstName">First Name<span class="required">*</span></label>
+          <input type="text" id="firstName" name="firstName" placeholder="First name" required>
+        </div>
+        <div class="field">
+          <label for="lastName">Last Name<span class="required">*</span></label>
+          <input type="text" id="lastName" name="lastName" placeholder="Last name" required>
+        </div>
+        <div class="field">
+          <label for="country">Country<span class="required">*</span></label>
+          <select id="country" name="country" required>
+          <option value="">Select...</option>
+          <option value="CA">Canada</option>
+          <option value="US">United States</option>
+          <option value="AU">Australia</option>
+        </select>
+        </div>
+        <div class="field">
+          <label for="province">Province / State<span class="required">*</span></label>
+          <select id="province" name="province" required>
+          <option value="">Select...</option>
+          <option value="AB">Alberta</option>
+          <option value="BC">British Columbia</option>
+          <option value="ON">Ontario</option>
+        </select>
+          <p class="help">Options change based on country selection</p>
+        </div>
+        <div class="field col-full">
+          <label for="bio">Bio</label>
+          <textarea id="bio" name="bio" rows="4" placeholder="Tell us about yourself"></textarea>
+          <p class="help">Maximum 300 characters</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 24px;">
+      <button type="submit">Submit</button>
+    </div>
+  </form>
+
+  <div class="data-summary" id="data-summary">
+    <h3>Form Data (prototype preview)</h3>
+    <pre></pre>
+  </div>
+
+  <script>
+
+    document.getElementById('prototype-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var data = {};
+      var fd = new FormData(this);
+      fd.forEach(function(val, key) { data[key] = val; });
+      var summary = document.getElementById('data-summary');
+      summary.querySelector('pre').textContent = JSON.stringify(data, null, 2);
+      summary.style.display = 'block';
+      summary.scrollIntoView({ behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>

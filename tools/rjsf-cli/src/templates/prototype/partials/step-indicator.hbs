@@ -1,0 +1,6 @@
+{{!-- Step progress dots --}}
+<div class="step-indicator">
+{{#each steps}}
+  <div class="step-dot{{#if (eq @index 0)}} active{{/if}}" id="dot-{{@index}}"></div>
+{{/each}}
+</div>

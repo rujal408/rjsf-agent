@@ -97,6 +97,17 @@ Generate a responsive column spec for every section — not a single fixed count
 - If `responsive: false` in the RequirementsBrief (desktop-only form), you may assign a single fixed column count without breakpoints.
 - Full-width fields (`col-full`) always span all columns regardless of breakpoint.
 
+### Per-Field Width Assignment (MANDATORY)
+
+Every field MUST have a `width` value in the layout table. Use the Field Width by Type table from `references/layout-principles.md` § 2 to assign one of: `full`, `half`, or `quarter`.
+
+**Enforcement rule (from `references/layout-principles.md` § 1b):** After assigning widths and column counts, verify:
+- If a section has **3+ fields with width `half` or `quarter`**, desktop columns MUST be ≥ 2.
+- If a section has **5+ fields with width `half` or `quarter`**, desktop columns SHOULD be 3.
+- A section with only `full`-width fields MAY remain single-column.
+
+**If any section violates these rules, fix it before presenting the FormPlan.** A section with 3+ short fields in a single column on desktop is a layout bug — it wastes space and looks like a mobile layout stretched to fill a wide screen.
+
 ### Widget Assignment Per Field
 - Apply the widget table from `references/rjsf-schema-patterns.md` to assign the appropriate standard widget to each field.
 - If the standard widget is insufficient for a field's UX requirements (e.g., needs custom styling, compound input, non-standard interaction), **mark that field for a custom Widget**.
@@ -117,9 +128,13 @@ Document layout decisions in the FormPlan as a table per section:
 ### Section: <section name>
 **Responsive cols:** mobile: 1 | tablet (≥640px): <N> | desktop (≥1024px): <N>
 
-| Field | Schema type | Widget | uiSchema hints | Full-width? | Custom? |
-|-------|-------------|--------|----------------|-------------|---------|
+| Field | Schema type | Widget | Width | uiSchema hints | Custom? |
+|-------|-------------|--------|-------|----------------|---------|
+| firstName | string | text | half | ui:placeholder | — |
+| bio | string | textarea | full | ui:options.rows=5 | — |
 ```
+
+> **Width column** replaces "Full-width?" with explicit `full`, `half`, or `quarter` values. Fields with `full` width get `col-full` CSS class; `half` and `quarter` fields fill grid cells normally.
 
 ---
 
@@ -254,7 +269,75 @@ Wait for the developer's response. If they request changes, apply them and re-di
 Once the developer approves:
 
 1. Write the final FormPlan to `{sessionDir}/form-plan.md`.
-2. Update `session.json`:
+2. **Generate `{sessionDir}/form-plan.json`** — the machine-readable version of the FormPlan used by the CLI tools (`rjsf-cli prototype` and `rjsf-cli scaffold`). The JSON must conform to the `FormPlanJSON` interface defined in `tools/rjsf-cli/src/types/form-plan.ts`. Key structure:
+
+```json
+{
+  "formName": "<PascalCase form name from session>",
+  "formTitle": "<Form Title from RequirementsBrief>",
+  "generatedDate": "<today's ISO date>",
+  "stylingApproach": "<from session.json>",
+  "rjsfTheme": "<from session.json>",
+  "multiStep": false,
+  "responsive": true,
+  "sections": [
+    {
+      "key": "<camelCase section key>",
+      "title": "<Section Title>",
+      "columns": { "mobile": 1, "tablet": 2, "desktop": 2 },
+      "fields": [
+        {
+          "key": "<camelCase field key>",
+          "label": "<Field Label>",
+          "schemaType": "string",
+          "widget": "text",
+          "width": "half",
+          "required": true,
+          "placeholder": "<placeholder text>",
+          "helpText": "<help text>",
+          "validation": { "minLength": 3, "maxLength": 30 },
+          "options": [{ "value": "val", "label": "Display Label" }],
+          "conditional": { "triggerField": "otherField", "triggerValue": "someValue" }
+        }
+      ]
+    }
+  ],
+  "steps": [],
+  "customization": {
+    "standardFields": ["field1", "field2"],
+    "widgets": [{ "name": "PhoneWidget", "forField": "phone", "reason": "...", "rjsfApi": "WidgetProps" }],
+    "fields": [],
+    "templates": []
+  },
+  "asyncFields": [],
+  "edgeCaseFlags": {
+    "errorDisplay": "inline",
+    "responsive": true,
+    "editMode": false,
+    "draftSave": false,
+    "serverErrorMapping": false,
+    "asyncOptions": false,
+    "asyncFieldValidation": false,
+    "viewMode": false,
+    "i18n": false,
+    "printExport": false,
+    "arrayReorder": false,
+    "nestedArrays": false,
+    "computedFields": false,
+    "roleBased": false,
+    "maskedInput": false,
+    "richText": false,
+    "fileUploadServer": false,
+    "tabLayout": false,
+    "multiStep": false,
+    "crossFieldValidation": false
+  }
+}
+```
+
+Derive every value from the FormPlan markdown decisions. The JSON and markdown must be consistent — if the developer requests changes, update BOTH files.
+
+3. Update `session.json`:
    - Set `phases["2"].status = "completed"`
    - Set `currentPhase = "2.5"`
    - Set `phases["2"].completedAt` to the current ISO 8601 timestamp.

@@ -100,28 +100,68 @@ const colClass: Record<number, string> = {
 
 ---
 
+## 1b. Desktop Multi-Column Enforcement (MANDATORY)
+
+**A section with 3+ short fields rendered in a single column on desktop is a layout bug.** This is the most common aesthetic failure in generated forms — it wastes horizontal space and makes the form look like a mobile layout stretched to fill a wide screen.
+
+### Hard rules
+
+1. **If a section has 3 or more `half`-width fields, the desktop column count MUST be ≥ 2.** No exceptions.
+2. **If a section has 5 or more `half`-width fields, the desktop column count SHOULD be 3** (unless the form is a simple contact form or survey).
+3. **`full`-width fields do not count** toward the field threshold — they always span all columns regardless.
+4. **A section with only `full`-width fields** (e.g., all textareas) MAY remain single-column.
+5. **After assigning columns, verify:** scan every section in the FormPlan. If any section violates rules 1–2, fix it before saving the plan.
+
+### Verification checklist (run mentally before saving FormPlan)
+
+```
+For each section in FormPlan:
+  count_half = number of fields with width = "half" or "quarter"
+  if count_half >= 3 AND desktop_columns == 1:
+    → BUG: set desktop_columns = 2 (or 3 if count_half >= 5)
+  if count_half >= 5 AND desktop_columns == 2:
+    → CONSIDER: set desktop_columns = 3
+```
+
+---
+
 ## 2. Field Width by Type
 
-| Field Type | Recommended Width | Rationale |
-|---|---|---|
-| Full name (single field) | Full width | Name can be long; avoid truncation |
-| Street address | Full width | Addresses vary in length |
-| Description / notes | Full width | Needs space for meaningful input |
-| First name | Half width | Pair with last name |
-| Last name | Half width | Pair with first name |
-| Email address | Half width | Predictable length |
-| Phone number | Half width | Consistent format |
-| Date (start or end) | Half width | Pair start + end dates side by side |
-| Number / integer | Half width | Short numeric values |
-| Textarea | Full width | Multi-line content needs full width |
-| Rich text editor | Full width | Editor chrome needs horizontal space |
-| File upload | Full width | Drop zone / button needs clear area |
-| Select (single) | Half to full | Half for short lists, full for long labels |
-| Multi-select | Half to full | Depends on option label length |
-| Checkbox | Full width | Label reads left to right; do not crowd |
-| Radio group | Full width | Options stack vertically or inline |
-| ZIP code / postal code | Quarter width | Short, fixed-format value |
-| Country code (prefix) | Quarter width | Short "+" code beside phone number |
+Every field in the FormPlan MUST have a `width` value: `full`, `half`, or `quarter`. This drives column spanning in both the prototype and React output.
+
+| Field Type | Width Class | CSS Behavior | Rationale |
+|---|---|---|---|
+| Full name (single field) | `full` | `grid-column: 1 / -1` | Name can be long; avoid truncation |
+| Street address | `full` | `grid-column: 1 / -1` | Addresses vary in length |
+| Description / notes | `full` | `grid-column: 1 / -1` | Needs space for meaningful input |
+| First name | `half` | Default (no span) | Pair with last name |
+| Last name | `half` | Default (no span) | Pair with first name |
+| Email address | `half` | Default (no span) | Predictable length |
+| Phone number | `half` | Default (no span) | Consistent format |
+| Date (start or end) | `half` | Default (no span) | Pair start + end dates side by side |
+| Number / integer | `half` | Default (no span) | Short numeric values |
+| Textarea | `full` | `grid-column: 1 / -1` | Multi-line content needs full width |
+| Rich text editor | `full` | `grid-column: 1 / -1` | Editor chrome needs horizontal space |
+| File upload | `full` | `grid-column: 1 / -1` | Drop zone / button needs clear area |
+| Select (single, ≤10 options) | `half` | Default (no span) | Short option lists fit in half width |
+| Select (single, 10+ options or long labels) | `full` | `grid-column: 1 / -1` | Long labels need space |
+| Multi-select | `full` | `grid-column: 1 / -1` | Tag display needs horizontal space |
+| Checkbox (single boolean) | `half` | Default (no span) | Short label, compact |
+| Checkbox group (multiple) | `full` | `grid-column: 1 / -1` | Options list needs full row |
+| Radio group (≤4 short options, inline) | `half` | Default (no span) | Fits in half width when inline |
+| Radio group (5+ options or stacked) | `full` | `grid-column: 1 / -1` | Options stack vertically |
+| ZIP code / postal code | `quarter` | Narrower (in 3+ col grids) | Short, fixed-format value |
+| Country code (prefix) | `quarter` | Narrower (in 3+ col grids) | Short "+" code beside phone number |
+
+### Width class → CSS mapping
+
+| Width class | In `grid-2` | In `grid-3` | In `grid-4` |
+|---|---|---|---|
+| `full` | `col-full` (spans 2) | `col-full` (spans 3) | `col-full` (spans 4) |
+| `half` | Default (1 of 2) | Default (1 of 3) | Default (1 of 4) |
+| `quarter` | Default (1 of 2) | Default (1 of 3) | Default (1 of 4) |
+
+> **`quarter` fields** only get visually narrower in 3+ column grids where they naturally occupy less space. In 2-column grids, they take one column like `half` fields.
 
 ---
 

@@ -1,0 +1,24 @@
+{
+  "name": "rjsf-cli",
+  "version": "1.0.0",
+  "description": "CLI tool for generating RJSF prototypes and React scaffolding from structured form plans",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "rjsf-cli": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

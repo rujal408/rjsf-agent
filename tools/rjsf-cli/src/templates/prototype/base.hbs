@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{formTitle}} — Prototype</title>
+  <style>
+{{{cssBlock}}}
+  </style>
+</head>
+<body>
+  {{> limitations}}
+
+  <div class="form-title">{{formTitle}}</div>
+{{#if formSubtitle}}
+  <div class="form-subtitle">{{formSubtitle}}</div>
+{{/if}}
+
+{{#if multiStep}}
+  {{> step-indicator steps=steps}}
+{{/if}}
+
+  <form id="prototype-form" novalidate>
+{{#if multiStep}}
+{{#each stepSections}}
+    <div class="step{{#if (eq @index 0)}} active{{/if}}" id="step-{{@index}}">
+      <h2 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 16px;">{{title}}</h2>
+{{#each sections}}
+      {{> section}}
+{{/each}}
+    </div>
+{{/each}}
+{{else}}
+{{#each renderedSections}}
+    {{> section}}
+{{/each}}
+{{/if}}
+
+{{#if multiStep}}
+    {{> step-nav}}
+{{else}}
+    <div style="display: flex; justify-content: flex-end; margin-top: 24px;">
+      <button type="submit">Submit</button>
+    </div>
+{{/if}}
+  </form>
+
+  <div class="data-summary" id="data-summary">
+    <h3>Form Data (prototype preview)</h3>
+    <pre></pre>
+  </div>
+
+  <script>
+{{{jsBlock}}}
+  </script>
+</body>
+</html>

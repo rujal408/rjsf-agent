@@ -19,6 +19,7 @@ Each form gets its own isolated directory under `.rjsf/sessions/`. A pointer fil
       requirements-brief.md
       enhanced-brief.md
       form-plan.md
+      form-plan.json
       technical-choices.md
       prototype.html
     PaymentForm/
@@ -216,7 +217,7 @@ All artifact filenames for Phases 1–3 are relative to the session directory (`
 |---|---|---|
 | `1` | `requirements-brief.md` | Markdown — captured requirements, field list, validation rules |
 | `1.5` | `enhanced-brief.md` | Markdown — enhanced requirements with UI/UX choices applied, customization summary |
-| `2` | `form-plan.md` | Markdown — layout decisions, widget assignments, customization assessment, step map |
+| `2` | `form-plan.md` + `form-plan.json` | Markdown (human-readable) + JSON (machine-readable for `rjsf-cli` tools). Both must stay in sync. See `tools/rjsf-cli/src/types/form-plan.ts` for the JSON interface. |
 | `2.5` | `technical-choices.md` | Markdown — technical decisions (schema version, validator, submission pattern, etc.) |
 | `3` | `prototype.html` | HTML — self-contained client prototype |
 | `4` | `src/forms/<FormName>/` | TypeScript React — schema.ts, uiSchema.ts, types.ts, index.tsx, custom components |

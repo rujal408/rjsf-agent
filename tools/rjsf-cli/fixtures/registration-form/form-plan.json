@@ -1,0 +1,147 @@
+{
+  "formName": "UserRegistrationForm",
+  "formTitle": "User Registration",
+  "generatedDate": "2026-05-26",
+  "stylingApproach": "mui-grid",
+  "rjsfTheme": "@rjsf/mui",
+  "multiStep": false,
+  "responsive": true,
+  "sections": [
+    {
+      "key": "accountDetails",
+      "title": "Account Details",
+      "columns": { "mobile": 1, "tablet": 1, "desktop": 1 },
+      "fields": [
+        {
+          "key": "username",
+          "label": "Username",
+          "schemaType": "string",
+          "widget": "text",
+          "width": "full",
+          "required": true,
+          "placeholder": "Choose a username",
+          "validation": { "minLength": 3, "maxLength": 30 }
+        },
+        {
+          "key": "email",
+          "label": "Email",
+          "schemaType": "string",
+          "format": "email",
+          "widget": "email",
+          "width": "full",
+          "required": true,
+          "placeholder": "you@example.com"
+        },
+        {
+          "key": "password",
+          "label": "Password",
+          "schemaType": "string",
+          "widget": "password",
+          "width": "half",
+          "required": true,
+          "validation": { "minLength": 8 }
+        },
+        {
+          "key": "confirmPassword",
+          "label": "Confirm Password",
+          "schemaType": "string",
+          "widget": "password",
+          "width": "half",
+          "required": true,
+          "validation": { "minLength": 8 }
+        }
+      ]
+    },
+    {
+      "key": "profile",
+      "title": "Profile",
+      "columns": { "mobile": 1, "tablet": 2, "desktop": 2 },
+      "fields": [
+        {
+          "key": "firstName",
+          "label": "First Name",
+          "schemaType": "string",
+          "widget": "text",
+          "width": "half",
+          "required": true,
+          "placeholder": "First name"
+        },
+        {
+          "key": "lastName",
+          "label": "Last Name",
+          "schemaType": "string",
+          "widget": "text",
+          "width": "half",
+          "required": true,
+          "placeholder": "Last name"
+        },
+        {
+          "key": "country",
+          "label": "Country",
+          "schemaType": "string",
+          "widget": "select",
+          "width": "half",
+          "required": true,
+          "options": [
+            { "value": "CA", "label": "Canada" },
+            { "value": "US", "label": "United States" },
+            { "value": "AU", "label": "Australia" }
+          ]
+        },
+        {
+          "key": "province",
+          "label": "Province / State",
+          "schemaType": "string",
+          "widget": "select",
+          "width": "half",
+          "required": true,
+          "options": [
+            { "value": "AB", "label": "Alberta" },
+            { "value": "BC", "label": "British Columbia" },
+            { "value": "ON", "label": "Ontario" }
+          ],
+          "helpText": "Options change based on country selection"
+        },
+        {
+          "key": "bio",
+          "label": "Bio",
+          "schemaType": "string",
+          "widget": "textarea",
+          "width": "full",
+          "required": false,
+          "placeholder": "Tell us about yourself",
+          "helpText": "Maximum 300 characters",
+          "validation": { "maxLength": 300 }
+        }
+      ]
+    }
+  ],
+  "customization": {
+    "standardFields": ["username", "email", "password", "confirmPassword", "firstName", "lastName", "country", "province", "bio"],
+    "widgets": [],
+    "fields": [],
+    "templates": []
+  },
+  "edgeCaseFlags": {
+    "errorDisplay": "inline",
+    "responsive": true,
+    "editMode": true,
+    "draftSave": false,
+    "serverErrorMapping": true,
+    "asyncOptions": false,
+    "asyncFieldValidation": false,
+    "viewMode": false,
+    "i18n": false,
+    "printExport": false,
+    "arrayReorder": false,
+    "nestedArrays": false,
+    "computedFields": false,
+    "roleBased": false,
+    "maskedInput": false,
+    "richText": false,
+    "fileUploadServer": false,
+    "tabLayout": false,
+    "multiStep": false,
+    "crossFieldValidation": true
+  }
+}

@@ -1,0 +1,10 @@
+{{!-- Render a single form field --}}
+<div class="field{{#if (eq width 'full')}} col-full{{/if}}"{{#if conditional}} id="field-{{key}}"{{#if (eq conditional.operator 'neq')}}{{else}} class="hidden"{{/if}}{{/if}}>
+{{#unless (eq widget 'checkbox')}}
+  <label for="{{key}}">{{label}}{{#if required}}<span class="required">*</span>{{/if}}</label>
+{{/unless}}
+  {{{htmlElement}}}
+{{#if helpText}}
+  <p class="help">{{helpText}}</p>
+{{/if}}
+</div>

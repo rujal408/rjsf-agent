@@ -1,0 +1,14 @@
+{{!-- Render a form section with grid layout --}}
+<div class="section">
+{{#if title}}
+  <div class="section-title">{{title}}</div>
+{{/if}}
+{{#if description}}
+  <div class="section-description">{{description}}</div>
+{{/if}}
+  <div class="{{gridClass}}">
+{{#each fields}}
+    {{> field}}
+{{/each}}
+  </div>
+</div>

@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "formName": "UserRegistrationForm",
+  "outputPath": "src/forms/UserRegistrationForm",
+  "rjsfTheme": "@rjsf/mui",
+  "stylingApproach": "mui-grid",
+  "technicalChoices": {
+    "schemaVersion": "draft-07",
+    "validator": "ajv8",
+    "validationTiming": "onSubmit",
+    "html5Validation": false,
+    "omitExtraData": true,
+    "submissionPattern": "async-loading",
+    "successBehavior": "callback",
+    "serverErrorShape": "flat-record",
+    "formWrapper": "centered-card",
+    "breakpoints": "standard",
+    "touchTargetSize": "44px",
+    "gridGap": "default",
+    "colorPalette": "neutral",
+    "typeStyle": "per-section",
+    "conditionalApproach": "if-then-else",
+    "formStateManagement": "local-hooks",
+    "formContextUsage": "disabled"
+  },
+  "currentPhase": "4",
+  "phases": {
+    "1": { "status": "completed", "startedAt": "2026-05-26T09:00:00Z", "completedAt": "2026-05-26T09:05:00Z", "artifactPath": "requirements-brief.md" },
+    "1.5": { "status": "completed", "startedAt": "2026-05-26T09:05:00Z", "completedAt": "2026-05-26T09:08:00Z", "artifactPath": "enhanced-brief.md" },
+    "2": { "status": "completed", "startedAt": "2026-05-26T09:08:00Z", "completedAt": "2026-05-26T09:15:00Z", "artifactPath": "form-plan.md" },
+    "2.5": { "status": "completed", "startedAt": "2026-05-26T09:15:00Z", "completedAt": "2026-05-26T09:18:00Z", "artifactPath": "technical-choices.md" },
+    "3": { "status": "completed", "startedAt": "2026-05-26T09:18:00Z", "completedAt": "2026-05-26T09:25:00Z", "artifactPath": "prototype.html" },
+    "4": { "status": "in_progress", "startedAt": "2026-05-26T09:30:00Z", "completedAt": null, "artifactPath": null },
+    "5": { "status": "pending", "startedAt": null, "completedAt": null, "artifactPath": null }
+  }
+}
