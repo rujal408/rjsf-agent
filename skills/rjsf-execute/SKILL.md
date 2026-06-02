@@ -17,6 +17,7 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 3. Verify `{sessionDir}/form-plan.json` exists. If missing: "form-plan.json not found. Regenerate the plan with `/rjsf-plan`."
 4. Read `{sessionDir}/form-plan.md` for human context and review.
 5. Read `{sessionDir}/prototype.html` as the visual reference.
+6. If `phases["1.5"].status` is `"completed"`, read `{sessionDir}/enhanced-brief.md` — specifically the `## Enhancement Choices` and `## Customization Summary` sections. Extract all visual polish decisions (section grouping style, label positioning, required field indicators, help text display, error display style, submit button style, empty array states). These will be applied in Step 7.5. If `enhanced-brief.md` does not exist or Phase 1.5 was skipped, proceed without it — use sensible defaults.
 
 **Do NOT bulk-load reference files.** The CLI generates code that already embeds correct types, patterns, and styles. Only read specific reference files when needed for custom component implementation (Step 6).
 
@@ -79,6 +80,18 @@ Display a compact summary of ALL decisions that will affect generated output:
 | Flag | Value |
 |------|-------|
 | (list only true flags) |
+
+### Visual Polish (from Phase 1.5)
+| Decision | Chosen Style |
+|----------|-------------|
+| Section grouping | <bordered cards / flat dividers / color-banded headers / default> |
+| Labels | <floating / top-aligned / left-aligned / default> |
+| Required indicators | <asterisk on required / "(optional)" on optional / color highlight / default> |
+| Help text | <inline below field / tooltip icon (?) / expandable accordion / default> |
+| Submit button | <full-width primary / right-aligned / split Save Draft + Submit / default> |
+| Empty array state | <illustrated with CTA / plain "No items" text / default> |
+
+*(If Phase 1.5 was skipped, show "default" for all rows and note: "No Phase 1.5 enhancements — using RJSF defaults. Visual polish can be customized later via `/rjsf-iterate`.")*
 ```
 
 Ask: "This is what I'll generate. Approve to proceed, or change any decision."
@@ -161,6 +174,29 @@ For each handler, make targeted edits to the existing generated files — do not
 
 ---
 
+## Step 7.5 — Apply Visual Polish from Phase 1.5 (LLM-DRIVEN)
+
+If `enhanced-brief.md` was read in Step 1, apply each visual polish decision to the correct generated file. If Phase 1.5 was skipped, skip this step entirely.
+
+For each visual polish category, make targeted edits to the already-generated files:
+
+| Decision | Target File(s) | What to Apply |
+|----------|----------------|---------------|
+| **Section grouping** | `templates/SectionTemplate.tsx` | Bordered cards: wrap each section in a `<div>` with `border`, `border-radius`, `padding`, and optional `box-shadow`. Flat dividers: add `<hr>` or `border-bottom` between sections. Color-banded headers: add a colored top bar or background to section headings. |
+| **Label positioning** | `rjsf-overrides.css` and/or `uiSchema.ts` | Floating labels: add CSS for `.field-label` with `position: absolute` transform pattern. Top-aligned: ensure `display: block` on labels (RJSF default). Left-aligned (horizontal): add `display: flex; align-items: center` on `.form-group` with fixed label width. |
+| **Required indicators** | `rjsf-overrides.css` | Asterisk on required: style `.field-required::after { content: " *"; color: red }`. "(optional)" on optional: add `.field-optional::after { content: " (optional)"; color: gray; font-size: 0.85em }`. Color highlight: add left border or background tint to required fields. |
+| **Help text display** | `uiSchema.ts`, `rjsf-overrides.css` | Inline below field: use `ui:help` property per field (RJSF default). Tooltip icon: add `ui:options.helpIcon: true` and style a `(?)` icon with CSS tooltip on hover/focus. Expandable accordion: wrap help text in a collapsible `<details>` element via CSS. |
+| **Submit button style** | `index.tsx` | Full-width: add `width: 100%` to submit button. Right-aligned: wrap in `<div style={{ display: 'flex', justifyContent: 'flex-end' }}>`. Split buttons: render both "Save Draft" (secondary, calls `onSaveDraft`) and "Submit" (primary) buttons side by side. |
+| **Empty array state** | `templates/SectionTemplate.tsx` or array template | Illustrated empty: add an empty-state `<div>` with an SVG/icon, descriptive text, and an "Add first item" CTA button. Plain text: use RJSF default "No items" message. |
+
+**Rules:**
+- Make targeted edits to existing generated files — do not regenerate from scratch.
+- Match the styling approach from session (`css-modules`, `scss`, `plain-css`, `styled-components`, etc.) — do not mix approaches.
+- Ensure visual polish matches the prototype's appearance. Cross-reference `prototype.html` if a decision seems ambiguous.
+- If a decision conflicts with an edge case flag (e.g., error display chosen in both Step 3 and Phase 1.5), the developer's Step 3 answer takes precedence.
+
+---
+
 ## Step 8 — Review & Verify
 
 ### Checklist
@@ -175,6 +211,8 @@ For each handler, make targeted edits to the existing generated files — do not
 - [ ] `rjsf-overrides.css` is imported in index.tsx (CLI handles this)
 - [ ] `SectionTemplate` is registered as `ObjectFieldTemplate` (CLI handles this)
 - [ ] Every section with 3+ half-width fields uses ≥2 desktop columns
+- [ ] Visual polish decisions from Phase 1.5 are reflected in generated CSS/templates/uiSchema (if Phase 1.5 was completed)
+- [ ] Generated code matches prototype visual appearance for non-structural elements (section grouping, labels, help text, submit button)
 
 Read any file that seems potentially wrong and fix issues before proceeding.
 
