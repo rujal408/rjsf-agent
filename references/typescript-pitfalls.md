@@ -411,6 +411,67 @@ import Form from '@rjsf/mui';
 
 ---
 
+## 17. React Import — Modern JSX Transform
+
+```typescript
+// ❌ BAD — React 17+ with Vite/Next.js doesn't need this
+import React from 'react';
+import React, { useState } from 'react';
+
+// ✅ GOOD — import only what you use as values
+import { useState } from 'react';
+import { useRef, useCallback } from 'react';
+
+// ✅ GOOD — only import React if you explicitly use React.xxx
+import React from 'react';  // Only if using React.createElement, React.Fragment, etc.
+```
+
+**Error prevented:** `'React' is defined but never used`, `Module 'react' has no default export` (with `verbatimModuleSyntax`)
+
+---
+
+## 18. Optional Chaining — When To Use and Not Use
+
+```typescript
+// ❌ BAD — optional chaining on non-nullable type (TS error: "Object is possibly undefined" won't help)
+const name: string = user?.name;  // ERROR if `user` is not nullable
+
+// ❌ BAD — non-null assertion on array index (fails with noUncheckedIndexedAccess)
+const key = parts[i]!;
+
+// ✅ GOOD — check before access
+const key = parts[i];
+if (key === undefined) continue;
+
+// ✅ GOOD — nullish coalescing for defaults
+const sectionKey = parts[0] ?? 'root';
+
+// ✅ GOOD — optional chaining only when type IS nullable
+const errors = rawErrors?.map((e) => e.message);  // rawErrors is string[] | undefined
+```
+
+**Error prevented:** `TS18048: 'x' is possibly 'undefined'`, `TS2532: Object is possibly 'undefined'`, ESLint `no-non-null-assertion`
+
+---
+
+## 19. Array Index Access Safety
+
+```typescript
+// ❌ BAD — with noUncheckedIndexedAccess, parts[0] is string | undefined
+const first = parts[0].toUpperCase();  // TS error!
+const last = parts[parts.length - 1]!;  // Non-null assertion — lint error
+
+// ✅ GOOD — safe access patterns
+const first = parts[0];
+if (first === undefined) throw new Error('Expected at least one part');
+first.toUpperCase();  // OK — narrowed to string
+
+// ✅ GOOD — nullish coalescing
+const sectionKey = parts[0] ?? 'default';
+```
+
+---
+
 ## Quick Reference: JSON Schema → TypeScript Type Map
 
 | JSON Schema | TypeScript | Notes |

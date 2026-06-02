@@ -130,6 +130,35 @@ The CLI generates:
 
 ---
 
+## Step 5.5 — TypeScript Error Prevention Rules (MANDATORY)
+
+All code written in Steps 6, 7, and 7.5 MUST follow these rules to prevent build errors. Read `references/typescript-pitfalls.md` before writing any code.
+
+### Import Rules
+- **Always use `import type` for type-only imports:** `import type { WidgetProps, FieldProps, RJSFSchema } from '@rjsf/utils'`
+- **Never use `import type` for values used at runtime:** `import { useState } from 'react'` (NOT `import type`)
+- **Do NOT import `React` unless explicitly using `React.xxx` (e.g., `React.createElement`).** Modern React with JSX transform (`jsx: 'react-jsx'`, used by Vite) does not require `import React`.
+- **Named imports from generated files:** `import { schema } from './schema'` (value), `import type { MyFormData } from './types'` (type-only)
+
+### Nullable / Optional Access Rules
+- **Never use non-null assertion `!` on array index access.** Use `undefined` checks or nullish coalescing:
+  ```typescript
+  // BAD: parts[i]!
+  // GOOD: const key = parts[i]; if (key === undefined) continue;
+  // GOOD: const key = parts[i] ?? '';
+  ```
+- **Always null-check `formData` from RJSF events:** `if (!data.formData) return;`
+- **Use `??` (nullish coalescing) instead of `||` for default values** when `0`, `''`, or `false` are valid values.
+- **For optional chaining `?.`:** Only use on types that are actually nullable/optional. Do NOT use `?.` on non-nullable types — TypeScript will error.
+
+### Type Safety Rules
+- **Always parameterize RJSF generics:** `Form<MyFormData>`, `WidgetProps<MyFormData>`, `ErrorSchema<MyFormData>`, `UiSchema<MyFormData>`, `IChangeEvent<MyFormData>`
+- **Initialize `ErrorSchema` state with cast:** `useState<ErrorSchema<T>>({} as ErrorSchema<T>)` — bare `{}` may not satisfy the type.
+- **Use `CustomValidator<T>` for customValidate**, not `(formData: T, errors: ErrorSchema<T>) => ...`
+- **Match schema ↔ interface types exactly:** `integer` → `number`, conditional fields → optional `?`, enums → string literal union
+
+---
+
 ## Step 6 — Complete Stub Files (LLM-DRIVEN)
 
 For each file marked `[STUB]` in the CLI output:
@@ -141,6 +170,7 @@ For each file marked `[STUB]` in the CLI output:
 
 **Key rules for custom widgets:**
 - Use `WidgetProps<FormNameData>` with the generic parameter (never bare `WidgetProps`)
+- Do NOT add `import React from 'react'` — the JSX transform handles this
 - Match visual density from the SectionTemplate (same colors, padding, border-radius)
 - Meet 44px minimum touch target height
 - Include `aria-required` and `aria-invalid` attributes
@@ -149,6 +179,7 @@ For each file marked `[STUB]` in the CLI output:
 **Key rules for custom fields:**
 - Use `FieldProps<FieldDataType>` with the specific sub-type
 - Create and export a dedicated interface for the field's data shape
+- Do NOT add `import React from 'react'`
 
 ---
 
