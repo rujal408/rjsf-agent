@@ -176,7 +176,11 @@ For each handler, make targeted edits to the existing generated files — do not
 
 ## Step 7.5 — Apply Visual Polish from Phase 1.5 (LLM-DRIVEN)
 
-If `enhanced-brief.md` was read in Step 1, apply each visual polish decision to the correct generated file. If Phase 1.5 was skipped, skip this step entirely.
+### THIS IS THE ONLY PHASE WHERE VISUAL POLISH IS APPLIED
+
+Phase 1.5 visual polish decisions are intentionally NOT applied to the HTML prototype (Phase 3). The prototype is a plain structural preview for client sign-off. All visual polish from Phase 1.5 is applied HERE — to the real React/RJSF code — and nowhere else in the pipeline.
+
+If `enhanced-brief.md` was read in Step 1, locate the `## Visual Polish Decisions` section (or the `## Enhancement Choices` section for visual polish entries). Apply each visual polish decision to the correct generated file. If Phase 1.5 was skipped, skip this step entirely.
 
 For each visual polish category, make targeted edits to the already-generated files:
 

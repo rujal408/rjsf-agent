@@ -292,12 +292,40 @@ Ask: "This is what will be built. Approve to continue, or adjust any choices?"
 
 Once the developer approves:
 
+### CRITICAL: Separate Structural Enhancements from Visual Polish
+
+Phase 1.5 produces two categories of enhancements. They are saved differently because they are applied at different pipeline stages:
+
+**Structural enhancements** (applied to `requirements-brief.md` → flow through Phase 2 plan → Phase 3 prototype → Phase 4 code):
+- Field-level type changes (masked input, date picker, autocomplete, file upload widget, slider, toggle, compound field, tag/chip input, etc.)
+- Form-level layout changes (wizard, tabs, accordion, progressive disclosure, drag-to-reorder)
+- Edge case flag updates (`masked_input`, `rich_text`, `array_reorder`, `multi_step`, etc.)
+
+**Visual polish decisions** (stored ONLY in `enhanced-brief.md` → applied ONLY during Phase 4 React code generation, Step 7.5):
+- Section grouping style (bordered cards / flat dividers / color-banded headers)
+- Label positioning (floating / top-aligned / left-aligned)
+- Required field indicators (asterisk / "(optional)" tag / color highlight)
+- Help text display (inline / tooltip / expandable accordion)
+- Error display style (inline only / top summary + inline / top summary only)
+- Submit button style (full-width / right-aligned / split Save Draft + Submit)
+- Empty array state (illustrated with CTA / plain "No items" text)
+
+**Visual polish must NOT be applied to the HTML prototype.** The prototype (Phase 3) is a plain structural preview for client sign-off on fields and layout only. Visual polish is applied exclusively when generating real React/RJSF code in Phase 4.
+
+### Save procedure:
+
 1. **Write the enhanced brief.** Create `{sessionDir}/enhanced-brief.md` containing:
-   - The original RequirementsBrief content with all chosen enhancements applied inline.
+   - The original RequirementsBrief content with ALL chosen enhancements (both structural AND visual polish) documented.
    - A new `## Enhancement Choices` section at the bottom listing every suggestion number, the chosen option letter, and the RJSF extension point.
+   - A `## Visual Polish Decisions` section that explicitly lists each visual polish choice (section grouping, labels, required indicators, help text, error display, submit button, empty array state). This section is read ONLY by Phase 4.
    - The Customization Summary from Step 5.
 
-2. **Also update `{sessionDir}/requirements-brief.md`** in-place with the enhanced field types, flags, and layout changes — so that Phase 2 reads the enhanced version directly.
+2. **Update `{sessionDir}/requirements-brief.md`** in-place with **structural enhancements ONLY**:
+   - Update field `Type` and `Notes` columns for field-level type changes (e.g., "text" → "masked-input", "select" → "searchable-autocomplete").
+   - Update Layout Intent if form structure changed (wizard, tabs, accordion).
+   - Update Edge Case Flags for structural changes (`masked_input`, `rich_text`, `array_reorder`, `multi_step`, etc.).
+   - Add new entries to Conditional Logic if progressive disclosure was chosen.
+   - **Do NOT add visual polish decisions** (section grouping, label style, required indicators, help text style, error display, submit button style, empty array state) to `requirements-brief.md`. These stay exclusively in `enhanced-brief.md`.
 
 3. **Update `{sessionDir}/session.json`:**
    - Set `phases["1.5"].status = "completed"`.

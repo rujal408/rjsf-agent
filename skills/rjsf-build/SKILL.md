@@ -20,8 +20,14 @@ Follow the **Session Path Resolution Algorithm** (`references/session-pattern.md
 1. Read `.rjsf/active-session` → get `formName` → `sessionDir` = `.rjsf/sessions/{formName}/`
 2. Read `{sessionDir}/session.json`
 3. If `.rjsf/active-session` does not exist but `.rjsf/session.json` does → perform legacy migration per `references/session-pattern.md` Section 7, then re-read.
-4. If no active session at all **and** the developer provided requirements: ask for a form name, then run `/rjsf-new <FormName>` implicitly to create the session before proceeding to Phase 1.
-5. If no active session **and** no input: suggest `/rjsf-new <FormName>` to start a new form or `/rjsf-list` to see existing sessions. Stop here.
+4. If no active session at all **and** the developer provided requirements: **auto-derive a PascalCase form name from the requirements text** (or from the file content if `--from` was used). Extract the form's subject/purpose and convert to PascalCase (e.g., "patient intake form" → `PatientIntakeForm`, "loan application" → `LoanApplicationForm`). If the text is too vague to derive a name, ask for one. Then create the session automatically:
+   - Check if `.rjsf/sessions/<FormName>/` already exists. If so, ask: switch to it or choose a different name.
+   - Create `.rjsf/sessions/<FormName>/` directory.
+   - Write `.rjsf/sessions/<FormName>/session.json` with the initial schema (all phases pending, version "2.0.0", formName set).
+   - Write the form name to `.rjsf/active-session`.
+   - Inform: "Created session: **<FormName>**"
+   - Proceed to Phase 1.
+5. If no active session **and** no input: suggest `/rjsf-form "describe your form"` to start a new form or `/rjsf-list` to see existing sessions. Stop here.
 
 **If the session is incomplete (not all phases "completed"):**
 

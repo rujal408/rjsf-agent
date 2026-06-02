@@ -26,8 +26,24 @@ Follow the **Session Path Resolution Algorithm** (`references/session-pattern.md
 
 ## Step 2 — Route by Context
 
-### No session + input provided
-→ Forward the input to `/rjsf-build` as the requirements string.
+### No session + input provided (description or `--from` file)
+
+This is the primary entry point for building a new form. **Auto-create the session without asking for a separate form name:**
+
+1. **Derive form name from input.** Read the description text (or file content if `--from` was used). Extract the form's subject/purpose and convert to PascalCase:
+   - "I need a patient intake form with name, DOB, insurance…" → `PatientIntakeForm`
+   - "Build a loan application" → `LoanApplicationForm`
+   - "employee onboarding questionnaire" → `EmployeeOnboardingQuestionnaire`
+   - If the description is too vague to derive a name (e.g., "build a form"), ask: "What should this form be called? (e.g., `UserRegistrationForm`)"
+
+2. **Create the session automatically** (same logic as `/rjsf-new`):
+   - Check if `.rjsf/sessions/<FormName>/` already exists. If so, ask: "A session for **<FormName>** already exists. Switch to it, or choose a different name?"
+   - Create `.rjsf/sessions/<FormName>/` directory.
+   - Write `.rjsf/sessions/<FormName>/session.json` with the initial schema (all phases pending, version "2.0.0").
+   - Write the form name to `.rjsf/active-session`.
+   - Inform: "Created session: **<FormName>**"
+
+3. **Forward to `/rjsf-build`** with the original input as the requirements string (or `--from` path).
 
 ### No session + no input — sessions exist but none active
 List existing sessions from `.rjsf/sessions/` and suggest:
@@ -38,14 +54,14 @@ List existing sessions from `.rjsf/sessions/` and suggest:
 > - **{formName2}** (Phase {N}, {status})
 >
 > - Switch to one: `/rjsf-switch <FormName>`
-> - Start a new form: `/rjsf-new <FormName>`"
+> - Start a new form: `/rjsf-form "describe your form"`"
 
 ### No session + no input — no sessions at all
 Display this menu and wait for the developer's choice:
 
 > "Welcome to rjsf-agent! What would you like to do?
 >
-> A) Build a new form → `/rjsf-new <FormName>` then `/rjsf-build`
+> A) Build a new form → `/rjsf-form "describe your form"` or `/rjsf-form --from requirements.md`
 > B) Modify an existing generated form → `/rjsf-iterate`
 > C) Generate tests for an existing form → `/rjsf-test`
 > D) See all commands → `/rjsf-help`"

@@ -25,6 +25,18 @@ allowed-tools: [Read, Write, Glob, Bash]
 
 ## Step 2 — Generate Prototype via CLI
 
+### IMPORTANT: Prototype is a Plain Structural Preview
+
+The HTML prototype exists for **client sign-off on structure, fields, and layout only**. It must NOT include any visual polish decisions from Phase 1.5 (section grouping style, label positioning, required field indicators, help text display, error display style, submit button style, empty array state). Those visual enhancements are applied exclusively during Phase 4 (React/RJSF code generation).
+
+The prototype should show:
+- Correct field types and labels (structural enhancements from Phase 1.5 ARE included — e.g., masked inputs, date pickers, autocomplete)
+- Section layout and column structure from the form plan
+- Conditional show/hide logic
+- Multi-step navigation (if applicable)
+- Required field markers (standard asterisk only)
+- Basic default styling — clean, functional, unstyled beyond basic readability
+
 Run the CLI tool from the plugin root:
 
 ```bash
@@ -50,6 +62,8 @@ Read the generated `{sessionDir}/prototype.html` and verify:
 6. **Multi-step navigation** works (if multi_step is true): step dots, Back/Next/Submit buttons
 7. **Full-width fields** (textarea, file upload) span the full grid with `col-full` class
 8. **Per-field width enforcement**: sections with 3+ half-width fields use `grid-2` or higher
+
+9. **No visual polish applied** — confirm the prototype does NOT include Phase 1.5 visual polish (custom section grouping styles, label positioning overrides, fancy required indicators, tooltip help text, custom error display, styled submit buttons, illustrated empty states). If any visual polish leaked in, strip it back to plain defaults.
 
 If any issue is found, fix it by editing the generated HTML directly with the Edit tool.
 
