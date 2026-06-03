@@ -1,0 +1,111 @@
+/* DaisyUI + @rjsf/core overrides — plain CSS (no @apply for component classes) */
+
+.daisyui-form-wrapper .rjsf input:not([type="checkbox"]):not([type="radio"]),
+.daisyui-form-wrapper .rjsf select,
+.daisyui-form-wrapper .rjsf textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  border: 1px solid oklch(0.746 0.01 73.5);
+  border-radius: var(--rounded-btn, 0.5rem);
+  background: oklch(1 0 0);
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.daisyui-form-wrapper .rjsf textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.daisyui-form-wrapper .rjsf input:focus,
+.daisyui-form-wrapper .rjsf select:focus,
+.daisyui-form-wrapper .rjsf textarea:focus {
+  outline: 2px solid oklch(0.546 0.245 262.881);
+  outline-offset: 2px;
+  border-color: oklch(0.546 0.245 262.881);
+}
+
+.daisyui-form-wrapper .rjsf input:hover,
+.daisyui-form-wrapper .rjsf select:hover,
+.daisyui-form-wrapper .rjsf textarea:hover {
+  border-color: oklch(0.646 0.015 73.5);
+}
+
+.daisyui-form-wrapper .rjsf label {
+  display: block;
+  text-align: left;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: oklch(0.35 0.01 250);
+  margin-bottom: 6px;
+}
+
+.daisyui-form-wrapper .rjsf .required {
+  color: #f87272;
+}
+
+.daisyui-form-wrapper .rjsf .help-block,
+.daisyui-form-wrapper .rjsf .field-description {
+  font-size: 0.75rem;
+  color: oklch(0.55 0.01 250);
+  margin-top: 4px;
+}
+
+.daisyui-form-wrapper .rjsf .text-danger,
+.daisyui-form-wrapper .rjsf .error-detail {
+  font-size: 0.75rem;
+  color: #f87272;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.daisyui-form-wrapper .rjsf .error-detail li {
+  list-style: none;
+}
+
+.daisyui-form-wrapper .rjsf .has-error input,
+.daisyui-form-wrapper .rjsf .has-error select {
+  border-color: #f87272;
+}
+
+.daisyui-form-wrapper .rjsf .form-group {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.daisyui-form-wrapper .rjsf .field {
+  min-width: 0;
+}
+
+.daisyui-form-wrapper .rjsf .field-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.daisyui-form-wrapper .rjsf .field-radio-group label {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.daisyui-form-wrapper .rjsf input[type="checkbox"],
+.daisyui-form-wrapper .rjsf input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  accent-color: oklch(0.546 0.245 262.881);
+}
+
+.daisyui-form-wrapper .rjsf input::placeholder,
+.daisyui-form-wrapper .rjsf textarea::placeholder {
+  color: oklch(0.65 0.01 250);
+}
+
+/* Hide default error list */
+.daisyui-form-wrapper .rjsf > .panel.panel-danger {
+  display: none;
+}

@@ -82,6 +82,8 @@ Evaluate each field and section against the tables below. For every match, queue
 | Submit button | Full-width primary button vs right-aligned vs split (Save Draft + Submit) |
 | Empty state for arrays | Illustrated empty state with CTA vs simple "No items" text |
 
+> **Design examples available:** Concrete implementations of each visual polish option (section styles A/B/C, button styles A/B/C, empty states, alerts, step indicators) exist in `references/design-examples/` for MUI, Chakra UI, DaisyUI, and Core CSS. When presenting suggestions, you can mention that production-quality implementations are pre-built for the chosen framework.
+
 ---
 
 ## Step 3 — Present Suggestions as Numbered A/B/C Options

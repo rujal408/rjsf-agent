@@ -1,6 +1,50 @@
 # RJSF TypeScript Pitfalls & Fixes
 
-Common TypeScript build errors in generated RJSF code and how to prevent them. Phase 4 (rjsf-execute) MUST avoid every pattern in the "Bad" column.
+Common TypeScript build errors and runtime crashes in generated RJSF code. Phase 4 (rjsf-execute) MUST avoid every pattern in the "Bad" column.
+
+---
+
+## 0a. CSS Overrides Breaking MUI/Antd/Bootstrap Inputs (CRITICAL — Fields Unclickable)
+
+When using `@rjsf/mui`, `@rjsf/antd`, or `@rjsf/bootstrap`, raw CSS selectors targeting `input`, `select`, `textarea` inside `.rjsf` will **break field interactions** (can't click, can't type, selects don't open).
+
+```css
+/* ❌ BAD — breaks MUI/Antd/Bootstrap: raw element selectors override styled wrappers */
+.rjsf input { padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
+.rjsf select { appearance: none; background: #fafafa; }
+.rjsf input:focus { outline: none; box-shadow: 0 0 0 3px blue; }
+
+/* ✅ GOOD for @rjsf/core (renders plain HTML elements) */
+.rjsf input:not([type="checkbox"]):not([type="radio"]) { padding: 10px; }
+
+/* ✅ GOOD for @rjsf/mui — use MUI class selectors only */
+.rjsf .MuiOutlinedInput-root { background-color: #fafbfc; border-radius: 8px; }
+.rjsf .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline { border-width: 2px; }
+```
+
+**Rule:** The scaffold generator (`generateOverridesCSS`) conditionally generates CSS based on theme. When `isMui`/`isAntd`/`isBootstrap` is true, raw element selectors are SKIPPED entirely. Only MUI/Antd/Bootstrap class selectors are used. When writing custom CSS for MUI forms manually (Step 6/7), NEVER target raw `input`/`select` — always use `.Mui*` class selectors.
+
+---
+
+## 0b. SectionTemplate idSchema.$id (CRITICAL — Runtime Crash)
+
+`ObjectFieldTemplate` is called for EVERY object in the schema including the root. The `idSchema` or `idSchema.$id` can be `undefined` at the root level, causing `Cannot read properties of undefined (reading '$id')`.
+
+```typescript
+// ❌ BAD — crashes when idSchema is undefined or $id is missing
+const sectionKey = idSchema.$id?.replace('root_', '') ?? '';
+if (sectionKey === '' || sectionKey === 'root') { ... }
+
+// ✅ GOOD — defensive access, handles undefined idSchema and root
+const rawId = idSchema?.$id ?? 'root';
+const sectionKey = rawId.replace('root_', '').replace('root', '');
+if (!sectionKey) {
+  // Root level — render children without section wrapper
+  return <>{properties.map((p) => p.content)}</>;
+}
+```
+
+**Rule:** ALWAYS use `idSchema?.$id ?? 'root'` (optional chain on `idSchema` itself, not just `$id`). ALWAYS strip both `root_` prefix and bare `root` string. Check `!sectionKey` not `=== 'root'`.
 
 ---
 

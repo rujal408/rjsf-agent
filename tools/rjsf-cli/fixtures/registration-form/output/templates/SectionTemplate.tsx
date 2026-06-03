@@ -16,12 +16,13 @@ const FULL_WIDTH_FIELDS: Record<string, string[]> = {
 
 export function SectionTemplate(props: ObjectFieldTemplateProps<UserRegistrationFormData>) {
   const { title, description, properties, idSchema } = props;
-  const sectionKey = idSchema.$id.replace('root_', '').split('_')[0] || 'root';
+  const sectionId = idSchema?.$id ?? 'root';
+  const sectionKey = sectionId.replace('root_', '').replace('root', '').split('_')[0] ?? '';
   const columns = SECTION_COLUMNS[sectionKey] ?? 1;
   const fullWidthFields = FULL_WIDTH_FIELDS[sectionKey] ?? [];
 
   // Skip rendering the root-level template wrapper if this IS the root
-  if (idSchema.$id === 'root') {
+  if (!sectionKey || sectionId === 'root') {
     return <>{properties.map((prop) => prop.content)}</>;
   }
 

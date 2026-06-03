@@ -1,0 +1,217 @@
+/* ── Form Card ──────────────────────────────────────────────── */
+.formCard {
+  max-width: 960px;
+  margin: 32px auto;
+  padding: 32px 40px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+@media (max-width: 640px) {
+  .formCard { padding: 20px 16px; border-radius: 12px; }
+}
+
+.formTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px 0;
+}
+
+.formSubtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0 0 20px 0;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 0 0 24px 0;
+}
+
+/* ── Section ────────────────────────────────────────────────── */
+.section {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  background: #f9fafb;
+  transition: border-color 0.2s;
+}
+
+.section:hover {
+  border-color: #d1d5db;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+  padding: 0 4px;
+}
+
+.sectionDescription {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0 0 16px 0;
+}
+
+/* ── Grid ───────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  gap: 16px 24px;
+}
+
+.grid1 { grid-template-columns: 1fr; }
+.grid2 { grid-template-columns: 1fr; }
+
+@media (min-width: 640px) {
+  .grid2 { grid-template-columns: repeat(2, 1fr); }
+}
+
+.colFull {
+  grid-column: 1 / -1;
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.submitBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 12px 40px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35);
+  transform: translateY(-1px);
+}
+
+.submitBtn:active { transform: translateY(0); }
+.submitBtn:disabled { background: #c7d2fe; cursor: not-allowed; }
+
+.outlineBtn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #4b5563;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.outlineBtn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Alerts ─────────────────────────────────────────────────── */
+.alertError {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  animation: slideIn 0.25s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.alertIcon { font-size: 1.2rem; flex-shrink: 0; }
+.alertTitle { font-weight: 600; font-size: 0.875rem; margin: 0 0 2px 0; }
+.alertMessage { font-size: 0.825rem; margin: 0; opacity: 0.85; }
+.alertClose {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.5;
+  font-size: 1.2rem;
+  padding: 2px;
+}
+.alertClose:hover { opacity: 1; }
+
+/* ── Success Page ───────────────────────────────────────────── */
+.successPage {
+  max-width: 960px;
+  margin: 32px auto;
+  padding: 48px 32px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.successIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #f0fdf4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+  font-size: 32px;
+  color: #16a34a;
+}
+
+.successTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.successMessage {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+}

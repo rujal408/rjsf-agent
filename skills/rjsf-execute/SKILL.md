@@ -19,7 +19,15 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 5. Read `{sessionDir}/prototype.html` as the visual reference.
 6. If `phases["1.5"].status` is `"completed"`, read `{sessionDir}/enhanced-brief.md` — specifically the `## Enhancement Choices` and `## Customization Summary` sections. Extract all visual polish decisions (section grouping style, label positioning, required field indicators, help text display, error display style, submit button style, empty array states). These will be applied in Step 7.5. If `enhanced-brief.md` does not exist or Phase 1.5 was skipped, proceed without it — use sensible defaults.
 
-**Do NOT bulk-load reference files.** The CLI generates code that already embeds correct types, patterns, and styles. Only read specific reference files when needed for custom component implementation (Step 6).
+7. **Read the design patterns reference** for the active framework. Based on `rjsfTheme` and `stylingApproach`, read the matching file from `references/design-examples/`:
+   - `@rjsf/mui` → `references/design-examples/mui-design-patterns.md`
+   - `stylingApproach: "chakra"` → `references/design-examples/chakra-design-patterns.md`
+   - `stylingApproach: "tailwind"` (with DaisyUI) → `references/design-examples/daisyui-design-patterns.md`
+   - `@rjsf/core` with `css-modules` / `scss` / `plain-css` → `references/design-examples/core-css-design-patterns.md`
+   - For other combinations, read `core-css-design-patterns.md` as the baseline.
+   Use the design tokens, component patterns, and CSS from this file as the visual reference for all generated code — form card wrapper, section templates, button styling, alerts, empty states, array items, and step indicators.
+
+**Do NOT bulk-load other reference files.** The CLI generates code that already embeds correct types, patterns, and styles. Only read specific reference files when needed for custom component implementation (Step 6).
 
 ---
 
@@ -126,7 +134,17 @@ The CLI generates:
 - `index.tsx` — main form component with submit state machine
 - Custom widget/field stubs (marked `[STUB]`) if customization was specified
 
-**No MUI Grid / Ant Design / Bootstrap / Tailwind / Chakra grid files** — the SectionTemplate uses inline styles for the grid. If the developer needs approach-specific grid code, the CLI can be extended later or the template can be manually adjusted.
+### 5c. Apply design patterns polish
+
+After the CLI generates the scaffolding, **enhance the generated files** using the design patterns reference loaded in Step 1.7. The CLI produces a functional baseline, but the design patterns file provides the polished, production-quality versions. Apply:
+
+- **`rjsf-overrides.css`**: The CLI now generates **theme-aware CSS** — raw `input`/`select`/`textarea` selectors for `@rjsf/core` only, MUI class selectors for `@rjsf/mui`. **NEVER add raw element selectors when using MUI/Antd/Bootstrap** — this breaks click/type interactions. If enhancing the CSS, use the design patterns file matching the theme.
+- **`templates/SectionTemplate.tsx`**: Enhance with the section grouping style chosen in Phase 1.5 (or default to Style A: bordered cards). Use framework-specific components (e.g., `Box`/`Paper` for MUI, `Box`/`SimpleGrid` for Chakra, DaisyUI classes for Tailwind).
+- **`index.tsx`**: Apply the form card wrapper, success/error alerts, and submit button style from the design patterns. Replace bare `<div>` wrappers with proper styled containers. Add animated alert transitions where the framework supports it.
+- **Array templates**: If the form has arrays, use the empty state and array item card patterns from the design patterns file instead of bare RJSF defaults.
+- **Step indicator**: If multi-step, use the step indicator component from the design patterns file.
+
+Use the **Design Token Reference** table at the bottom of the patterns file for consistent colors, spacing, border-radius, and typography values across all files.
 
 ---
 
@@ -248,6 +266,11 @@ For each visual polish category, make targeted edits to the already-generated fi
 - [ ] Every section with 3+ half-width fields uses ≥2 desktop columns
 - [ ] Visual polish decisions from Phase 1.5 are reflected in generated CSS/templates/uiSchema (if Phase 1.5 was completed)
 - [ ] Generated code matches prototype visual appearance for non-structural elements (section grouping, labels, help text, submit button)
+- [ ] Design patterns from `references/design-examples/` applied: form card wrapper, polished CSS overrides, styled alerts, proper button bar, design tokens consistent across all files
+- [ ] Input states are styled (hover, focus ring, error, disabled, placeholder) — not just default browser styling
+- [ ] Submit button has proper loading state (spinner + disabled) and hover effects
+- [ ] Success state shows a styled confirmation (not just plain text)
+- [ ] Error alerts use styled, dismissable alert components (not bare `<div>` with inline color)
 
 Read any file that seems potentially wrong and fix issues before proceeding.
 

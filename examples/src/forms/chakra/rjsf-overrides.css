@@ -1,0 +1,129 @@
+/* Modern Minimal (Purple accent) + @rjsf/core overrides */
+
+.modern-form-wrapper .rjsf input:not([type="checkbox"]):not([type="radio"]),
+.modern-form-wrapper .rjsf select,
+.modern-form-wrapper .rjsf textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fafbfc;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.modern-form-wrapper .rjsf textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.modern-form-wrapper .rjsf select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.modern-form-wrapper .rjsf input:hover,
+.modern-form-wrapper .rjsf select:hover,
+.modern-form-wrapper .rjsf textarea:hover {
+  border-color: #cbd5e0;
+  background: #f7fafc;
+}
+
+.modern-form-wrapper .rjsf input:focus,
+.modern-form-wrapper .rjsf select:focus,
+.modern-form-wrapper .rjsf textarea:focus {
+  outline: none;
+  border-color: #805ad5;
+  box-shadow: 0 0 0 3px rgba(128, 90, 213, 0.15);
+  background: #fff;
+}
+
+.modern-form-wrapper .rjsf input:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.modern-form-wrapper .rjsf .has-error input,
+.modern-form-wrapper .rjsf .has-error select {
+  border-color: #e53e3e;
+  background: #fff5f5;
+}
+
+.modern-form-wrapper .rjsf input::placeholder,
+.modern-form-wrapper .rjsf textarea::placeholder {
+  color: #a0aec0;
+}
+
+.modern-form-wrapper .rjsf label {
+  display: block;
+  text-align: left;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #2d3748;
+  margin-bottom: 4px;
+}
+
+.modern-form-wrapper .rjsf .required {
+  color: #e53e3e;
+}
+
+.modern-form-wrapper .rjsf .help-block,
+.modern-form-wrapper .rjsf .field-description {
+  font-size: 0.8rem;
+  color: #718096;
+  margin-top: 4px;
+}
+
+.modern-form-wrapper .rjsf .text-danger,
+.modern-form-wrapper .rjsf .error-detail {
+  font-size: 0.8rem;
+  color: #e53e3e;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.modern-form-wrapper .rjsf .error-detail li {
+  list-style: none;
+}
+
+.modern-form-wrapper .rjsf .form-group {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.modern-form-wrapper .rjsf .field {
+  min-width: 0;
+}
+
+.modern-form-wrapper .rjsf .field-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.modern-form-wrapper .rjsf .field-radio-group label {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.modern-form-wrapper .rjsf input[type="checkbox"],
+.modern-form-wrapper .rjsf input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  accent-color: #805ad5;
+}
+
+/* Hide default error list */
+.modern-form-wrapper .rjsf > .panel.panel-danger {
+  display: none;
+}

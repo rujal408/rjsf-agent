@@ -49,7 +49,8 @@ const FULL_WIDTH_FIELDS: Set<string> = new Set([
 export function SectionTemplate(props: ObjectFieldTemplateProps) {
   const { title, description, properties, idSchema } = props;
   // Determine column count: use section config, fall back to 1
-  const sectionKey = idSchema.$id?.replace('root_', '') ?? '';
+  const rawId = idSchema?.$id ?? 'root';
+  const sectionKey = rawId.replace('root_', '').replace('root', '');
   const columns = SECTION_COLUMNS[sectionKey] ?? 1;
 
   return (
@@ -104,7 +105,16 @@ export function SectionTemplate(props: ObjectFieldTemplateProps) {
 
 ## Mandatory Rule 2: Always Generate Base CSS Overrides
 
-RJSF themes (especially `@rjsf/core` and `@rjsf/mui`) have default styles that conflict with the prototype's design. Always generate a base stylesheet that overrides these.
+**CRITICAL: Theme-aware CSS generation.** The overrides stylesheet MUST be different depending on the RJSF theme:
+
+- **`@rjsf/core`** → Apply raw `input`, `select`, `textarea` selectors (core renders plain HTML elements)
+- **`@rjsf/mui`** → Use ONLY MUI class selectors (`.MuiOutlinedInput-root`, `.MuiFormControl-root`, etc.). **NEVER** apply raw `input`/`select`/`textarea` CSS — MUI wraps these in styled components and raw CSS breaks click/type interactions.
+- **`@rjsf/antd`** → Use only Ant Design class selectors (`.ant-input`, `.ant-select`, etc.)
+- **`@rjsf/bootstrap`** → Use only Bootstrap class selectors (`.form-control`, etc.)
+
+**Why:** MUI/Antd/Bootstrap themes render `<input>` inside wrapper components that handle events, focus, and styling. Raw CSS on the inner `<input>` overrides the wrapper's padding/border/focus logic, causing fields to become unclickable or untypeable.
+
+RJSF themes (especially `@rjsf/core`) need raw element overrides. MUI/Antd/Bootstrap do NOT.
 
 ```css
 /* rjsf-overrides.css — MANDATORY base overrides to match prototype styling */
