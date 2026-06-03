@@ -1,6 +1,6 @@
 # RJSF Customization API Reference
 
-> **Type contract authority:** See `references/rjsf-type-contracts.md` for the canonical type signatures. This file shows practical examples. All generated code MUST match the contracts in that reference.
+> Practical examples for custom widget, field, and template implementation. For TypeScript rules, see `references/typescript-pitfalls.md`.
 
 ## 1. Custom Widget — WidgetProps
 

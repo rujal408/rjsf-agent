@@ -12,22 +12,20 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 
 ## Step 1 — Read Session & Artifacts
 
-1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
+1. Resolve the active session path. Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
 2. Confirm `phases["3"].status` is `"completed"` or `"awaiting_client_approval"`. If neither: stop and say: "Please confirm client approval of the prototype first. Once they approve, tell me 'client approved' to continue."
 3. Verify `{sessionDir}/form-plan.json` exists. If missing: "form-plan.json not found. Regenerate the plan with `/rjsf-plan`."
 4. Read `{sessionDir}/form-plan.md` for human context and review.
 5. Read `{sessionDir}/prototype.html` as the visual reference.
 6. If `phases["1.5"].status` is `"completed"`, read `{sessionDir}/enhanced-brief.md` — specifically the `## Enhancement Choices` and `## Customization Summary` sections. Extract all visual polish decisions (section grouping style, label positioning, required field indicators, help text display, error display style, submit button style, empty array states). These will be applied in Step 7.5. If `enhanced-brief.md` does not exist or Phase 1.5 was skipped, proceed without it — use sensible defaults.
 
-7. **Read the design patterns reference** for the active framework. Based on `rjsfTheme` and `stylingApproach`, read the matching file from `references/design-examples/`:
-   - `@rjsf/mui` → `references/design-examples/mui-design-patterns.md`
-   - `stylingApproach: "chakra"` → `references/design-examples/chakra-design-patterns.md`
-   - `stylingApproach: "tailwind"` (with DaisyUI) → `references/design-examples/daisyui-design-patterns.md`
-   - `@rjsf/core` with `css-modules` / `scss` / `plain-css` → `references/design-examples/core-css-design-patterns.md`
-   - For other combinations, read `core-css-design-patterns.md` as the baseline.
-   Use the design tokens, component patterns, and CSS from this file as the visual reference for all generated code — form card wrapper, section templates, button styling, alerts, empty states, array items, and step indicators.
+7. **Read EXACTLY ONE design patterns file** based on the theme. Read ONLY the matching file — do NOT read the other 3:
+   - `@rjsf/mui` → read `references/design-examples/mui-design-patterns.md`
+   - `stylingApproach: "chakra"` → read `references/design-examples/chakra-design-patterns.md`
+   - `stylingApproach: "tailwind"` → read `references/design-examples/daisyui-design-patterns.md`
+   - `@rjsf/core` (any styling) → read `references/design-examples/core-css-design-patterns.md`
 
-**Do NOT bulk-load other reference files.** The CLI generates code that already embeds correct types, patterns, and styles. Only read specific reference files when needed for custom component implementation (Step 6).
+**TOKEN BUDGET: Do NOT read any other reference files here.** The CLI generates code with correct types and patterns built in. Only read `references/rjsf-widget-api.md` later in Step 6 IF the form has custom widgets/fields. Only read `references/typescript-pitfalls.md` later in Step 6 IF you are writing custom component code.
 
 ---
 
@@ -150,7 +148,7 @@ Use the **Design Token Reference** table at the bottom of the patterns file for 
 
 ## Step 5.5 — TypeScript Error Prevention Rules (MANDATORY)
 
-All code written in Steps 6, 7, and 7.5 MUST follow these rules to prevent build errors. Read `references/typescript-pitfalls.md` before writing any code.
+All code written in Steps 6, 7, and 7.5 MUST follow these rules. **Do NOT read `references/typescript-pitfalls.md` — the critical rules are inlined below.**
 
 ### Import Rules
 - **Always use `import type` for type-only imports:** `import type { WidgetProps, FieldProps, RJSFSchema } from '@rjsf/utils'`
@@ -179,12 +177,15 @@ All code written in Steps 6, 7, and 7.5 MUST follow these rules to prevent build
 
 ## Step 6 — Complete Stub Files (LLM-DRIVEN)
 
+**If no `[STUB]` files exist in the CLI output, skip this entire step — do NOT read any reference files.**
+
 For each file marked `[STUB]` in the CLI output:
 
 1. Read the stub file
-2. Read `references/rjsf-widget-api.md` for the specific component type (WidgetProps, FieldProps, or template props)
-3. Read `references/typescript-pitfalls.md` for type safety patterns
-4. Implement the component body — this is where LLM creativity is needed
+2. Read `references/rjsf-widget-api.md` (only now — not earlier) for the component type API
+3. Implement the component body — this is where LLM creativity is needed
+
+**Do NOT read `references/typescript-pitfalls.md` — the critical rules are already in Step 5.5 above.**
 
 **Key rules for custom widgets:**
 - Use `WidgetProps<FormNameData>` with the generic parameter (never bare `WidgetProps`)

@@ -70,7 +70,7 @@ Stop here.
 
 ## Step 4 — Archive the Session
 
-Follow `references/session-pattern.md` Section 6 exactly:
+**Archive procedure** (do NOT read session-pattern.md — steps are inline):
 
 ### 4a. Create Archive Directory
 

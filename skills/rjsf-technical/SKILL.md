@@ -15,7 +15,7 @@ Present technical decisions that affect generated code as grouped A/B/C options.
 
 ## Step 1 — Read Session & Artifacts
 
-1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
+1. Resolve the active session path. Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
 2. Read `{sessionDir}/form-plan.md` (FormPlan from Phase 2).
 3. Read `{sessionDir}/requirements-brief.md` (or `{sessionDir}/enhanced-brief.md` if Phase 1.5 was completed).
 4. Read `references/technical-defaults.md` for all decision keys, defaults, and options.

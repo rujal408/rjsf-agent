@@ -12,7 +12,7 @@ allowed-tools: [Read, Glob]
 
 ## Step 1 — Resolve Session (Multi-Session)
 
-Follow the **Session Path Resolution Algorithm** (`references/session-pattern.md` Section 0):
+**Session Resolution** (do NOT read session-pattern.md — algorithm is inline):
 
 1. Read `.rjsf/active-session` → get `formName` → `sessionDir` = `.rjsf/sessions/{formName}/`
 2. Read `{sessionDir}/session.json`

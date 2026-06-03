@@ -18,11 +18,27 @@ Phase 2 takes the RequirementsBrief produced in Phase 1 and designs the full for
 
 ## Step 1 — Read Session & Artifacts
 
-1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
+1. Resolve the active session path. Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
 2. Read `{sessionDir}/requirements-brief.md` produced by Phase 1.
 3. Read `references/layout-principles.md` for column and widget layout heuristics.
 4. Read `references/customization-decision-tree.md` for widget vs field vs template decisions.
-5. Read `references/rjsf-schema-patterns.md` for the widget-to-schema-type mapping table used in Step 3.
+
+**Do NOT read `rjsf-schema-patterns.md` or `rjsf-widget-api.md` — the widget mapping below is sufficient.**
+
+**Quick widget-to-type mapping:**
+| Field Type | Widget | Schema |
+|---|---|---|
+| Short text | `text` (default) | `string` |
+| Email | `email` | `string, format: email` |
+| Password | `password` | `string` |
+| Long text | `textarea` | `string` |
+| Date | `date` | `string, format: date` |
+| Number/Integer | `updown` (default) | `number` / `integer` |
+| Boolean | `checkbox` (default) | `boolean` |
+| Enum ≤4 options | `radio` | `string, oneOf` |
+| Enum 5+ options | `select` (default) | `string, oneOf` |
+| Multi-select | `checkboxes` | `array, items: {enum}` |
+| File upload | custom `FileWidget` | `string` (URL) |
 
 **Guard clause:** If `phases["1"].status` is not `"completed"`, stop and say: "Phase 1 must be completed first. Run `/rjsf-requirements`."
 

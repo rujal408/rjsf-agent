@@ -13,7 +13,7 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 
 ## Step 1 — Read Session & Generated Files
 
-1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`. If `phases["4"].status` is not `"completed"`: stop and say: "No generated form found. Run `/rjsf-build` first to generate the form."
+1. Resolve the active session path. Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`. If `phases["4"].status` is not `"completed"`: stop and say: "No generated form found. Run `/rjsf-build` first to generate the form."
 2. Read `{sessionDir}/form-plan.md`.
 3. Read all files currently in `outputPath` (schema.ts, uiSchema.ts, types.ts, index.tsx, and any custom component files in widgets/, fields/, templates/).
 

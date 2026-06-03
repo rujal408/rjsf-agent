@@ -38,7 +38,7 @@ The form name **must** be PascalCase (e.g., `UserRegistrationForm`, `PaymentForm
 
 Check if `.rjsf/session.json` exists **and** `.rjsf/active-session` does **not** exist.
 
-If both conditions are true, this is a legacy flat-directory layout. Perform the full legacy migration described in `references/session-pattern.md` Section 7 before proceeding:
+If both conditions are true, this is a legacy flat-directory layout. Perform legacy migration:
 
 1. Read `.rjsf/session.json` and extract the `formName`.
 2. Create `.rjsf/sessions/{formName}/`.

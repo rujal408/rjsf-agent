@@ -12,7 +12,7 @@ allowed-tools: [Read, Write, Glob, Bash]
 
 ## Step 1 — Read Session & Verify Prerequisites
 
-1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
+1. Resolve the active session path. Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
 2. If `phases["2"].status` is not `"completed"`, stop and tell the user:
    > "Phase 2 (Planning) must be completed first. Run `/rjsf-plan`."
 3. Verify `{sessionDir}/form-plan.json` exists (this is the CLI's input). If missing, tell the user:

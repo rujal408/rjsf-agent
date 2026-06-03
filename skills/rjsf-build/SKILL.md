@@ -15,11 +15,11 @@ Runs all 7 phases in sequence (including Phase 1.5 — feature suggestions and P
 
 ## Step 1 — Resolve Session (Multi-Session)
 
-Follow the **Session Path Resolution Algorithm** (`references/session-pattern.md` Section 0):
+**Session Resolution** (do NOT read session-pattern.md — algorithm is inline):
 
 1. Read `.rjsf/active-session` → get `formName` → `sessionDir` = `.rjsf/sessions/{formName}/`
 2. Read `{sessionDir}/session.json`
-3. If `.rjsf/active-session` does not exist but `.rjsf/session.json` does → perform legacy migration per `references/session-pattern.md` Section 7, then re-read.
+3. If `.rjsf/active-session` does not exist but `.rjsf/session.json` does → perform legacy migration then re-read. Legacy migration: move .rjsf/session.json into .rjsf/sessions/{formName}/, create .rjsf/active-session with formName.
 4. If no active session at all **and** the developer provided requirements: **auto-derive a PascalCase form name from the requirements text** (or from the file content if `--from` was used). Extract the form's subject/purpose and convert to PascalCase (e.g., "patient intake form" → `PatientIntakeForm`, "loan application" → `LoanApplicationForm`). If the text is too vague to derive a name, ask for one. Then create the session automatically:
    - Check if `.rjsf/sessions/<FormName>/` already exists. If so, ask: switch to it or choose a different name.
    - Create `.rjsf/sessions/<FormName>/` directory.
@@ -37,7 +37,7 @@ Follow the **Session Path Resolution Algorithm** (`references/session-pattern.md
 > B) Start fresh — archive this session and create a new one"
 
 - On **A**: jump to the routing step for `currentPhase` (see Step 3).
-- On **B**: archive the current session (follow `references/session-pattern.md` Section 6 archiving instructions), ask for a new form name, then run `/rjsf-new <NewFormName>` implicitly and proceed to Phase 1.
+- On **B**: archive the current session (move session dir to .rjsf/history/{formName}_{timestamp}/, clear .rjsf/active-session), ask for a new form name, then run `/rjsf-new <NewFormName>` implicitly and proceed to Phase 1.
 
 **If the session is fully completed (all phases "completed"):**
 

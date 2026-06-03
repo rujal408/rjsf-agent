@@ -13,7 +13,7 @@ allowed-tools: [Read, Write, Glob, Bash]
 
 ## Step 1 — Read Session
 
-Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json` (see `references/session-pattern.md` for the full schema and read/write rules).
+Resolve the active session path. Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
 
 - **File does not exist:** This is a fresh start. Proceed to Step 2.
 - **`phases["1"].status` is `"completed"`:**

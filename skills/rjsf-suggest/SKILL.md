@@ -15,11 +15,11 @@ After gathering raw requirements, proactively analyze the form and suggest UI/UX
 
 ## Step 1 — Read Session & Artifacts
 
-1. Resolve the active session path (see `references/session-pattern.md` Section 0). Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
+1. Resolve the active session path. Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
 2. Read `{sessionDir}/requirements-brief.md` (RequirementsBrief from Phase 1).
 3. Read `references/customization-decision-tree.md` for widget vs field vs template decisions.
-4. Read `references/rjsf-schema-patterns.md` for available widget types.
-5. Read `references/rjsf-widget-api.md` for WidgetProps, FieldProps, template interfaces.
+
+**Do NOT read `rjsf-widget-api.md`, `rjsf-schema-patterns.md`, or `typescript-pitfalls.md` — they are not needed for suggesting enhancements. The trigger tables below contain all the widget/pattern knowledge needed.**
 
 **Guard clause:** If `phases["1"].status` is not `"completed"`, stop and tell the developer:
 
