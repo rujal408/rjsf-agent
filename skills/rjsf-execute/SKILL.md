@@ -29,6 +29,22 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
    - `@rjsf/bootstrap-4` → read `references/design-examples/core-css-design-patterns.md` (Bootstrap has built-in styling; use core patterns as structural reference)
    - `@rjsf/core` (any styling) → read `references/design-examples/core-css-design-patterns.md`
 
+8. **Read matching example form** from `examples/src/forms/` as a UI reference. Use Glob to check if examples exist, then read the one matching the selected theme:
+
+   | Theme / Styling | Example directory |
+   |---|---|
+   | `@rjsf/mui` | `examples/src/forms/mui/` |
+   | `@rjsf/chakra-ui` or `stylingApproach: "chakra"` | `examples/src/forms/chakra/` |
+   | `stylingApproach: "tailwind"` | `examples/src/forms/daisyui/` |
+   | `@rjsf/core` (css-modules, scss, plain-css, bare) | `examples/src/forms/core-css/` |
+   | Any other theme (antd, fluent-ui, semantic-ui, bootstrap-4) | `examples/src/forms/mui/` (closest production-quality reference) |
+
+   - Read all `.tsx` and `.ts` files in the matched directory (usually one form component).
+   - Also read `examples/src/forms/shared-schema.ts` — it shows the canonical schema/uiSchema/types pattern shared across all examples.
+   - Extract and note: component structure, section template pattern, grid layout approach, submit state machine, success/error UI, button styling, import conventions.
+   - Use these patterns as a **visual and structural reference** when generating code — match the same component style, spacing, and UX quality. Do NOT copy verbatim; adapt to the current form's requirements.
+   - If the example directory does not exist or contains no `.tsx` files, skip this step silently.
+
 **TOKEN BUDGET: Do NOT read any other reference files here.** The CLI generates code with correct types and patterns built in. Only read `references/rjsf-widget-api.md` later in Step 6 IF the form has custom widgets/fields. Only read `references/typescript-pitfalls.md` later in Step 6 IF you are writing custom component code.
 
 ---
@@ -138,7 +154,7 @@ The CLI generates:
 
 ### 5c. Apply design patterns polish
 
-After the CLI generates the scaffolding, **enhance the generated files** using the design patterns reference loaded in Step 1.7. The CLI produces a functional baseline, but the design patterns file provides the polished, production-quality versions. Apply:
+After the CLI generates the scaffolding, **enhance the generated files** using the design patterns reference (Step 1.7) and the example form (Step 1.8) as references. The CLI produces a functional baseline, but the design patterns and examples provide the polished, production-quality versions. Apply:
 
 - **`rjsf-overrides.css`**: The CLI now generates **theme-aware CSS** — raw `input`/`select`/`textarea` selectors for `@rjsf/core` only, framework class selectors for UI library themes. **NEVER add raw element selectors when using MUI/Antd/Bootstrap/Chakra/Fluent/Semantic UI** — this breaks click/type interactions. If enhancing the CSS, use the design patterns file matching the theme.
 - **`templates/SectionTemplate.tsx`**: Enhance with the section grouping style chosen in Phase 1.5 (or default to Style A: bordered cards). Use framework-specific components (e.g., `Box`/`Paper` for MUI, `Box`/`SimpleGrid` for Chakra, DaisyUI classes for Tailwind).
@@ -276,6 +292,7 @@ For each visual polish category, make targeted edits to the already-generated fi
 - [ ] Submit button has proper loading state (spinner + disabled) and hover effects
 - [ ] Success state shows a styled confirmation (not just plain text)
 - [ ] Error alerts use styled, dismissable alert components (not bare `<div>` with inline color)
+- [ ] Generated code follows the same component structure, submit state machine, and UI quality as the matching example form from `examples/src/forms/` (if example was read in Step 1.8)
 
 Read any file that seems potentially wrong and fix issues before proceeding.
 
