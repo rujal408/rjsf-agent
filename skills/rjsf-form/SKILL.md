@@ -119,8 +119,11 @@ Phase 1   → invoke rjsf-requirements skill
             (pass description text or --from file path if this is a new session)
             IMPORTANT: Ask clarifying questions ONE AT A TIME. Do NOT dump
             all 23 questions at once. Skip questions already answered by
-            the input. For key decisions (RJSF theme, form type, styling
-            approach), always ask individually — never auto-default these.
+            the input. For key decisions (RJSF UI framework, form type,
+            styling approach), always ask individually — never auto-default
+            these. Question 1 (UI framework) MUST be presented as A/B/C/D/
+            E/F/G options — user picks exactly one letter. No "default",
+            no "all", no multi-select.
             After completion → PAUSE (Step 5)
 
 Phase 1.5 → invoke rjsf-suggest skill
@@ -157,7 +160,7 @@ Never dump all questions/options at once. This is the key UX principle:
 - Phase 1: Ask one clarifying question at a time. Wait for answer before next.
 - Phase 1.5: Present one category of suggestions at a time.
 - Phase 2.5: Present one group of technical decisions at a time.
-- For critical choices (RJSF theme, styling approach, form type), ALWAYS ask explicitly — never auto-default.
+- For critical choices (RJSF UI framework, styling approach, form type), ALWAYS ask explicitly — never auto-default. UI framework must use A/B/C/D/E/F/G format.
 
 ---
 

@@ -109,14 +109,17 @@ At each pause you choose: **y** (continue), **skip** (skip next phase), or **sto
 /rjsf-status
 ```
 
-## Supported RJSF Themes
+## Supported RJSF UI Frameworks
 
-- `@rjsf/core`
-- `@rjsf/mui` (Material UI)
-- `@rjsf/antd` (Ant Design)
-- `@rjsf/bootstrap`
+- `@rjsf/core` — Unstyled, bring-your-own CSS
+- `@rjsf/mui` — Material UI (MUI v5)
+- `@rjsf/antd` — Ant Design
+- `@rjsf/chakra-ui` — Chakra UI
+- `@rjsf/fluent-ui` — Fluent UI (Microsoft)
+- `@rjsf/semantic-ui` — Semantic UI
+- `@rjsf/bootstrap-4` — Bootstrap 4
 
-Theme is selected during the requirements phase.
+UI framework is selected as the first question during the requirements phase (A/B/C/D/E/F/G options).
 
 ## What It Handles
 

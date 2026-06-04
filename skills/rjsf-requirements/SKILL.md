@@ -102,7 +102,7 @@ Present a structured coverage report to the user. This is the key orchestration 
 
 | # | Topic | Extracted Answer | Source |
 |---|-------|-----------------|--------|
-| 1 | RJSF theme | @rjsf/mui | "uses Material UI components" (line 12) |
+| 1 | RJSF UI framework | @rjsf/mui | "uses Material UI components" (line 12) |
 | 2 | Form type | Multi-step wizard | "Step 1: Personal Info, Step 2: Address" (line 24) |
 | … | … | … | … |
 
@@ -149,7 +149,7 @@ Present a structured coverage report to the user. This is the key orchestration 
 
 Ask these questions **one at a time**. Skip any question that was already answered unambiguously in the input. Wait for the user's answer before asking the next question.
 
-**CRITICAL:** For Questions 1 (RJSF theme) and 2 (form type), ALWAYS ask explicitly — never auto-default these. These are foundational choices that affect all generated code.
+**CRITICAL:** For Questions 1 (RJSF UI framework) and 2 (form type), ALWAYS ask explicitly — never auto-default these. These are foundational choices that affect all generated code. Question 1 MUST be presented as A/B/C/D/E/F/G options (see below) — the user picks exactly one letter. No "default", no "all", no multi-select, no batch-skipping with "defaults for all".
 
 ### Step 4-Document (Large input / Document Mode)
 
@@ -163,7 +163,20 @@ Ask these questions **one at a time**. Skip any question that was already answer
 
 Each question below includes a **default** in brackets. When `--defaults` is passed or the user says "defaults for all", use these values. **However, Questions 1 and 2 are never auto-defaulted** — always ask the developer explicitly.
 
-1. Which RJSF theme will this form use? (`@rjsf/core`, `@rjsf/mui`, `@rjsf/antd`, `@rjsf/bootstrap`) **[default: `@rjsf/mui`]**
+1. Which RJSF UI framework will this form use? **[No default — must choose one]**
+
+   Present as:
+   > **A)** `@rjsf/core` — Unstyled, bring-your-own CSS (pair with CSS Modules, Tailwind, SCSS, etc.)
+   > **B)** `@rjsf/mui` — Material UI (MUI v5)
+   > **C)** `@rjsf/antd` — Ant Design
+   > **D)** `@rjsf/chakra-ui` — Chakra UI
+   > **E)** `@rjsf/fluent-ui` — Fluent UI (Microsoft)
+   > **F)** `@rjsf/semantic-ui` — Semantic UI
+   > **G)** `@rjsf/bootstrap-4` — Bootstrap 4
+   >
+   > Pick one (A–G):
+
+   **Rules:** The user MUST pick exactly one option. Do NOT accept "default", "all", or multiple selections. Wait for a single letter answer before proceeding to Question 2.
 2. Should this be a **multi-step wizard** or a **single-page form**? **[default: single-page if ≤2 sections, multi-step if ≥3 sections]**
 3. Does the form need an **edit mode** (pre-populate fields from existing data)? **[default: no]**
 4. Is **draft saving / auto-save** required? **[default: no]**

@@ -19,10 +19,14 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 5. Read `{sessionDir}/prototype.html` as the visual reference.
 6. If `phases["1.5"].status` is `"completed"`, read `{sessionDir}/enhanced-brief.md` — specifically the `## Enhancement Choices` and `## Customization Summary` sections. Extract all visual polish decisions (section grouping style, label positioning, required field indicators, help text display, error display style, submit button style, empty array states). These will be applied in Step 7.5. If `enhanced-brief.md` does not exist or Phase 1.5 was skipped, proceed without it — use sensible defaults.
 
-7. **Read EXACTLY ONE design patterns file** based on the theme. Read ONLY the matching file — do NOT read the other 3:
+7. **Read EXACTLY ONE design patterns file** based on the theme. Read ONLY the matching file — do NOT read the others:
    - `@rjsf/mui` → read `references/design-examples/mui-design-patterns.md`
-   - `stylingApproach: "chakra"` → read `references/design-examples/chakra-design-patterns.md`
+   - `@rjsf/chakra-ui` or `stylingApproach: "chakra"` → read `references/design-examples/chakra-design-patterns.md`
    - `stylingApproach: "tailwind"` → read `references/design-examples/daisyui-design-patterns.md`
+   - `@rjsf/antd` → read `references/design-examples/core-css-design-patterns.md` (Ant Design has built-in styling; use core patterns as structural reference)
+   - `@rjsf/fluent-ui` → read `references/design-examples/core-css-design-patterns.md` (Fluent UI has built-in styling; use core patterns as structural reference)
+   - `@rjsf/semantic-ui` → read `references/design-examples/core-css-design-patterns.md` (Semantic UI has built-in styling; use core patterns as structural reference)
+   - `@rjsf/bootstrap-4` → read `references/design-examples/core-css-design-patterns.md` (Bootstrap has built-in styling; use core patterns as structural reference)
    - `@rjsf/core` (any styling) → read `references/design-examples/core-css-design-patterns.md`
 
 **TOKEN BUDGET: Do NOT read any other reference files here.** The CLI generates code with correct types and patterns built in. Only read `references/rjsf-widget-api.md` later in Step 6 IF the form has custom widgets/fields. Only read `references/typescript-pitfalls.md` later in Step 6 IF you are writing custom component code.
@@ -136,7 +140,7 @@ The CLI generates:
 
 After the CLI generates the scaffolding, **enhance the generated files** using the design patterns reference loaded in Step 1.7. The CLI produces a functional baseline, but the design patterns file provides the polished, production-quality versions. Apply:
 
-- **`rjsf-overrides.css`**: The CLI now generates **theme-aware CSS** — raw `input`/`select`/`textarea` selectors for `@rjsf/core` only, MUI class selectors for `@rjsf/mui`. **NEVER add raw element selectors when using MUI/Antd/Bootstrap** — this breaks click/type interactions. If enhancing the CSS, use the design patterns file matching the theme.
+- **`rjsf-overrides.css`**: The CLI now generates **theme-aware CSS** — raw `input`/`select`/`textarea` selectors for `@rjsf/core` only, framework class selectors for UI library themes. **NEVER add raw element selectors when using MUI/Antd/Bootstrap/Chakra/Fluent/Semantic UI** — this breaks click/type interactions. If enhancing the CSS, use the design patterns file matching the theme.
 - **`templates/SectionTemplate.tsx`**: Enhance with the section grouping style chosen in Phase 1.5 (or default to Style A: bordered cards). Use framework-specific components (e.g., `Box`/`Paper` for MUI, `Box`/`SimpleGrid` for Chakra, DaisyUI classes for Tailwind).
 - **`index.tsx`**: Apply the form card wrapper, success/error alerts, and submit button style from the design patterns. Replace bare `<div>` wrappers with proper styled containers. Add animated alert transitions where the framework supports it.
 - **Array templates**: If the form has arrays, use the empty state and array item card patterns from the design patterns file instead of bare RJSF defaults.

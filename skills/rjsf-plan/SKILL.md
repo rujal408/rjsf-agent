@@ -64,7 +64,10 @@ Check `session.json` for a `stylingApproach` key.
 |---|---|---|
 | `@rjsf/mui` | `"mui-grid"` | "Using MUI Box/Grid with `sx` breakpoint props for responsive layout — matches your MUI theme." |
 | `@rjsf/antd` | `"antd-grid"` | "Using Ant Design Row/Col with responsive span props — matches your Ant Design theme." |
-| `@rjsf/bootstrap` | `"bootstrap-grid"` | "Using Bootstrap responsive grid classes (col-12 col-sm-6 col-lg-4) — matches your Bootstrap theme." |
+| `@rjsf/chakra-ui` | `"chakra-grid"` | "Using Chakra UI SimpleGrid/Box for responsive layout — matches your Chakra UI theme." |
+| `@rjsf/fluent-ui` | `"fluent-grid"` | "Using Fluent UI Stack for responsive layout — matches your Fluent UI theme." |
+| `@rjsf/semantic-ui` | `"semantic-grid"` | "Using Semantic UI Grid for responsive layout — matches your Semantic UI theme." |
+| `@rjsf/bootstrap-4` | `"bootstrap-grid"` | "Using Bootstrap responsive grid classes (col-12 col-sm-6 col-lg-4) — matches your Bootstrap theme." |
 
 Write the auto-set value to `session.json` and proceed without asking.
 
