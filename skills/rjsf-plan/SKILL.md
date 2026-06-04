@@ -1,12 +1,12 @@
 ---
 name: rjsf-plan
-description: Phase 2 — design form layout, widget choices, column structure, and identify custom components needed
+description: "[Internal] Phase 2 — design form layout, widget choices, column structure, and identify custom components. Invoked by /rjsf-form."
 allowed-tools: [Read, Write, Glob]
 ---
 
 # RJSF Form Planning — Phase 2
 
-**Trigger:** `/rjsf-plan` or invoked automatically by `/rjsf-build` as Phase 2
+**Trigger:** Invoked internally by `/rjsf-form` as Phase 2. Not a user-facing command — use `/rjsf-form` instead.
 
 ---
 
@@ -369,4 +369,4 @@ After saving, output:
 
 > "Form plan saved to `{sessionDir}/form-plan.md`.
 >
-> **Next step:** Run `/rjsf-technical` to configure technical decisions, or `/rjsf-build` to continue automatically."
+> Phase 2 complete. Continuing pipeline..."

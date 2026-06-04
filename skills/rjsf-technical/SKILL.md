@@ -1,13 +1,13 @@
 ---
 name: rjsf-technical
-description: Phase 2.5 — present technical decisions (schema version, validator, submission pattern, styling, code structure) as grouped A/B/C options before code generation
+description: "[Internal] Phase 2.5 — present technical decisions as grouped A/B/C options before code generation. Invoked by /rjsf-form."
 argument-hint: []
 allowed-tools: [Read, Write, Glob]
 ---
 
 # RJSF Technical Decisions — Phase 2.5
 
-**Trigger:** `/rjsf-technical` — or invoked automatically by `/rjsf-build` after Phase 2 completes.
+**Trigger:** Invoked internally by `/rjsf-form` as Phase 2.5. Not a user-facing command — use `/rjsf-form` instead.
 
 Present technical decisions that affect generated code as grouped A/B/C options. These are decisions that Phase 4 would otherwise make silently. The developer chooses explicitly, or accepts defaults.
 
@@ -48,7 +48,7 @@ All other decisions are always shown.
 
 ## Step 3 — Present Decisions as Grouped Options
 
-Present decisions in 4 groups. For each decision, show:
+Present decisions in 4 groups. **Present one group at a time** — show Group 1 first, wait for the developer's choices, then show Group 2, and so on. Do NOT present all 4 groups in a single message. For each decision within a group, show:
 
 ```
 **[N]. [Decision Name]**
@@ -77,15 +77,13 @@ Present decisions: `formWrapper`, `breakpoints`, `touchTargetSize`, `gridGap`, `
 
 Present decisions: `typeStyle`, `conditionalApproach`, `formStateManagement`, `formContextUsage` (if applicable)
 
-### End of Decisions
+### End of Each Group
 
-After all groups, add:
+After presenting each group, add:
 
-> **Reply with your choices (e.g., "1A, 2B, 5B, 9C") or describe adjustments.**
-> Type **"all defaults"** to accept every default.
-> Type **"skip"** to use all defaults without reviewing.
->
-> Decisions you don't mention will use their defaults.
+> **Reply with your choices for this group (e.g., "1A, 2B") or "defaults" to accept all defaults for this group.**
+
+Wait for the developer's response before showing the next group. Decisions the developer doesn't mention within a group use their defaults.
 
 ---
 
@@ -169,4 +167,4 @@ After saving, display:
 
 > Technical choices saved to `{sessionDir}/technical-choices.md`.
 >
-> **Next step:** Run `/rjsf-prototype` to generate the client prototype, or `/rjsf-build` to continue automatically.
+> Phase 2.5 complete. Continuing pipeline...

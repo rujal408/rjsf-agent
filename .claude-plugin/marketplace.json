@@ -7,7 +7,7 @@
       "name": "rjsf-agent",
       "source": "./",
       "description": "Converts client requirements into production-ready RJSF form implementations — schema, uiSchema, widgets, fields, templates, prototype, and tests.",
-      "version": "2.2.1"
+      "version": "3.0.0"
     }
   ]
 }

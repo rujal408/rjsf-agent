@@ -1,12 +1,12 @@
 ---
 name: rjsf-execute
-description: Phase 4 — generate all React/RJSF code: schema.ts, uiSchema.ts, types.ts, index.tsx, and custom components
+description: "[Internal] Phase 4 — generate all React/RJSF code: schema.ts, uiSchema.ts, types.ts, index.tsx, and custom components. Invoked by /rjsf-form."
 allowed-tools: [Read, Write, Edit, Glob, Bash]
 ---
 
 # RJSF Execution — Phase 4
 
-**Trigger:** `/rjsf-execute` — or invoked automatically by `/rjsf-build` as Phase 4.
+**Trigger:** Invoked internally by `/rjsf-form` as Phase 4. Not a user-facing command — use `/rjsf-form` instead.
 
 ---
 
@@ -315,6 +315,4 @@ Show key file contents (schema.ts, index.tsx) if the developer wants to review.
 
 > Files written to `<outputPath>/`.
 >
-> **Next step:** Run `/rjsf-test` to generate tests for your form, or import it directly and start using it.
->
-> To make changes later, run `/rjsf-iterate "describe what to change"`.
+> Phase 4 complete. Continuing pipeline...

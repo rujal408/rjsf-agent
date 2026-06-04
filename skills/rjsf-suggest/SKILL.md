@@ -1,13 +1,13 @@
 ---
 name: rjsf-suggest
-description: Phase 1.5 — analyze requirements and proactively suggest UI/UX enhancements using widgets, fields, templates, and layout options. Presents A/B/C choices for every complex decision.
+description: "[Internal] Phase 1.5 — analyze requirements and suggest UI/UX enhancements as A/B/C options. Invoked by /rjsf-form."
 argument-hint: []
 allowed-tools: [Read, Write, Glob]
 ---
 
 # RJSF Feature Suggestions — Phase 1.5
 
-**Trigger:** `/rjsf-suggest` — or invoked automatically by `/rjsf-build` after Phase 1 completes.
+**Trigger:** Invoked internally by `/rjsf-form` as Phase 1.5. Not a user-facing command — use `/rjsf-form` instead.
 
 After gathering raw requirements, proactively analyze the form and suggest UI/UX enhancements the developer may not have considered. Present every suggestion as A/B/C options so the developer makes informed choices — not yes/no guesses.
 
@@ -88,7 +88,7 @@ Evaluate each field and section against the tables below. For every match, queue
 
 ## Step 3 — Present Suggestions as Numbered A/B/C Options
 
-Group all suggestions by category (Field Enhancements, Form Layout, Visual Polish). Present them in a single message using this format for each suggestion:
+Group all suggestions by category (Field Enhancements, Form Layout, Visual Polish). **Present one category at a time** — show Field Enhancements first, wait for the developer's choices, then show Form Layout, wait, then Visual Polish. Do NOT dump all suggestions in one message.
 
 ### Format
 
@@ -345,4 +345,4 @@ After saving, display:
 > Enhancements applied and saved to `{sessionDir}/enhanced-brief.md`.
 > Requirements brief updated with your choices.
 >
-> **Next step:** Run `/rjsf-plan` to design the form structure and layout, or `/rjsf-build` to continue automatically.
+> Phase 1.5 complete. Continuing pipeline...

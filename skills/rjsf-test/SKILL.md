@@ -1,12 +1,12 @@
 ---
 name: rjsf-test
-description: Phase 5 — generate tests covering required fields, conditionals, submission, server errors, and accessibility
+description: "[Internal] Phase 5 — generate tests covering required fields, conditionals, submission, server errors, and accessibility. Invoked by /rjsf-form."
 allowed-tools: [Read, Write, Glob]
 ---
 
 # RJSF Test Generation — Phase 5
 
-**Trigger:** `/rjsf-test` — or invoked automatically by `/rjsf-build` as Phase 5.
+**Trigger:** Invoked internally by `/rjsf-form` as Phase 5. Not a user-facing command — use `/rjsf-form` instead.
 
 ---
 
@@ -356,9 +356,4 @@ After writing, output exactly:
 
 > "Tests written to `<outputPath>/<FormName>.test.tsx`.
 >
-> **Your form is complete.**
->
-> - Run tests: `npx vitest <outputPath>` or `npx jest <outputPath>`
-> - Make changes: `/rjsf-iterate \"describe what to change\"`
-> - Build another form: `/rjsf-build`
-> - Check session: `/rjsf-status`"
+> Phase 5 complete. All phases done!"

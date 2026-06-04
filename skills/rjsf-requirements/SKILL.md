@@ -1,13 +1,13 @@
 ---
 name: rjsf-requirements
-description: Phase 1 — gather and clarify client form requirements, produce a structured RequirementsBrief
+description: "[Internal] Phase 1 — gather and clarify client form requirements, produce a structured RequirementsBrief. Invoked by /rjsf-form."
 argument-hint: ["requirements text"] [--from file1.md file2.md ...] [--defaults]
 allowed-tools: [Read, Write, Glob, Bash]
 ---
 
 # RJSF Requirements Gathering — Phase 1
 
-**Trigger:** Invoked by `/rjsf-requirements` directly, or by `/rjsf-build` as Phase 1.
+**Trigger:** Invoked internally by `/rjsf-form` as Phase 1. Not a user-facing command — use `/rjsf-form` instead.
 
 ---
 
@@ -149,17 +149,19 @@ Present a structured coverage report to the user. This is the key orchestration 
 
 Ask these questions **one at a time**. Skip any question that was already answered unambiguously in the input. Wait for the user's answer before asking the next question.
 
+**CRITICAL:** For Questions 1 (RJSF theme) and 2 (form type), ALWAYS ask explicitly — never auto-default these. These are foundational choices that affect all generated code.
+
 ### Step 4-Document (Large input / Document Mode)
 
 **This step is reached only after Step 3.5.** By this point, most questions are either auto-resolved or answered by the user's batch reply. Handle only:
 - Questions the user explicitly answered in Step 3.5 that need follow-up clarification.
 - Questions where the user's answer was ambiguous and needs one more exchange.
 
-Ask remaining questions in a single grouped message (not one-by-one). If no questions remain, proceed directly to Step 5.
+**For Document Mode:** After the coverage analysis, ask remaining unanswered questions in small groups of 3-5 related questions (not all at once). Wait for the developer's response before showing the next group. Questions 1 and 2 must always be asked explicitly if not answered in the document.
 
 ### The 23 Clarifying Questions (with defaults)
 
-Each question below includes a **default** in brackets. When `--defaults` is passed or the user says "defaults for all", use these values.
+Each question below includes a **default** in brackets. When `--defaults` is passed or the user says "defaults for all", use these values. **However, Questions 1 and 2 are never auto-defaulted** — always ask the developer explicitly.
 
 1. Which RJSF theme will this form use? (`@rjsf/core`, `@rjsf/mui`, `@rjsf/antd`, `@rjsf/bootstrap`) **[default: `@rjsf/mui`]**
 2. Should this be a **multi-step wizard** or a **single-page form**? **[default: single-page if ≤2 sections, multi-step if ≥3 sections]**
@@ -274,4 +276,4 @@ After saving, display the following message:
 
 > Requirements captured and saved to `{sessionDir}/requirements-brief.md`.
 >
-> **Next step:** Run `/rjsf-suggest` to get UI/UX enhancement suggestions, or `/rjsf-build` to continue automatically.
+> Phase 1 complete. Continuing pipeline...

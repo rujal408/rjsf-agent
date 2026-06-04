@@ -1,10 +1,10 @@
 ---
 name: rjsf-status
-description: Show current RJSF session phase progress at a glance
+description: Show current RJSF session phase progress and guide what to do next
 allowed-tools: [Read, Glob]
 ---
 
-# RJSF Status — Session Progress
+# RJSF Status — Session Progress & Next Steps
 
 **Trigger:** `/rjsf-status`
 
@@ -20,7 +20,7 @@ allowed-tools: [Read, Glob]
 
 If no active session:
 - If other sessions exist in `.rjsf/sessions/`: "No active session, but {N} session(s) found. Run `/rjsf-switch` to select one."
-- If no sessions at all: "No sessions found. Run `/rjsf-new <FormName>` to create one."
+- If no sessions at all: "No sessions found. Run `/rjsf-new` to create one, then `/rjsf-form "description"` to start building."
 Stop here.
 
 ---
@@ -65,15 +65,25 @@ Omit this entire section if no other sessions exist.
 
 ---
 
-## Step 3 — Suggest Next Action
+## Step 3 — What To Do Next
 
-Always end with exactly one actionable suggestion based on `session.currentPhase` and its status:
+Always end with a clear, actionable "What to do next" section based on the current state. This is the key feature — the developer should always know exactly what command to run.
 
-| Current State | Suggestion |
+### Determine next action:
+
+| Current State | What to do next |
 |---|---|
-| All phases completed | "All done! Run `/rjsf-iterate \"describe change\"` to make changes." |
-| Phase `3` is `awaiting_client_approval` | "Share `{sessionDir}/prototype.html` with your client, then run `/rjsf-build` once they confirm." |
-| Phase `1` completed, `1.5` pending | "Run `/rjsf-suggest` for UI/UX enhancement suggestions, or `/rjsf-build` to continue." |
-| Phase `2` completed, `2.5` pending | "Run `/rjsf-technical` for technical decisions, or `/rjsf-build` to continue." |
-| Phase `3` completed, `4` pending | "Run `/rjsf-build` to generate the React code (Phase 4)." |
-| Any other incomplete phase | "Run `/rjsf-build` to continue from Phase <currentPhase>." |
+| All phases completed | "**All done!** Your form is at `<outputPath>/`.\n\n- Make changes: `/rjsf-iterate \"describe change\"`\n- Build another form: `/rjsf-new` then `/rjsf-form \"description\"`" |
+| Phase 3 is `awaiting_client_approval` | "**Waiting for client approval.** Share `{sessionDir}/prototype.html` with your client.\n\nOnce they approve, run:\n```\n/rjsf-form\n```\nThen say **'client approved'** to continue to code generation." |
+| Any phase incomplete | "**Ready to continue.** Run:\n```\n/rjsf-form\n```\nThis will resume from Phase <currentPhase> — <phase name>." |
+| Phase 1 not started, no requirements yet | "**Ready to start.** Run:\n```\n/rjsf-form \"describe your form here\"\n```\nOr point to a file: `/rjsf-form --from requirements.md`" |
+
+### Format:
+
+```
+─── What to do next ───────────────────────────────────────
+
+<actionable message from table above>
+```
+
+Always show exactly one clear action. Do not list multiple options unless the form is complete.

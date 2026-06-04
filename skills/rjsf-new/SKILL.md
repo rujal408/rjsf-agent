@@ -149,9 +149,9 @@ Display:
 > "Created new session: **<FormName>**
 >
 > Session directory: `.rjsf/sessions/<FormName>/`
-> Active session set to: **<FormName>**
 >
-> Next steps:
-> - `/rjsf-build` — start the full pipeline from requirements to tests
+> **Next:** Run `/rjsf-form "describe your form"` to start building.
+>
+> Other commands:
 > - `/rjsf-list` — see all form sessions
 > - `/rjsf-switch` — switch to a different form session"

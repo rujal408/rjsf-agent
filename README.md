@@ -25,16 +25,16 @@ Restart Claude Code after updating for changes to take effect.
 ## Quick Start
 
 ```bash
-# Not sure where to start?
-/rjsf-form
-
-# Build a form from a description
-/rjsf-build "Build a loan application form: applicant name, DOB, employment type, monthly income"
+# Build a form from a description (creates session automatically)
+/rjsf-form "Build a loan application form: applicant name, DOB, employment type, monthly income"
 
 # Build from a requirements file
-/rjsf-build --from requirements.md
+/rjsf-form --from requirements.md
 
-# Check progress on an existing session
+# Resume where you left off
+/rjsf-form
+
+# Check progress and see what to do next
 /rjsf-status
 ```
 
@@ -56,38 +56,58 @@ src/forms/LoanApplication/
 └── LoanApplication.test.tsx     Tests (validation, conditions, a11y)
 ```
 
-Plus `prototype/prototype.html` — a self-contained file for client sign-off before any React code is written.
+Plus `prototype.html` — a self-contained file for client sign-off before any React code is written.
 
 ## How It Works
 
-The agent runs 5 phases:
+Run `/rjsf-form "describe your form"` and the agent runs 7 phases automatically, pausing between each for your review:
 
 1. **Requirements** — asks clarifying questions, produces a structured brief
-2. **Planning** — designs column layout, widget choices, identifies any custom components needed
-3. **Prototype** — generates a standalone `prototype/prototype.html` for client approval
-4. **Execution** — generates all React/RJSF code (schema, uiSchema, components, tests)
-5. **Testing** — generates test file covering validation, conditionals, a11y
+2. **Suggestions** — proposes UI/UX enhancements as A/B/C options
+3. **Planning** — designs column layout, widget choices, identifies custom components
+4. **Technical** — configures schema version, validator, submission pattern
+5. **Prototype** — generates standalone HTML for client approval
+6. **Execution** — generates all React/RJSF code
+7. **Testing** — generates comprehensive test file
 
-Each phase pauses for your approval before proceeding. Session state is saved so you can resume after closing Claude.
+At each pause you choose: **y** (continue), **skip** (skip next phase), or **stop** (save and exit). Run `/rjsf-form` again anytime to resume.
 
 ## Commands
 
 | Command | Purpose |
 |---|---|
-| `/rjsf-form` | Smart entry — let the agent guide you |
-| `/rjsf-build` | Full pipeline or resume existing session |
-| `/rjsf-status` | See current session progress |
-| `/rjsf-requirements` | Phase 1 — gather requirements |
-| `/rjsf-plan` | Phase 2 — design structure and layout |
-| `/rjsf-prototype` | Phase 3 — generate HTML prototype |
-| `/rjsf-execute` | Phase 4 — generate all React/RJSF code |
-| `/rjsf-test` | Phase 5 — generate tests |
-| `/rjsf-iterate "change"` | Modify an existing form |
-| `/rjsf-new <name>` | Create a new named form session |
-| `/rjsf-switch [name]` | Switch active session |
+| `/rjsf-new` | Create a new form session |
+| `/rjsf-form` | Build a form (full pipeline) or resume |
+| `/rjsf-status` | See progress and what to do next |
+| `/rjsf-iterate "change"` | Modify an existing form (diff preview) |
 | `/rjsf-list` | List all sessions |
+| `/rjsf-switch [name]` | Switch active session |
 | `/rjsf-delete <name>` | Archive and remove a session |
 | `/rjsf-help` | Help on any command or concept |
+
+## Typical Workflow
+
+```bash
+# 1. Start building
+/rjsf-form "patient intake form with name, DOB, insurance, allergies"
+
+# 2. Answer questions, approve phases (agent guides you through each)
+
+# 3. Share prototype with client
+#    Agent pauses at Phase 3 — open prototype.html, send to client
+
+# 4. Resume after client approves
+/rjsf-form
+# Say "client approved"
+
+# 5. Agent generates code and tests
+
+# 6. Make changes later
+/rjsf-iterate "add a phone field with country code"
+
+# 7. Check status anytime
+/rjsf-status
+```
 
 ## Supported RJSF Themes
 
@@ -96,21 +116,21 @@ Each phase pauses for your approval before proceeding. Session state is saved so
 - `@rjsf/antd` (Ant Design)
 - `@rjsf/bootstrap`
 
-Theme is selected during requirements gathering (Phase 1).
+Theme is selected during the requirements phase.
 
 ## What It Handles
 
 - Multi-step wizard forms with Back/Next navigation
-- Async options loaded from an API (e.g. country → province cascading selects)
+- Async options loaded from an API (cascading selects)
 - Server-side field validation on blur
 - Server error mapping after submission
-- Cross-field validation (e.g. end date must be after start date)
+- Cross-field validation
 - Nested arrays (work history with skills sub-lists)
 - Computed/derived fields
 - Drag-to-reorder array items (`@dnd-kit/core`)
 - File upload to a server endpoint
 - Read-only view mode
-- Tab layout (all sections accessible at once)
+- Tab layout
 - Multi-language (i18n) support
 - Masked input fields (phone, credit card)
 - Rich text / WYSIWYG editors
@@ -129,4 +149,3 @@ Theme is selected during requirements gathering (Phase 1).
 - [Layout Guide](docs/layout-guide.md)
 - [Edge Cases](docs/edge-cases.md)
 - [Examples](docs/examples/)
-# rjsf-agent

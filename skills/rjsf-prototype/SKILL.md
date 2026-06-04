@@ -1,12 +1,12 @@
 ---
 name: rjsf-prototype
-description: Phase 3 — generate a self-contained HTML prototype for client sign-off before any React code is written
+description: "[Internal] Phase 3 — generate a self-contained HTML prototype for client sign-off. Invoked by /rjsf-form."
 allowed-tools: [Read, Write, Glob, Bash]
 ---
 
 # RJSF Prototype Generation — Phase 3
 
-**Trigger:** `/rjsf-prototype` — or invoked automatically by `/rjsf-build` as Phase 3.
+**Trigger:** Invoked internally by `/rjsf-form` as Phase 3. Not a user-facing command — use `/rjsf-form` instead.
 
 ---
 
@@ -79,6 +79,6 @@ If any issue is found, fix it by editing the generated HTML directly with the Ed
 
 > Prototype written to `{sessionDir}/prototype.html`. Open it in any browser to preview.
 >
-> **Share this file with your client.** Once they confirm the layout and fields are correct, come back and run `/rjsf-build` (or just say 'client approved') to proceed to implementation.
+> **Share this file with your client.** Once they confirm the layout and fields are correct, run `/rjsf-form` and say **'client approved'** to continue to code generation.
 >
 > The prototype limitations are noted at the top of the file so your client understands what's simplified.

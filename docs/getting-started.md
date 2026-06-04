@@ -12,111 +12,114 @@ Navigate to the project directory where you want to add the form.
 
 ## 3. Build your first form
 
-Run one of these:
-
 ```bash
-# Describe the form directly
-/rjsf-build "Build a contact form with: full name (required), email (required), phone (optional), message (textarea, required), preferred contact method (radio: email / phone)"
+# Describe the form — the agent creates a session and starts building
+/rjsf-form "Build a contact form with: full name (required), email (required), phone (optional), message (textarea, required), preferred contact method (radio: email / phone)"
 
-# Point to a requirements file
-/rjsf-build --from docs/requirements.md
-
-# Not sure? Let the agent guide you
-/rjsf
+# Or point to a requirements file
+/rjsf-form --from docs/requirements.md
 ```
 
-## 4. Answer the clarifying questions
+## 4. Follow the guided pipeline
 
-The agent asks one question at a time (20 questions total, skipping any already answered in your input):
+The agent runs 7 phases automatically, pausing between each for your review:
 
-- Which RJSF theme your project uses
-- Single-page form or multi-step wizard?
-- Does the form need to edit existing data (edit mode)?
-- Do any dropdown options come from an API?
-- Are there cross-field validation rules?
-- ... and more, depending on your form
+1. **Requirements** — asks clarifying questions about your form (theme, validation, features)
+2. **Suggestions** — proposes UI/UX enhancements as A/B/C options
+3. **Planning** — designs column layout, widget choices, custom components
+4. **Technical** — configures schema version, validator, submission pattern
+5. **Prototype** — generates HTML for client sign-off
+6. **Execution** — generates all React/RJSF code
+7. **Testing** — generates comprehensive test file
 
-Take your time — you can paste multi-line answers.
+At each pause, choose:
+- **y** — continue to next phase
+- **skip** — skip the next phase
+- **stop** — save progress and exit
 
-## 5. Approve the Requirements Brief
+## 5. Share the prototype with your client
 
-After gathering all information, the agent shows you a structured `RequirementsBrief` markdown document. Review it and either confirm ("yes, looks good") or request changes ("add a company name field to section 2").
+At Phase 3, the agent generates a `prototype.html` file — a self-contained file with no build step. You can:
+- Open it in any browser by double-clicking
+- Send it to your client by email (single file, zero dependencies)
 
-## 6. Review the Form Plan
-
-Phase 2 produces a `FormPlan` showing:
-- Column layout for each section
-- Widget chosen for each field
-- Any custom components that will need to be built
-- Step Map (if multi-step)
-- Async field map (if any async operations)
-
-Approve or adjust before moving on.
-
-## 7. Share the prototype with your client
-
-The agent generates a `prototype.html` file inside the active session directory — a completely self-contained file with no build step required. You can:
-- Open it in any browser by double-clicking the file
-- Send it to your client by email (it's a single file)
-- Host it anywhere — it has zero external dependencies
-
-The prototype shows the real layout, field types, column structure, and conditional show/hide logic. It includes a notice explaining what is simplified (no real API calls, no cross-field validation enforcement).
-
-Once your client approves, come back to Claude and say "client approved" to continue.
-
-## 8. Review and write the code
-
-Phase 4 shows you every file it will generate, with full content, before writing anything to disk. Review each file and confirm the output path (defaults to `src/forms/<FormName>/`).
-
-## 9. Run the tests
+The agent pauses here until your client approves. Once they do:
 
 ```bash
-# Vitest
-npx vitest src/forms/ContactForm
+/rjsf-form
+# Say "client approved"
+```
 
-# Jest
+## 6. Review the generated code
+
+The agent shows every file before writing to disk. Final output:
+
+```
+src/forms/ContactForm/
+├── schema.ts          JSON Schema
+├── uiSchema.ts        Layout + widget config
+├── types.ts           TypeScript interfaces
+├── index.tsx          Form component
+└── ContactForm.test.tsx  Tests
+```
+
+## 7. Run the tests
+
+```bash
+npx vitest src/forms/ContactForm
+# or
 npx jest src/forms/ContactForm
 ```
 
-The test file covers:
-- Required field validation
-- Per-field validation rules (minLength, pattern, etc.)
-- Conditional field visibility
-- Form submission (success + rejection)
-- Server error mapping
-- Accessibility (axe-core)
-- Plus any edge-case-specific tests (multi-step navigation, draft save, etc.)
-
 ## Resuming after a break
 
-If you close Claude and come back later:
-
 ```bash
-/rjsf-build        # checks session.json, offers to resume
-/rjsf-status       # shows exactly where you left off
+# See where you left off and what to do next
+/rjsf-status
+
+# Resume the pipeline from where you stopped
+/rjsf-form
 ```
 
 ## Making changes after generation
 
 ```bash
-/rjsf-iterate "add a company name field after employment type"
+/rjsf-iterate "add a company name field after email"
 /rjsf-iterate "change the phone field to use a masked input"
-/rjsf-iterate "add async validation on the username field"
-/rjsf-iterate "change layout to 3 columns in the personal details section"
+/rjsf-iterate "add draft save with localStorage"
 ```
 
-The iterate skill shows a before/after diff for every affected file before writing.
+The iterate command shows a before/after diff for every affected file before writing.
+
+## Working on multiple forms
+
+```bash
+# Create sessions for each form
+/rjsf-new ContactForm
+/rjsf-form "contact form with name, email, message"
+
+# Start another form
+/rjsf-new LoanApplication
+/rjsf-form "loan application with applicant info and income"
+
+# Switch between forms
+/rjsf-switch ContactForm
+
+# See all sessions
+/rjsf-list
+
+# Archive a session
+/rjsf-delete LoanApplication
+```
 
 ## Where session data is stored
-
-The agent creates a `.rjsf/` directory in your project with per-form session directories:
 
 ```
 .rjsf/
 ├── active-session                         Points to the active form name
 ├── sessions/
 │   ├── ContactForm/
-│   │   ├── session.json                   Tracks phase and status for this form
+│   │   ├── session.json                   Tracks phase progress
 │   │   ├── requirements-brief.md          Phase 1 output
 │   │   ├── form-plan.md                   Phase 2 output
 │   │   └── prototype.html                 Phase 3 prototype
@@ -125,29 +128,20 @@ The agent creates a `.rjsf/` directory in your project with per-form session dir
 └── history/                               Archived sessions
 ```
 
-Commit the `requirements-brief.md` and `form-plan.md` files to version control so your team can see the design decisions. The `session.json` files can also be committed for full traceability, or added to `.gitignore` if you prefer to keep session data local.
+Commit the `requirements-brief.md` and `form-plan.md` files to version control so your team can see the design decisions.
 
-## Working on multiple forms
+## All commands
 
-You can work on multiple forms simultaneously. Each form gets its own session directory.
-
-```bash
-# Create and start building a contact form
-/rjsf-new ContactForm
-/rjsf-build "contact form with name, email, message"
-
-# Create another form session
-/rjsf-new LoanApplication
-/rjsf-build "loan application"
-
-# Switch back to the contact form
-/rjsf-switch ContactForm
-
-# See all sessions and their progress
-/rjsf-list
-```
-
-Use `/rjsf-delete <name>` to archive a completed or abandoned session.
+| Command | Purpose |
+|---|---|
+| `/rjsf-new` | Create a new form session |
+| `/rjsf-form` | Build or resume a form (full pipeline) |
+| `/rjsf-status` | See progress and what to do next |
+| `/rjsf-iterate` | Modify an existing form (diff preview) |
+| `/rjsf-list` | List all sessions |
+| `/rjsf-switch` | Switch active session |
+| `/rjsf-delete` | Archive and remove a session |
+| `/rjsf-help` | Help on any command or concept |
 
 ## Next steps
 
