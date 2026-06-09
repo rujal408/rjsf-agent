@@ -18,6 +18,7 @@ After gathering raw requirements, proactively analyze the form and suggest UI/UX
 1. Resolve the active session path. Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
 2. Read `{sessionDir}/requirements-brief.md` (RequirementsBrief from Phase 1).
 3. Read `references/customization-decision-tree.md` for widget vs field vs template decisions.
+4. Read `references/frontend-design-audit.md` for the 15 design audit principles. Use these principles to identify enhancement opportunities beyond the trigger tables below — particularly accessibility (#13), error prevention (#5), error recovery (#9), and structure (#12).
 
 **Do NOT read `rjsf-widget-api.md`, `rjsf-schema-patterns.md`, or `typescript-pitfalls.md` — they are not needed for suggesting enhancements. The trigger tables below contain all the widget/pattern knowledge needed.**
 
@@ -36,6 +37,13 @@ After gathering raw requirements, proactively analyze the form and suggest UI/UX
 ## Step 2 — Analyze RequirementsBrief for Enhancement Opportunities
 
 Evaluate each field and section against the tables below. For every match, queue a suggestion for Step 3.
+
+Additionally, scan the RequirementsBrief against the 15 design audit principles from `references/frontend-design-audit.md`. If the current spec violates or misses any principle, queue an enhancement suggestion. Prioritize:
+- **Accessibility (#13):** Missing ARIA attributes, insufficient contrast, no focus indicators, touch targets < 44px
+- **Error Prevention (#5):** Free-text fields that should be constrained, missing input masks, no format hints
+- **Error Recovery (#9):** No inline error placement, no scroll-to-error on submit failure
+- **Tolerance (#15):** Overly strict validation that rejects valid input formats
+- **Structure (#12):** Ungrouped fields, missing section headings, no visual hierarchy
 
 ### Field-Level Enhancement Triggers
 

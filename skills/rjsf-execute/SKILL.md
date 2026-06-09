@@ -45,6 +45,8 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
    - Use these patterns as a **visual and structural reference** when generating code — match the same component style, spacing, and UX quality. Do NOT copy verbatim; adapt to the current form's requirements.
    - If the example directory does not exist or contains no `.tsx` files, skip this step silently.
 
+9. Read `references/frontend-design-audit.md` for the 15 design audit principles. This is used during Step 8 verification to ensure generated code meets usability, accessibility, and design quality standards.
+
 **TOKEN BUDGET: Do NOT read any other reference files here.** The CLI generates code with correct types and patterns built in. Only read `references/rjsf-widget-api.md` later in Step 6 IF the form has custom widgets/fields. Only read `references/typescript-pitfalls.md` later in Step 6 IF you are writing custom component code.
 
 ---
@@ -293,6 +295,20 @@ For each visual polish category, make targeted edits to the already-generated fi
 - [ ] Success state shows a styled confirmation (not just plain text)
 - [ ] Error alerts use styled, dismissable alert components (not bare `<div>` with inline color)
 - [ ] Generated code follows the same component structure, submit state machine, and UI quality as the matching example form from `examples/src/forms/` (if example was read in Step 1.8)
+
+### Design Audit Pass (from `references/frontend-design-audit.md`)
+- [ ] **Visibility of System Status (#1):** Submit button has loading state; async fields show spinners; multi-step forms show progress indicator
+- [ ] **Match System & Real World (#2):** Labels use domain-appropriate language; placeholders show realistic examples; date/number formats match user locale
+- [ ] **User Control & Freedom (#3):** Back button in wizards preserves data; array items can be removed; cancel doesn't destroy entered data
+- [ ] **Consistency (#4):** Required indicators are uniform; error message format is consistent; button hierarchy (primary/secondary) is maintained
+- [ ] **Error Prevention (#5):** Formatted fields use masks or constrained inputs; date pickers used instead of free-text; disabled submit until required fields filled (if applicable)
+- [ ] **Recognition Over Recall (#6):** Placeholder hints on all text fields; help text visible near complex fields; section headings describe required information
+- [ ] **Flexibility & Efficiency (#7):** Tab order is logical; form supports keyboard-only operation; autofill-compatible input attributes (`name`, `type`)
+- [ ] **Aesthetic & Minimalist Design (#8):** Conditional fields hidden until triggered; whitespace is balanced; no decorative elements without function
+- [ ] **Error Recovery (#9):** Inline errors next to fields; first error field receives focus on submit failure; valid fields are not cleared on error
+- [ ] **Accessibility (#13):** All fields have `<label>` elements; custom widgets have `aria-required`/`aria-invalid`; focus indicators are visible; touch targets >= 44px; color contrast meets WCAG AA
+- [ ] **Perceptibility (#14):** Input text >= 16px; error states use color AND icon/text; section boundaries are visually distinct
+- [ ] **Tolerance (#15):** Whitespace trimmed before validation; case-insensitive where appropriate (email); form not reset on single field error
 
 Read any file that seems potentially wrong and fix issues before proceeding.
 

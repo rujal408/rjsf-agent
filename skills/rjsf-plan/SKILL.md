@@ -22,6 +22,7 @@ Phase 2 takes the RequirementsBrief produced in Phase 1 and designs the full for
 2. Read `{sessionDir}/requirements-brief.md` produced by Phase 1.
 3. Read `references/layout-principles.md` for column and widget layout heuristics.
 4. Read `references/customization-decision-tree.md` for widget vs field vs template decisions.
+5. Read `references/frontend-design-audit.md` for the 15 design audit principles — use during layout verification in Step 3 and the FormPlan review in Step 7.
 
 **Do NOT read `rjsf-schema-patterns.md` or `rjsf-widget-api.md` — the widget mapping below is sufficient.**
 
@@ -271,11 +272,23 @@ Combine all sections produced in Steps 3–6 into a single markdown document wit
 <output from Step 6, or omit if no async flags>
 ```
 
-### 7b. Display in Chat
+### 7b. Design Audit Check
+
+Before displaying, verify the FormPlan against the design audit principles from `references/frontend-design-audit.md`. Check:
+
+- **Consistency (#4):** Field spacing, label positioning, and required indicators are uniform across all sections.
+- **Minimalist Design (#8):** No unnecessary fields are always visible — conditional fields use progressive disclosure.
+- **Structure (#12):** Related fields are grouped in labeled sections; sections follow a logical flow.
+- **Accessibility (#13):** All custom widgets have ARIA requirements noted; touch targets meet 44px minimum; color is not the sole state indicator.
+- **Error Prevention (#5):** Formatted fields (phone, date, email) use constrained widgets, not free-text inputs.
+
+If any principle is violated, fix the FormPlan before displaying. If a violation requires a tradeoff (e.g., more fields visible vs. progressive disclosure), note it in the plan for the developer to decide.
+
+### 7c. Display in Chat
 
 Show the full FormPlan to the developer in the chat window.
 
-### 7c. Ask for Approval
+### 7d. Ask for Approval
 
 Ask:
 
@@ -283,7 +296,7 @@ Ask:
 
 Wait for the developer's response. If they request changes, apply them and re-display the updated FormPlan. Repeat until the developer approves.
 
-### 7d. Save on Approval
+### 7e. Save on Approval
 
 Once the developer approves:
 
