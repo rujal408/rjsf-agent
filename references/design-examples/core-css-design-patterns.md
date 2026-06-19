@@ -142,28 +142,57 @@ const SECTION_COLUMNS: Record<string, string> = {
 const FULL_WIDTH_FIELDS = new Set(['bio', 'description', 'address']);
 
 export function SectionTemplate(props: ObjectFieldTemplateProps) {
-  const { title, description, properties, idSchema } = props;
-  const rawId = idSchema?.$id ?? 'root';
-  const sectionKey = rawId.replace('root_', '').replace('root', '');
+  const { title, description, properties, fieldPathId, registry } = props;
+  const pathId = fieldPathId?.toString() ?? 'root';
+  const parts = pathId.split('.');
+  const sectionKey = parts[parts.length - 1] ?? '';
+
+  // Get formContext from registry (RJSF v6 pattern)
+  const formContext = registry.formContext as
+    | { currentStep?: string } | undefined;
+
+  // CRITICAL for multi-step wizards: When rendering per-step schemas,
+  // fields appear at root level. We still need the grid layout.
+  // Use the current step key from formContext to determine the grid.
+  if (pathId === 'root' || parts.length <= 1) {
+    const stepKey = formContext?.currentStep ?? '';
+    const rootGrid = SECTION_COLUMNS[stepKey] ?? 'grid1';
+    return (
+      <div style={{ textAlign: 'left' }}>
+        {renderGrid(properties, rootGrid)}
+      </div>
+    );
+  }
+
   const gridClass = SECTION_COLUMNS[sectionKey] ?? 'grid1';
 
   return (
     <fieldset className={styles.section}>
       {title && <legend className={styles.sectionTitle}>{title}</legend>}
       {description && <p className={styles.sectionDescription}>{description}</p>}
-      <div className={`${styles.grid} ${styles[gridClass]}`}>
-        {properties.map((prop) =>
-          prop.hidden ? null : (
-            <div
-              key={prop.name}
-              className={FULL_WIDTH_FIELDS.has(prop.name) ? styles.colFull : undefined}
-            >
-              {prop.content}
-            </div>
-          ),
-        )}
-      </div>
+      {renderGrid(properties, gridClass)}
     </fieldset>
+  );
+}
+
+// Helper to render the CSS grid with full-width field support
+function renderGrid(
+  properties: ObjectFieldTemplateProps['properties'],
+  gridClass: string,
+) {
+  return (
+    <div className={`${styles.grid} ${styles[gridClass] ?? ''}`}>
+      {properties.map((prop) =>
+        prop.hidden ? null : (
+          <div
+            key={prop.name}
+            className={FULL_WIDTH_FIELDS.has(prop.name) ? styles.colFull : undefined}
+          >
+            {prop.content}
+          </div>
+        ),
+      )}
+    </div>
   );
 }
 ```
@@ -237,10 +266,23 @@ This is the most important file for `@rjsf/core` — without it, forms look unst
 /* rjsf-overrides.css — Core theme comprehensive polish */
 
 /* ═══════════════════════════════════════════════════════
+   0. GLOBAL TEXT ALIGNMENT RESET
+   CRITICAL: Many host apps (Vite, CRA templates) set
+   text-align: center on #root. This resets everything
+   inside RJSF to left-aligned.
+   ═══════════════════════════════════════════════════════ */
+
+.rjsf,
+.rjsf * {
+  text-align: left;
+}
+
+/* ═══════════════════════════════════════════════════════
    1. FORM CONTAINER
    ═══════════════════════════════════════════════════════ */
 
 .rjsf-form-card {
+  text-align: left;
   max-width: 780px;
   margin: 0 auto;
   background: #fff;
@@ -358,7 +400,7 @@ This is the most important file for `@rjsf/core` — without it, forms look unst
   border-color: #e5e7eb;
 }
 
-/* Error state */
+/* Error state — subtle red border, keep white background (pink is too harsh) */
 .rjsf .has-error input,
 .rjsf .has-error select,
 .rjsf .has-error textarea,
@@ -366,7 +408,7 @@ This is the most important file for `@rjsf/core` — without it, forms look unst
 .rjsf .field-error select,
 .rjsf .field-error textarea {
   border-color: #dc2626;
-  background: #fef2f2;
+  background: #fff;
 }
 
 .rjsf .has-error input:focus,
@@ -433,10 +475,21 @@ This is the most important file for `@rjsf/core` — without it, forms look unst
   line-height: 1.4;
 }
 
+.rjsf .error-detail {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0 0;
+}
+
 .rjsf .error-detail li {
   list-style: none;
   padding: 0;
   margin: 2px 0;
+}
+
+/* Deduplicate errors — RJSF can emit duplicate required messages */
+.rjsf .error-detail li + li {
+  display: none;
 }
 
 /* Hide default error list at top */
