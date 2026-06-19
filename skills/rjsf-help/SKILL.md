@@ -24,6 +24,21 @@ rjsf-agent commands:
   /rjsf-form           Build a form (full pipeline) or resume where you left off
   /rjsf-status         See progress and what to do next
 
+  Builder Commands (session-aware — operate on active form):
+  ──────────────────────────────────────────────────────────
+  /rjsf-field add <name>       Add a field (prompts for type, widget, width, section)
+  /rjsf-field list             List all fields with types and sections
+  /rjsf-field remove <name>    Remove a field from all files
+  /rjsf-field edit <name>      Modify a field's type, widget, validation, or width
+
+  /rjsf-template create <type> Create a template (object, array, array-item, field,
+                                base-input, title, description, error-list)
+  /rjsf-template list          List registered and default templates
+  /rjsf-template grid [section] Configure responsive grid layout (columns per breakpoint)
+
+  /rjsf-widget create <name>   Create a custom widget (masked input, picker, etc.)
+  /rjsf-widget list            List built-in and custom widgets
+
   Utility Commands:
   ─────────────────
   /rjsf-iterate        Modify an already-generated form (shows diff before writing)
@@ -33,10 +48,11 @@ rjsf-agent commands:
   /rjsf-help           Help on any command or concept
 
 Quick start:
-  /rjsf-form "describe your form here"
+  /rjsf-form "describe your form here"          (full pipeline)
+  /rjsf-field add firstName                      (step-by-step building)
 
-For help on a command:  /rjsf-help rjsf-form
-For help on concepts:   /rjsf-help "what is a custom widget?"
+For help on a command:  /rjsf-help rjsf-field
+For help on concepts:   /rjsf-help "what is a template?"
 ```
 
 ---
@@ -56,6 +72,9 @@ Match the input against the topics below and answer in plain English (2–5 sent
 | `/rjsf-list` or `rjsf-list` | Lists all form sessions under `.rjsf/sessions/` with their current phase, status, and progress bar. Marks the active session. |
 | `/rjsf-switch` or `rjsf-switch` | Switches the active session. Provide a name to switch directly, or run without arguments to see a picker. |
 | `/rjsf-delete` or `rjsf-delete` | Archives a session to `.rjsf/history/` and removes it from active sessions. Generated code is preserved. |
+| `/rjsf-field` or `rjsf-field` | Manage individual fields in the active form session. Subcommands: `add` (add a new field — prompts for type, widget, width, section, validation), `list` (table of all fields with types and sections), `remove` (removes from schema, uiSchema, types), `edit` (modify type, widget, validation, or width). All changes show a diff before writing. Requires a generated form (Phase 4 complete). |
+| `/rjsf-template` or `rjsf-template` | Create and manage RJSF templates that control form layout. Subcommands: `create <type>` (generate a template — types: object, array, array-item, field, base-input, title, description, error-list), `list` (show all registered and default templates), `grid` (configure responsive column layout per section). Templates are the RJSF extension point for arranging fields in grids, styling array items as cards/rows, customizing labels, and replacing the error summary. |
+| `/rjsf-widget` or `rjsf-widget` | Create and manage custom RJSF widgets (single input controls). Subcommands: `create <name>` (generate a WidgetProps-based component — e.g., masked phone input, color picker, star rating), `list` (show built-in and custom widgets with field assignments). Widgets replace the default input for one field. For compound inputs under one label, use a custom Field instead. |
 | `/rjsf-help` or `rjsf-help` | Shows this help. Ask about any command or RJSF concept. |
 
 ### Workflow Help
@@ -67,6 +86,9 @@ Match the input against the topics below and answer in plain English (2–5 sent
 | "what are the phases", "how does the pipeline work" | The agent runs 7 phases: (1) Requirements — clarifying questions, (1.5) Suggestions — UI/UX enhancements, (2) Plan — layout and widgets, (2.5) Technical — schema/validator config, (3) Prototype — HTML for client approval, (4) Execution — React/RJSF code generation, (5) Testing — test file generation. Each phase pauses for your approval. |
 | "how do I skip a phase" | When the pipeline pauses between phases, type "skip" to skip the next phase. Phases 1.5 and 2.5 are optional and safe to skip. |
 | "how do I stop midway" | Type "stop" when the pipeline pauses between phases. Your progress is saved. Run `/rjsf-form` later to resume. |
+| "how do I build step by step", "how do I add fields one by one" | After running `/rjsf-form` to generate the initial form, use the builder commands: `/rjsf-field add <name>` to add fields, `/rjsf-template create <type>` to create templates, `/rjsf-widget create <name>` to build custom widgets. Each command is session-aware and updates all affected files. |
+| "how do I set up a grid layout", "how do I make responsive" | Use `/rjsf-template grid` to configure responsive columns per section. Or `/rjsf-template create object` to create an ObjectFieldTemplate with grid layout. Fields have widths (full/half/quarter) set via `/rjsf-field add` or `/rjsf-field edit`. |
+| "what template types are there", "which template should I use" | RJSF has 8 template types: `object` (section/grid layout), `array` (array container), `array-item` (per-item card/row), `field` (label+input+error wrapper), `base-input` (input element), `title` (headings), `description` (descriptions), `error-list` (error summary). Run `/rjsf-template create` with no type to see the decision guide. |
 
 ### Concept Help
 
