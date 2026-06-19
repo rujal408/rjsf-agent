@@ -1,7 +1,7 @@
 {
   "name": "rjsf-agent",
-  "version": "4.0.0",
-  "description": "AI agent that converts client requirements into production-ready RJSF form implementations — schema, uiSchema, widgets, fields, templates, prototype, and tests.",
+  "version": "5.0.0",
+  "description": "Step-by-step RJSF form builder — add fields, create templates (grid, array, etc.), and build custom widgets one command at a time.",
   "author": {
     "name": "rujal408"
   },

@@ -13,9 +13,10 @@ allowed-tools: [Read, Write, Edit, Glob, Bash]
 
 ## Step 1 — Read Session & Generated Files
 
-1. Resolve the active session path. Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`. If `phases["4"].status` is not `"completed"`: stop and say: "No generated form found. Run `/rjsf-build` first to generate the form."
-2. Read `{sessionDir}/form-plan.md`.
-3. Read all files currently in `outputPath` (schema.ts, uiSchema.ts, types.ts, index.tsx, and any custom component files in widgets/, fields/, templates/).
+1. Read `.rjsf/active-session` to get the active form name. If the file does not exist: stop and say: "No active session. Run `/rjsf-new <FormName>` first."
+2. Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
+3. If `outputPath` is null or `{outputPath}/schema.ts` does not exist: stop and say: "No form files found. Run `/rjsf-new <FormName>` to create a session with scaffolded files."
+4. Read all files currently in `outputPath` (schema.ts, uiSchema.ts, types.ts, index.tsx, and any custom component files in widgets/, fields/, templates/).
 
 ---
 
@@ -81,4 +82,4 @@ After writing, output:
 
 > "Changes applied to `<outputPath>/`.
 >
-> If you changed validation rules, field structure, or conditional logic, run `/rjsf-test` to regenerate the tests."
+> Use `/rjsf-field list` to verify the current form state."

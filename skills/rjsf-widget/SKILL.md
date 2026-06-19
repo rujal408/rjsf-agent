@@ -62,8 +62,9 @@ These widgets are available out of the box with any RJSF theme. No custom code n
 1. Read `.rjsf/active-session` to get the active form name. If the file does not exist: stop and say: "No active session. Run `/rjsf-new <FormName>` first."
 2. Let `sessionDir` = `.rjsf/sessions/{formName}/`. Read `{sessionDir}/session.json`.
 3. Read `session.json` to get `outputPath`, `rjsfTheme`, and `stylingApproach`.
-4. **Guard clause:** If `outputPath` is null or `phases["4"].status` is not `"completed"`: stop and say: "No generated form found. Run `/rjsf-form` first to generate the form."
-5. Read `references/frontend-design-audit.md` — use principles #5 (Error Prevention), #11 (Affordances), #13 (Accessibility), and #15 (Tolerance) when building widgets.
+4. **Guard clause:** If `outputPath` is null: stop and say: "No output path set. Run `/rjsf-new <FormName>` to create a session with scaffolded files."
+5. Verify `{outputPath}/schema.ts` exists. If not: stop and say: "Form files not found at `<outputPath>/`. Run `/rjsf-new <FormName>` to scaffold the initial files."
+6. Read `references/frontend-design-audit.md` — use principles #5 (Error Prevention), #11 (Affordances), #13 (Accessibility), and #15 (Tolerance) when building widgets.
 
 ---
 

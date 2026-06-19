@@ -43,27 +43,18 @@ Read `.rjsf/active-session` to determine which session is currently active. If t
 
 ### If no argument was provided (picker mode):
 
-1. For each directory under `.rjsf/sessions/`, read its `session.json` to extract `formName`, `currentPhase`, and the status of each phase.
-2. Display a numbered list with phase and status info. Mark the current active session with `*`:
+1. For each directory under `.rjsf/sessions/`, read its `session.json` to extract `formName`, `rjsfTheme`, and `outputPath`.
+2. Display a numbered list with theme info. Mark the current active session with `*`:
 
 ```
 Available sessions:
 
-  1. * UserRegistrationForm  — Phase 4 (Execution, in_progress)
-  2.   PaymentForm           — Phase 2 (Planning, pending)
-  3.   ContactForm           — Phase 5 (Testing, completed)
+  1. * UserRegistrationForm  — @rjsf/mui (src/forms/UserRegistrationForm)
+  2.   PaymentForm           — @rjsf/core (src/forms/PaymentForm)
+  3.   ContactForm           — @rjsf/chakra-ui (src/forms/ContactForm)
 
 Enter a number to switch, or 0 to cancel:
 ```
-
-Use the phase name mapping:
-- `"1"` -> Requirements
-- `"1.5"` -> Feature Suggestions
-- `"2"` -> Planning
-- `"2.5"` -> Technical Decisions
-- `"3"` -> Prototype
-- `"4"` -> Execution
-- `"5"` -> Testing
 
 3. Wait for the user to respond with a number.
    - `0` or cancel: `"Cancelled."` Stop here.
@@ -84,6 +75,6 @@ Read the newly active session's `session.json` and display:
 
 > "Switched to **<FormName>**.
 >
-> Current phase: Phase <currentPhase> — <PhaseName> (<status>)
+> Theme: `<rjsfTheme>` | Output: `<outputPath>`
 >
-> Use `/rjsf-build` to continue or `/rjsf-status` to see full progress."
+> Use `/rjsf-status` to see form details or `/rjsf-field list` to see all fields."

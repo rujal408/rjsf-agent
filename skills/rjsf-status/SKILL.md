@@ -1,82 +1,107 @@
 ---
 name: rjsf-status
-description: Show current RJSF session phase progress and guide what to do next
+description: Show current RJSF session info, form stats, and guide what to do next
 allowed-tools: [Read, Glob]
 ---
 
-# RJSF Status — Session Progress & Next Steps
+# RJSF Status — Session Info & Next Steps
 
 **Trigger:** `/rjsf-status`
 
 ---
 
-## Step 1 — Resolve Session (Multi-Session)
-
-**Session Resolution** (do NOT read session-pattern.md — algorithm is inline):
+## Step 1 — Resolve Session
 
 1. Read `.rjsf/active-session` → get `formName` → `sessionDir` = `.rjsf/sessions/{formName}/`
 2. Read `{sessionDir}/session.json`
-3. If `.rjsf/active-session` does not exist but `.rjsf/session.json` does → perform legacy migration per Section 7, then re-read.
 
 If no active session:
 - If other sessions exist in `.rjsf/sessions/`: "No active session, but {N} session(s) found. Run `/rjsf-switch` to select one."
-- If no sessions at all: "No sessions found. Run `/rjsf-new` to create one, then `/rjsf-form "description"` to start building."
+- If no sessions at all: "No sessions found. Run `/rjsf-new <FormName>` to create one."
+
 Stop here.
 
 ---
 
-## Step 2 — Display Progress
+## Step 2 — Gather Form Stats
 
-Format and display the following status block. Use the status icons: ✅ = completed · ⏳ = in_progress or awaiting_client_approval · ⬜ = pending.
+Read the generated files at `outputPath` to count:
 
-```
-Active session: <FormName>
-Theme: <rjsfTheme> | Styling: <stylingApproach | "not set yet">
-Output: <outputPath | "not set yet">
+1. **Fields:** Read `schema.ts` — count all properties (including nested in sections). Note each field's type and widget.
+2. **Sections:** Count top-level object properties in the schema that are themselves objects (these are sections).
+3. **Templates:** Use Glob to find files in `{outputPath}/templates/`. Read `index.tsx` to check which are registered.
+4. **Widgets:** Use Glob to find files in `{outputPath}/widgets/`. Read `uiSchema.ts` to check which fields use custom widgets.
+5. **Grid layout:** Check if an ObjectFieldTemplate exists and what responsive columns are configured.
 
-  <icon> Phase 1   — Requirements        (<status> <completedAt or "">)
-  <icon> Phase 1.5 — Feature Suggestions  (<status> <completedAt or "">)
-  <icon> Phase 2   — Planning             (<status> <completedAt or "">)
-  <icon> Phase 2.5 — Technical Decisions  (<status> <completedAt or "">)
-  <icon> Phase 3   — Prototype            (<status> <completedAt or "awaiting client approval" if status is awaiting_client_approval>)
-  <icon> Phase 4   — Execution            (<status> <completedAt or "">)
-  <icon> Phase 5   — Testing              (<status> <completedAt or "">)
-```
-
-When formatting timestamps, show them as relative time if within the last 7 days (e.g. "2 hours ago", "yesterday"), otherwise show the ISO date only (e.g. "2026-05-10").
-
-**Phase key handling:** Read phase status from `session.phases["1"]`, `session.phases["1.5"]`, `session.phases["2"]`, `session.phases["2.5"]`, `session.phases["3"]`, `session.phases["4"]`, `session.phases["5"]`. If a phase key is missing (legacy session), show ⬜ with "(not available)" instead of a status.
+If `outputPath` is null or files don't exist, show "No files scaffolded yet" for all stats.
 
 ---
 
-## Step 2b — Other Sessions
+## Step 3 — Display Status
+
+```
+Active session: <FormName>
+─────────────────────────────────
+Theme:   <rjsfTheme>
+Styling: <stylingApproach>
+Output:  <outputPath>
+Created: <createdAt>
+Modified: <lastModified>
+
+Form Stats:
+  Fields:    <N> (<M> required)
+  Sections:  <N>
+  Templates: <N> custom (<list names>) + <M> using defaults
+  Widgets:   <N> custom (<list names>) + <M> built-in
+  Grid:      <configured or "not configured — run /rjsf-template grid">
+
+Fields:
+  <sectionName>:
+    - <fieldName> (<type>, <widget>, <width>) <required?>
+    - <fieldName> (<type>, <widget>, <width>)
+  <sectionName>:
+    - ...
+```
+
+If no fields exist yet:
+
+```
+Form Stats:
+  Fields:    0 (empty form)
+  Sections:  0
+  Templates: 0 custom + all defaults
+  Widgets:   0 custom + all built-in
+  Grid:      not configured
+```
+
+---
+
+## Step 4 — Other Sessions
 
 List all other session directories under `.rjsf/sessions/` (excluding the active session). For each, read its `session.json` and show:
 
 ```
 Other sessions:
-  - PaymentForm        Phase 3 — Prototype (completed)
-  - ContactForm        Phase 1 — Requirements (in_progress)
+  - PaymentForm        (@rjsf/mui, 12 fields)
+  - ContactForm        (@rjsf/core, 5 fields)
 
 Switch: /rjsf-switch <name>
 ```
 
-Omit this entire section if no other sessions exist.
+Omit this section if no other sessions exist.
 
 ---
 
-## Step 3 — What To Do Next
+## Step 5 — What To Do Next
 
-Always end with a clear, actionable "What to do next" section based on the current state. This is the key feature — the developer should always know exactly what command to run.
-
-### Determine next action:
+Always end with a clear, actionable "What to do next" section based on the current state:
 
 | Current State | What to do next |
 |---|---|
-| All phases completed | "**All done!** Your form is at `<outputPath>/`.\n\n- Make changes: `/rjsf-iterate \"describe change\"`\n- Build another form: `/rjsf-new` then `/rjsf-form \"description\"`" |
-| Phase 3 is `awaiting_client_approval` | "**Waiting for client approval.** Share `{sessionDir}/prototype.html` with your client.\n\nOnce they approve, run:\n```\n/rjsf-form\n```\nThen say **'client approved'** to continue to code generation." |
-| Any phase incomplete | "**Ready to continue.** Run:\n```\n/rjsf-form\n```\nThis will resume from Phase <currentPhase> — <phase name>." |
-| Phase 1 not started, no requirements yet | "**Ready to start.** Run:\n```\n/rjsf-form \"describe your form here\"\n```\nOr point to a file: `/rjsf-form --from requirements.md`" |
+| No fields yet (empty form) | "**Start adding fields:**\n```\n/rjsf-field add firstName\n/rjsf-field add email\n```" |
+| Has fields, no grid configured | "**Set up responsive layout:**\n```\n/rjsf-template grid\n```" |
+| Has fields and grid, no custom templates | "**Optionally customize templates:**\n```\n/rjsf-template create array-item   # for array field cards\n/rjsf-template create field         # for label/error styling\n```\nOr your form is ready to use!" |
+| Has everything | "**Your form is ready!** Import it from `<outputPath>/`.\n\nModify anytime:\n- `/rjsf-field add/edit/remove` — manage fields\n- `/rjsf-template grid` — adjust layout\n- `/rjsf-iterate \"change\"` — describe changes in plain English" |
 
 ### Format:
 
@@ -85,5 +110,3 @@ Always end with a clear, actionable "What to do next" section based on the curre
 
 <actionable message from table above>
 ```
-
-Always show exactly one clear action. Do not list multiple options unless the form is complete.

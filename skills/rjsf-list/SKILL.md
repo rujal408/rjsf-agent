@@ -1,6 +1,6 @@
 ---
 name: rjsf-list
-description: List all RJSF form sessions with phase progress and active indicator
+description: List all RJSF form sessions with theme, field counts, and active indicator
 allowed-tools: [Read, Glob]
 ---
 
@@ -8,7 +8,7 @@ allowed-tools: [Read, Glob]
 
 **Trigger:** `/rjsf-list`
 
-Displays a formatted table of all form sessions under `.rjsf/sessions/`, highlighting the active session and showing phase progress for each.
+Displays a formatted table of all form sessions under `.rjsf/sessions/`, highlighting the active session and showing form stats for each.
 
 ---
 
@@ -36,59 +36,46 @@ Read `.rjsf/active-session` to determine which session is currently active. If t
 
 For each `session.json` found, read and extract:
 - `formName`
-- `currentPhase`
+- `rjsfTheme`
+- `stylingApproach`
 - `outputPath` (or "not set" if null)
-- Status of each phase (`phases["1"]` through `phases["5"]`)
+- `createdAt`
+- `lastModified`
+
+Also check if `{outputPath}/schema.ts` exists and count fields (properties in the schema).
 
 ---
 
 ## Step 4 — Display Table
 
-Render a formatted table with the following columns:
-
 ```
 RJSF Form Sessions
 ===================
 
-   Form Name                Current Phase            Output Path
-   ─────────                ─────────────            ───────────
- * UserRegistrationForm     Phase 4 — Execution      src/forms/UserRegistrationForm
-   PaymentForm              Phase 2 — Planning       not set
-   ContactForm              Phase 5 — Testing        src/forms/ContactForm
+     Form Name              Theme              Fields   Output Path
+     ─────────              ─────              ──────   ───────────
+  *  UserRegistrationForm   @rjsf/mui          8        src/forms/UserRegistrationForm
+     PaymentForm            @rjsf/core         3        src/forms/PaymentForm
+     ContactForm            @rjsf/chakra-ui    12       src/forms/ContactForm
 
-Phase Progress:
-
-  UserRegistrationForm:  ✅ 1  ✅ 1.5  ✅ 2  ✅ 2.5  ✅ 3  ⏳ 4  ⬜ 5
-  PaymentForm:           ✅ 1  ⏳ 1.5  ⬜ 2  ⬜ 2.5  ⬜ 3  ⬜ 4  ⬜ 5
-  ContactForm:           ✅ 1  ✅ 1.5  ✅ 2  ✅ 2.5  ✅ 3  ✅ 4  ✅ 5
+* = active session
 ```
 
 ### Formatting Rules
 
 - **Active indicator:** Prefix the active session row with `*`. All others get a space.
-- **Status icons:**
-  - `✅` for `completed`
-  - `⏳` for `in_progress` or `awaiting_client_approval`
-  - `⬜` for `pending`
-- **Phase name mapping:**
-  - `"1"` -> Requirements
-  - `"1.5"` -> Feature Suggestions
-  - `"2"` -> Planning
-  - `"2.5"` -> Technical Decisions
-  - `"3"` -> Prototype
-  - `"4"` -> Execution
-  - `"5"` -> Testing
-- If a phase key is missing from the session (legacy data), show `⬜` with no label.
+- **Fields:** Show the count of schema properties. Show `0` for empty/unscaffolded forms.
+- **Theme:** Show the short theme value (e.g., `@rjsf/mui`).
 
 ---
 
 ## Step 5 — Action Suggestions
 
-Always end with action suggestions based on the current state:
+Always end with action suggestions:
 
 > "Actions:
 > - `/rjsf-switch <FormName>` — switch to a different session
 > - `/rjsf-new <FormName>` — create a new form session
-> - `/rjsf-build` — continue the active session
-> - `/rjsf-status` — detailed status of the active session
+> - `/rjsf-status` — detailed stats for the active session
+> - `/rjsf-field list` — see fields in the active form
 > - `/rjsf-delete <FormName>` — archive and remove a session"

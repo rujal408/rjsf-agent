@@ -43,22 +43,12 @@ Read `.rjsf/sessions/<FormName>/session.json` and display a summary:
 
 > "You are about to delete the session for **<FormName>**:
 >
-> - Current phase: Phase <currentPhase> — <PhaseName> (<status>)
-> - Completed phases: <count> of 7
+> - Theme: <rjsfTheme>
 > - Output path: <outputPath or "not set">
 > - Session artifacts will be archived to `.rjsf/history/`
 > - Generated code at `<outputPath>` will NOT be deleted
 >
 > Type **yes** to confirm deletion, or anything else to cancel."
-
-Use the phase name mapping:
-- `"1"` -> Requirements
-- `"1.5"` -> Feature Suggestions
-- `"2"` -> Planning
-- `"2.5"` -> Technical Decisions
-- `"3"` -> Prototype
-- `"4"` -> Execution
-- `"5"` -> Testing
 
 **Wait for the user to respond.** If the response is not exactly `yes` (case-insensitive):
 
